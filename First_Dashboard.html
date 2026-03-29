@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SPLRT Fleet Operations Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=IBM+Plex+Sans+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 :root {
   --bg0: #05080f;
@@ -18,8 +19,8 @@
   --amber: #ffb020;
   --red: #ff3a5c;
   --blue: #4488ff;
-  --track-sk: #0f6b88;
-  --track-pg: #0f5e50;
+  --track-sk: #1a9ab8;
+  --track-pg: #1a9a80;
   --txt0: #c8dce8;
   --txt1: #6a8aa8;
   --txt2: #3a5570;
@@ -62,38 +63,79 @@ header{
 .map-panel{
   flex:1;position:relative;background:var(--bg0);overflow:hidden;
 }
-.map-grid{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(0,212,232,0.018) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(0,212,232,0.018) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;z-index:0;
+#map{
+  position:absolute;inset:0;z-index:1;
 }
-#mapCanvas{position:absolute;top:0;left:0;width:100%;height:100%;cursor:crosshair;z-index:1}
-.map-scanline{
-  position:absolute;inset:0;pointer-events:none;z-index:2;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.025) 3px,rgba(0,0,0,0.025) 4px);
+
+/* Leaflet dark theme overrides */
+.leaflet-control-zoom a{
+  background:var(--bg2) !important;color:var(--txt1) !important;
+  border-color:var(--border) !important;font-size:16px !important;
+  line-height:24px !important;
 }
+.leaflet-control-zoom a:hover{background:var(--bg3) !important;color:var(--txt0) !important}
+.leaflet-bar{border:1px solid var(--border) !important;box-shadow:none !important}
+.leaflet-control-attribution{
+  background:rgba(5,8,15,0.75) !important;color:var(--txt2) !important;
+  font-size:8px !important;font-family:var(--mono) !important;
+}
+.leaflet-control-attribution a{color:var(--txt1) !important}
+
+/* Station tooltip labels */
+.sta-label{
+  background:transparent !important;border:none !important;
+  box-shadow:none !important;padding:0 !important;
+  font-family:var(--mono) !important;font-size:8.5px !important;
+  color:#3a5570 !important;font-weight:400;white-space:nowrap;
+}
+.sta-label.hub-label{
+  color:#a0c4d8 !important;font-size:10px !important;
+  font-family:var(--sans) !important;font-weight:600 !important;
+}
+.leaflet-tooltip::before{display:none !important}
+
+/* Depot icon */
+.depot-icon{
+  background:rgba(24,46,69,0.7);border:1px solid var(--txt2);
+  padding:3px 7px;font-family:var(--sans);font-size:8px;font-weight:600;
+  color:var(--txt2);letter-spacing:0.1em;white-space:nowrap;
+  transform:translate(-50%,-50%);position:absolute;
+}
+
+/* Train dot markers */
+.train-dot{
+  border-radius:50%;cursor:pointer;
+  transform:translate(-50%,-50%);
+  transition:box-shadow .15s;
+}
+.train-dot.selected{
+  border:2px solid #fff !important;
+  box-shadow:0 0 18px currentColor !important;
+}
+
+/* Overlays sit above Leaflet tiles (z-index > 400) */
 .sys-label{
   position:absolute;font-family:var(--sans);font-size:11px;font-weight:700;
-  letter-spacing:0.18em;text-transform:uppercase;pointer-events:none;user-select:none;z-index:3;
+  letter-spacing:0.18em;text-transform:uppercase;pointer-events:none;
+  user-select:none;z-index:800;
 }
-#lbl-sk{top:12px;left:50px;color:var(--cyan);opacity:0.45}
-#lbl-pg{top:12px;right:60px;color:var(--green);opacity:0.45;text-align:right}
+#lbl-sk{top:12px;left:50px;color:var(--cyan);opacity:0.5}
+#lbl-pg{top:12px;right:60px;color:var(--green);opacity:0.5;text-align:right}
 .map-legend{
-  position:absolute;bottom:12px;left:12px;z-index:3;
-  background:rgba(5,8,15,0.88);border:1px solid var(--border);
+  position:absolute;bottom:12px;left:12px;z-index:800;
+  background:rgba(5,8,15,0.9);border:1px solid var(--border);
   padding:8px 12px;border-radius:3px;
 }
 .leg-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:9px;color:var(--txt1);letter-spacing:0.06em}
 .leg-row:last-child{margin-bottom:0}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.leg-line{width:20px;height:2px;flex-shrink:0;border-radius:1px}
+.leg-line{width:20px;height:3px;flex-shrink:0;border-radius:1px}
 .map-coords{
-  position:absolute;bottom:12px;right:12px;z-index:3;
+  position:absolute;bottom:12px;right:12px;z-index:800;
   font-size:9px;color:var(--txt2);letter-spacing:0.06em;
 }
 #tooltip{
-  position:absolute;z-index:10;pointer-events:none;display:none;
+  position:absolute;z-index:900;pointer-events:none;display:none;
   background:rgba(9,14,26,0.96);border:1px solid var(--cyan);
   padding:6px 10px;border-radius:3px;font-size:10px;white-space:nowrap;
 }
@@ -213,7 +255,6 @@ header{
 .as-item.w{color:var(--amber)}.as-item.c{color:var(--red)}.as-item.i{color:var(--txt1)}
 .as-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
 
-/* pulse animation */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 .pulsing{animation:pulse 1.4s ease-in-out infinite}
 </style>
@@ -261,9 +302,7 @@ header{
 <div class="main">
   <!-- MAP -->
   <div class="map-panel">
-    <div class="map-grid"></div>
-    <canvas id="mapCanvas"></canvas>
-    <div class="map-scanline"></div>
+    <div id="map"></div>
     <div class="sys-label" id="lbl-sk">SENGKANG LRT</div>
     <div class="sys-label" id="lbl-pg">PUNGGOL LRT</div>
     <div id="tooltip">
@@ -280,7 +319,7 @@ header{
       <div class="leg-row"><div class="leg-dot" style="background:var(--red)"></div>PM Overdue</div>
       <div class="leg-row"><div class="leg-dot" style="background:var(--txt2)"></div>In Depot</div>
     </div>
-    <div class="map-coords" id="mapcoords">Click a train to view details</div>
+    <div class="map-coords" id="mapcoords">Hover map for coordinates</div>
   </div>
 
   <!-- SIDE PANEL -->
@@ -310,7 +349,7 @@ header{
     <!-- Detail Tab -->
     <div class="tcontent" id="tc-detail">
       <div id="detailPanel">
-        <div class="det-nosel">← Select a train on the map<br>or from the fleet list<br><br>to view vehicle details,<br>mileage & PM schedule</div>
+        <div class="det-nosel">← Select a train on the map<br>or from the fleet list<br><br>to view vehicle details,<br>mileage &amp; PM schedule</div>
       </div>
     </div>
   </div>
@@ -322,6 +361,7 @@ header{
   <div class="as-ticker"><div class="as-inner" id="tickerInner"></div></div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // CLOCK
@@ -337,60 +377,60 @@ setInterval(updateClock, 1000);
 updateClock();
 
 // ═══════════════════════════════════════════════════════
-// TRACK DEFINITIONS — actual SPLRT station coordinates
+// STATION DEFINITIONS — real GPS coordinates (WGS84)
 // ═══════════════════════════════════════════════════════
-// Canvas logical size: 860 x 450
-// Sengkang hub ~ (230, 225)  Punggol hub ~ (640, 225)
-
 const STATIONS = {
   'SK-West': [
-    {name:'Sengkang',     x:230, y:225, hub:true},
-    {name:'Compass',      x:168, y:172},
-    {name:'Rumbia',       x:103, y:185},
-    {name:'Bakau',        x: 80, y:250},
-    {name:'Kangkar',      x:103, y:318},
-    {name:'Ranggung',     x:175, y:348},
+    {name:'Sengkang',      lat:1.39149, lng:103.89517, hub:true},
+    {name:'Cheng Lim',     lat:1.39641, lng:103.88582},
+    {name:'Farmway',       lat:1.39882, lng:103.87928},
+    {name:'Kupang',        lat:1.39628, lng:103.87480},
+    {name:'Thanggam',      lat:1.39185, lng:103.87380},
+    {name:'Fernvale',      lat:1.38745, lng:103.87540},
+    {name:'Layar',         lat:1.38382, lng:103.87992},
+    {name:'Tongkang',      lat:1.38375, lng:103.88598},
+    {name:'Renjong',       lat:1.38648, lng:103.89128},
   ],
   'SK-East': [
-    {name:'Sengkang',     x:230, y:225, hub:true},
-    {name:'Cheng Lim',    x:278, y:165},
-    {name:'Farmway',      x:348, y:150},
-    {name:'Buangkok',     x:408, y:182},
-    {name:'Damai',        x:415, y:268},
-    {name:'Rivervale',    x:352, y:316},
+    {name:'Sengkang',      lat:1.39149, lng:103.89517, hub:true},
+    {name:'Compassvale',   lat:1.39608, lng:103.90028},
+    {name:'Rumbia',        lat:1.39820, lng:103.90598},
+    {name:'Bakau',         lat:1.39618, lng:103.91118},
+    {name:'Kangkar',       lat:1.39238, lng:103.91178},
+    {name:'Ranggung',      lat:1.38928, lng:103.90848},
   ],
   'PG-West': [
-    {name:'Punggol',      x:640, y:225, hub:true},
-    {name:'Soo Teck',     x:588, y:168},
-    {name:'Sumang',       x:528, y:165},
-    {name:'Nibong',       x:487, y:208},
-    {name:'Samudera',     x:490, y:280},
-    {name:'Punggol Pt',   x:532, y:320},
-    {name:'Teck Lee',     x:590, y:335},
-    {name:'Sam Kee',      x:630, y:295},
+    {name:'Punggol',       lat:1.40528, lng:103.90218, hub:true},
+    {name:'Soo Teck',      lat:1.40198, lng:103.90218},
+    {name:'Sumang',        lat:1.39978, lng:103.89898},
+    {name:'Nibong',        lat:1.39848, lng:103.89518},
+    {name:'Samudera',      lat:1.39938, lng:103.89118},
+    {name:'Punggol Point', lat:1.40298, lng:103.88948},
+    {name:'Teck Lee',      lat:1.40628, lng:103.89178},
+    {name:'Sam Kee',       lat:1.40728, lng:103.89678},
   ],
   'PG-East': [
-    {name:'Punggol',      x:640, y:225, hub:true},
-    {name:'Cove',         x:692, y:168},
-    {name:'Meridian',     x:748, y:162},
-    {name:'Coral Edge',   x:798, y:198},
-    {name:'Riviera',      x:812, y:268},
-    {name:'Kadaloor',     x:785, y:322},
-    {name:'Oasis',        x:738, y:348},
-    {name:'Damai PG',     x:685, y:320},
+    {name:'Punggol',       lat:1.40528, lng:103.90218, hub:true},
+    {name:'Cove',          lat:1.40778, lng:103.90618},
+    {name:'Meridian',      lat:1.40818, lng:103.91048},
+    {name:'Coral Edge',    lat:1.40618, lng:103.91478},
+    {name:'Riviera',       lat:1.40258, lng:103.91518},
+    {name:'Kadaloor',      lat:1.39948, lng:103.91298},
+    {name:'Oasis',         lat:1.39798, lng:103.90878},
+    {name:'Damai',         lat:1.39928, lng:103.90478},
   ]
 };
 
-const DEPOT = {x:160, y:400, name:'MMB Depot'};
+const DEPOT = {lat:1.38350, lng:103.88580, name:'MMB Depot'};
 
 // ═══════════════════════════════════════════════════════
-// CATMULL-ROM SPLINE for smooth loop paths
+// CATMULL-ROM SPLINE — smooth loop paths in lat/lng space
 // ═══════════════════════════════════════════════════════
 function catmullRom(p0,p1,p2,p3,t){
-  const t2=t*t,t3=t2*t;
+  const t2=t*t, t3=t2*t;
   return {
-    x:.5*((2*p1.x)+(-p0.x+p2.x)*t+(2*p0.x-5*p1.x+4*p2.x-p3.x)*t2+(-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
-    y:.5*((2*p1.y)+(-p0.y+p2.y)*t+(2*p0.y-5*p1.y+4*p2.y-p3.y)*t2+(-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
+    lat:.5*((2*p1.lat)+(-p0.lat+p2.lat)*t+(2*p0.lat-5*p1.lat+4*p2.lat-p3.lat)*t2+(-p0.lat+3*p1.lat-3*p2.lat+p3.lat)*t3),
+    lng:.5*((2*p1.lng)+(-p0.lng+p2.lng)*t+(2*p0.lng-5*p1.lng+4*p2.lng-p3.lng)*t2+(-p0.lng+3*p1.lng-3*p2.lng+p3.lng)*t3)
   };
 }
 
@@ -421,55 +461,31 @@ const PM_LABELS = ['2K','13K','40K','120K','360K'];
 function makeFleet(){
   const fleet=[];
   const loops=['SK-West','SK-East','PG-West','PG-East'];
-  const loopNames={'SK-West':'SK West Loop','SK-East':'SK East Loop','PG-West':'PG West Loop','PG-East':'PG East Loop'};
   let idx=0;
 
-  // C810 — 20 trains (IDs 810-001 to 810-020)
   for(let i=1;i<=20;i++){
-    const mi = 80000 + Math.random()*280000;
-    const svc = Math.random()>.28;
-    const li = loops[idx%4]; idx++;
-    fleet.push({
-      id:`810-${String(i).padStart(3,'0')}`, type:'C810',
-      mileage:Math.floor(mi), status:svc?'in-service':'depot',
-      loop:svc?li:null, pos:Math.random(), speed:0.00032+Math.random()*0.00012,
-      serial:`SER${5000+i}`, year:2003+(i%3)
-    });
+    const mi=80000+Math.random()*280000, svc=Math.random()>.28, li=loops[idx%4]; idx++;
+    fleet.push({id:`810-${String(i).padStart(3,'0')}`,type:'C810',mileage:Math.floor(mi),
+      status:svc?'in-service':'depot',loop:svc?li:null,pos:Math.random(),
+      speed:0.00032+Math.random()*0.00012,serial:`SER${5000+i}`,year:2003+(i%3)});
   }
-  // C810A — 32 trains
   for(let i=1;i<=32;i++){
-    const mi = 20000+Math.random()*200000;
-    const svc = Math.random()>.22;
-    const li = loops[idx%4]; idx++;
-    fleet.push({
-      id:`810A-${String(i).padStart(3,'0')}`, type:'C810A',
-      mileage:Math.floor(mi), status:svc?'in-service':'depot',
-      loop:svc?li:null, pos:Math.random(), speed:0.00034+Math.random()*0.00012,
-      serial:`SER${6000+i}`, year:2008+(i%5)
-    });
+    const mi=20000+Math.random()*200000, svc=Math.random()>.22, li=loops[idx%4]; idx++;
+    fleet.push({id:`810A-${String(i).padStart(3,'0')}`,type:'C810A',mileage:Math.floor(mi),
+      status:svc?'in-service':'depot',loop:svc?li:null,pos:Math.random(),
+      speed:0.00034+Math.random()*0.00012,serial:`SER${6000+i}`,year:2008+(i%5)});
   }
-  // C810D — 7 trains
   for(let i=1;i<=7;i++){
-    const mi = 5000+Math.random()*100000;
-    const svc = Math.random()>.30;
-    const li = loops[idx%4]; idx++;
-    fleet.push({
-      id:`810D-${String(i).padStart(3,'0')}`, type:'C810D',
-      mileage:Math.floor(mi), status:svc?'in-service':'depot',
-      loop:svc?li:null, pos:Math.random(), speed:0.00038+Math.random()*0.00010,
-      serial:`SER${7000+i}`, year:2015+(i%4)
-    });
+    const mi=5000+Math.random()*100000, svc=Math.random()>.30, li=loops[idx%4]; idx++;
+    fleet.push({id:`810D-${String(i).padStart(3,'0')}`,type:'C810D',mileage:Math.floor(mi),
+      status:svc?'in-service':'depot',loop:svc?li:null,pos:Math.random(),
+      speed:0.00038+Math.random()*0.00010,serial:`SER${7000+i}`,year:2015+(i%4)});
   }
 
-  // Force some PM alerts for realism
-  fleet[2].mileage = 39800;   // near 40K
-  fleet[5].mileage = 119600;  // near 120K
-  fleet[9].mileage = 40100;   // just over 40K (overdue)
-  fleet[14].mileage = 13050;  // just over 13K
-  fleet[18].mileage = 1900;   // near 2K
-  fleet[22].mileage = 359500; // near 360K
-  fleet[28].mileage = 120200; // just over 120K
-  fleet[35].mileage = 39700;  // near 40K
+  // Force PM alert scenarios
+  fleet[2].mileage=39800; fleet[5].mileage=119600; fleet[9].mileage=40100;
+  fleet[14].mileage=13050; fleet[18].mileage=1900; fleet[22].mileage=359500;
+  fleet[28].mileage=120200; fleet[35].mileage=39700;
 
   return fleet;
 }
@@ -477,386 +493,258 @@ function makeFleet(){
 const fleet = makeFleet();
 
 function getPMStatus(mileage){
-  let nextName='', remaining=Infinity, status='ok', pct=0;
+  let nextName='',remaining=Infinity,status='ok',pct=0;
   for(let c=0;c<PM_CYCLES.length;c++){
-    const cycle=PM_CYCLES[c], pos=mileage%cycle, rem=cycle-pos;
-    const thresh=cycle*0.08; // within 8% = "soon"
-    if(pos>cycle-10){ // overdue (just crossed)
-      return{name:PM_LABELS[c]+' PM',remaining:-Math.abs(pos-(cycle)),status:'over',pct:100};
-    }
-    if(rem<remaining){ remaining=rem; nextName=PM_LABELS[c]+' PM'; pct=Math.round((pos/cycle)*100); }
-    if(rem<thresh && rem<remaining+1){
-      status='soon';
-    }
+    const cycle=PM_CYCLES[c],pos=mileage%cycle,rem=cycle-pos;
+    if(pos>cycle-10) return{name:PM_LABELS[c]+' PM',remaining:-(Math.abs(pos-cycle)),status:'over',pct:100};
+    if(rem<remaining){remaining=rem;nextName=PM_LABELS[c]+' PM';pct=Math.round((pos/cycle)*100);}
+    if(rem<cycle*0.08) status='soon';
   }
-  // check overdue: mileage slightly past a threshold
   for(let c=0;c<PM_CYCLES.length;c++){
     const pos=mileage%PM_CYCLES[c];
-    if(pos>0 && pos<PM_CYCLES[c]*0.02 && mileage>PM_CYCLES[c]){
+    if(pos>0&&pos<PM_CYCLES[c]*0.02&&mileage>PM_CYCLES[c])
       return{name:PM_LABELS[c]+' PM',remaining:-pos,status:'over',pct:100};
-    }
   }
   return{name:nextName,remaining,status,pct};
 }
 
 function getTrainColor(train){
   if(train.status==='depot'||train.status==='maintenance') return '#3a5570';
-  const pm = getPMStatus(train.mileage);
+  const pm=getPMStatus(train.mileage);
   if(pm.status==='over') return '#ff3a5c';
   if(pm.status==='soon') return '#ffb020';
   return '#00e888';
 }
 
 // ═══════════════════════════════════════════════════════
-// CANVAS SETUP
+// LEAFLET MAP INIT
 // ═══════════════════════════════════════════════════════
-const canvas = document.getElementById('mapCanvas');
-const ctx = canvas.getContext('2d');
-const LOGICAL_W = 870, LOGICAL_H = 450;
+const map = L.map('map', {
+  center: [1.3984, 103.8990],
+  zoom: 14,
+  zoomControl: true,
+  attributionControl: true
+});
 
-function resizeCanvas(){
-  const rect = canvas.parentElement.getBoundingClientRect();
-  const dpr = window.devicePixelRatio||1;
-  canvas.width = rect.width*dpr;
-  canvas.height = rect.height*dpr;
-  canvas.style.width = rect.width+'px';
-  canvas.style.height = rect.height+'px';
-}
-window.addEventListener('resize', ()=>{ resizeCanvas(); });
-resizeCanvas();
-
-function mapXY(lx,ly){
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = rect.width/LOGICAL_W;
-  const scaleY = rect.height/LOGICAL_H;
-  const s = Math.min(scaleX,scaleY);
-  const ox = (rect.width - LOGICAL_W*s)/2;
-  const oy = (rect.height - LOGICAL_H*s)/2;
-  return{x:lx*s+ox, y:ly*s+oy, s};
-}
-
-function toCanvas(lx,ly){
-  const dpr = window.devicePixelRatio||1;
-  const {x,y,s} = mapXY(lx,ly);
-  return{x:x*dpr,y:y*dpr,s:s*dpr};
-}
+// CartoDB Dark Matter — free, no API key, dark theme
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
 
 // ═══════════════════════════════════════════════════════
-// DRAWING
+// DRAW ROUTES (polylines)
 // ═══════════════════════════════════════════════════════
-function drawTrack(loopId, color, glow){
-  const pts = LOOPS[loopId];
-  const dpr = window.devicePixelRatio||1;
-  const {s,x:ox,y:oy} = mapXY(0,0);
+const LOOP_COLORS = {
+  'SK-West': '#1a9ab8',
+  'SK-East': '#1ab8d8',
+  'PG-West': '#1aaa88',
+  'PG-East': '#1ac8a0'
+};
 
-  ctx.save();
-  if(glow){
-    ctx.shadowColor=color; ctx.shadowBlur=8*dpr;
+function drawRoutes(){
+  for(const [loopId, pts] of Object.entries(LOOPS)){
+    const latlngs = pts.map(p => [p.lat, p.lng]);
+    latlngs.push(latlngs[0]); // close the loop
+    L.polyline(latlngs, {
+      color: LOOP_COLORS[loopId],
+      weight: 3.5,
+      opacity: 0.9,
+      smoothFactor: 0.5
+    }).addTo(map);
   }
-  ctx.beginPath();
-  const p0=toCanvas(pts[0].x,pts[0].y);
-  ctx.moveTo(p0.x,p0.y);
-  for(let i=1;i<pts.length;i++){
-    const p=toCanvas(pts[i].x,pts[i].y);
-    ctx.lineTo(p.x,p.y);
-  }
-  ctx.closePath();
-  ctx.strokeStyle=color;
-  ctx.lineWidth=3*dpr;
-  ctx.lineJoin='round';
-  ctx.stroke();
-  ctx.restore();
 }
 
-function drawStation(sta, loopId){
-  const dpr = window.devicePixelRatio||1;
-  const p = toCanvas(sta.x,sta.y);
-  const isHub = !!sta.hub;
-  const r = isHub ? 7*dpr : 4*dpr;
-  const color = loopId.startsWith('SK') ? '#00a8cc' : '#00b890';
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  if(isHub){
-    ctx.fillStyle=color;
-    ctx.shadowColor=color; ctx.shadowBlur=12*dpr;
-  } else {
-    ctx.fillStyle='#182e45';
-  }
-  ctx.fill();
-  ctx.strokeStyle=color;
-  ctx.lineWidth=1.5*dpr;
-  ctx.stroke();
-  ctx.restore();
-
-  // label
-  const p2 = {x:p.x,y:p.y};
-  const fontSize = isHub ? 10*dpr : 8.5*dpr;
-  ctx.save();
-  ctx.font=`${isHub?500:400} ${fontSize}px 'IBM Plex Sans Condensed',sans-serif`;
-  ctx.fillStyle=isHub?'#a0c4d8':'#3a5570';
-  ctx.textAlign='center';
-  const ly = sta.y < 230 ? p.y - (r+4*dpr) : p.y + (r+10*dpr);
-  ctx.fillText(sta.name, p.x, ly);
-  ctx.restore();
-}
-
-function drawDepot(){
-  const dpr = window.devicePixelRatio||1;
-  const p = toCanvas(DEPOT.x, DEPOT.y);
-  const w=55*dpr, h=22*dpr;
-  ctx.save();
-  ctx.strokeStyle='#3a5570'; ctx.lineWidth=1.5*dpr;
-  ctx.strokeRect(p.x-w/2, p.y-h/2, w, h);
-  ctx.fillStyle='rgba(24,46,69,0.6)';
-  ctx.fillRect(p.x-w/2,p.y-h/2,w,h);
-  ctx.font=`500 ${8.5*dpr}px 'IBM Plex Sans Condensed',sans-serif`;
-  ctx.fillStyle='#3a5570';
-  ctx.textAlign='center';
-  ctx.fillText('MMB DEPOT',p.x,p.y+3*dpr);
-  ctx.restore();
-
-  // depot connector line
-  const ranggung = STATIONS['SK-West'].find(s=>s.name==='Ranggung');
-  const rp = toCanvas(ranggung.x,ranggung.y);
-  ctx.save();
-  ctx.setLineDash([4*dpr,3*dpr]);
-  ctx.strokeStyle='#2a4055'; ctx.lineWidth=1.5*dpr;
-  ctx.beginPath(); ctx.moveTo(rp.x,rp.y); ctx.lineTo(p.x,p.y-h/2); ctx.stroke();
-  ctx.restore();
-}
-
-function getTrainPos(train){
-  if(!train.loop||!LOOPS[train.loop]) return null;
-  const pts=LOOPS[train.loop];
-  const idx=Math.floor(train.pos*pts.length)%pts.length;
-  return pts[idx];
-}
-
-let selectedTrain = null;
-let hoveredTrain = null;
-
-function drawTrains(){
-  const dpr = window.devicePixelRatio||1;
-  const now = Date.now();
-
-  fleet.forEach((train,i)=>{
-    if(train.status!=='in-service'||!train.loop) return;
-    const lp = getTrainPos(train);
-    if(!lp) return;
-    const p = toCanvas(lp.x,lp.y);
-    const color = getTrainColor(train);
-    const isSel = selectedTrain&&selectedTrain.id===train.id;
-    const isHov = hoveredTrain&&hoveredTrain.id===train.id;
-    const r = isSel ? 8*dpr : isHov ? 7*dpr : 5.5*dpr;
-
-    ctx.save();
-    if(isSel){
-      ctx.shadowColor=color; ctx.shadowBlur=20*dpr;
-    } else if(color==='#00e888'){
-      ctx.shadowColor=color; ctx.shadowBlur=8*dpr;
-    }
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,r,0,Math.PI*2);
-    ctx.fillStyle=color;
-    ctx.fill();
-    if(isSel){
-      ctx.strokeStyle='#ffffff'; ctx.lineWidth=2*dpr; ctx.stroke();
-    }
-    ctx.restore();
-
-    // direction indicator
-    const nextIdx=(Math.floor(train.pos*LOOPS[train.loop].length)+3)%LOOPS[train.loop].length;
-    const np=toCanvas(LOOPS[train.loop][nextIdx].x,LOOPS[train.loop][nextIdx].y);
-    const ang=Math.atan2(np.y-p.y,np.x-p.x);
-    const tr=r+4*dpr;
-    ctx.save();
-    ctx.fillStyle=color; ctx.globalAlpha=0.5;
-    ctx.beginPath();
-    ctx.moveTo(p.x+Math.cos(ang)*tr,p.y+Math.sin(ang)*tr);
-    ctx.lineTo(p.x+Math.cos(ang+2.5)*(tr-3*dpr),p.y+Math.sin(ang+2.5)*(tr-3*dpr));
-    ctx.lineTo(p.x+Math.cos(ang-2.5)*(tr-3*dpr),p.y+Math.sin(ang-2.5)*(tr-3*dpr));
-    ctx.closePath(); ctx.fill();
-    ctx.restore();
-
-    // ID label if selected
-    if(isSel){
-      ctx.save();
-      ctx.font=`600 ${9.5*dpr}px 'IBM Plex Mono',monospace`;
-      ctx.fillStyle='#ffffff';
-      ctx.textAlign='center';
-      ctx.fillText(train.id, p.x, p.y - r - 5*dpr);
-      ctx.restore();
-    }
-  });
-}
-
-// Depot trains (small icons)
-function drawDepotTrains(){
-  const dpr=window.devicePixelRatio||1;
-  const dp=toCanvas(DEPOT.x,DEPOT.y);
-  const depotTrains=fleet.filter(t=>t.status==='depot');
-  // just show count
-  ctx.save();
-  ctx.font=`600 ${9*dpr}px 'IBM Plex Mono',monospace`;
-  ctx.fillStyle='#3a5570';
-  ctx.textAlign='center';
-  ctx.fillText(`${depotTrains.length} in depot`,dp.x,dp.y+18*dpr);
-  ctx.restore();
-}
-
-function render(){
-  const dpr=window.devicePixelRatio||1;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // Draw tracks
-  drawTrack('SK-West','#0f6b88',false);
-  drawTrack('SK-East','#0f7a9a',false);
-  drawTrack('PG-West','#0f5e50',false);
-  drawTrack('PG-East','#0f7060',false);
-
-  // Draw stations
-  const drawnHubs=new Set();
-  for(const [loopId,stas] of Object.entries(STATIONS)){
-    stas.forEach(s=>{
-      if(s.hub){
-        if(!drawnHubs.has(s.name)){ drawStation(s,loopId); drawnHubs.add(s.name); }
+// ═══════════════════════════════════════════════════════
+// DRAW STATIONS (circle markers with permanent labels)
+// ═══════════════════════════════════════════════════════
+function drawStations(){
+  const drawnHubs = new Set();
+  for(const [loopId, stas] of Object.entries(STATIONS)){
+    const color = loopId.startsWith('SK') ? '#00a8cc' : '#00b890';
+    stas.forEach(sta => {
+      if(sta.hub){
+        if(drawnHubs.has(sta.name)) return;
+        drawnHubs.add(sta.name);
+        L.circleMarker([sta.lat, sta.lng], {
+          radius:8, fillColor:color, color:color,
+          weight:2, fillOpacity:1,
+          interactive:false
+        })
+        .bindTooltip(sta.name, {
+          permanent:true, direction:'top', offset:[0,-10],
+          className:'sta-label hub-label'
+        }).addTo(map);
       } else {
-        drawStation(s,loopId);
+        L.circleMarker([sta.lat, sta.lng], {
+          radius:4, fillColor:'#111d2e', color:color,
+          weight:1.5, fillOpacity:1,
+          interactive:false
+        })
+        .bindTooltip(sta.name, {
+          permanent:false, direction:'top', offset:[0,-6],
+          className:'sta-label'
+        }).addTo(map);
       }
     });
   }
+}
 
-  drawDepot();
-  drawDepotTrains();
-  drawTrains();
+// ═══════════════════════════════════════════════════════
+// DRAW DEPOT
+// ═══════════════════════════════════════════════════════
+function drawDepot(){
+  L.marker([DEPOT.lat, DEPOT.lng], {
+    icon: L.divIcon({
+      html: '<div class="depot-icon">MMB DEPOT</div>',
+      className:'', iconSize:[0,0], iconAnchor:[0,0]
+    }),
+    interactive: false
+  }).addTo(map);
 
-  // Update mileage for selected train
-  if(selectedTrain){
-    const t=fleet.find(f=>f.id===selectedTrain.id);
-    if(t) updateDetailPanel(t);
+  const ranggung = STATIONS['SK-West'].find(s => s.name === 'Renjong');
+  if(ranggung){
+    L.polyline([[DEPOT.lat, DEPOT.lng],[ranggung.lat, ranggung.lng]], {
+      color:'#2a4055', weight:1.5, dashArray:'5 4', opacity:0.7
+    }).addTo(map);
   }
 }
+
+// ═══════════════════════════════════════════════════════
+// TRAIN MARKERS
+// ═══════════════════════════════════════════════════════
+let selectedTrain = null;
+
+function getTrainPt(train){
+  if(!train.loop||!LOOPS[train.loop]) return null;
+  const pts = LOOPS[train.loop];
+  return pts[Math.floor(train.pos * pts.length) % pts.length];
+}
+
+function initTrainMarkers(){
+  fleet.forEach(train => {
+    if(train.status !== 'in-service' || !train.loop) return;
+    const pt = getTrainPt(train);
+    if(!pt) return;
+
+    const el = document.createElement('div');
+    el.className = 'train-dot';
+    const color = getTrainColor(train);
+    el.style.cssText = `width:11px;height:11px;background:${color};box-shadow:0 0 7px ${color}`;
+
+    train._el = el;
+    train.marker = L.marker([pt.lat, pt.lng], {
+      icon: L.divIcon({html:el, className:'', iconSize:[0,0], iconAnchor:[0,0]}),
+      zIndexOffset: 300,
+      interactive: true
+    }).addTo(map);
+
+    train.marker.on('click', () => selectTrainById(train.id));
+    train.marker.on('mouseover', () => showTrainTooltip(train));
+    train.marker.on('mouseout', hideTrainTooltip);
+  });
+}
+
+const tooltip = document.getElementById('tooltip');
+
+function showTrainTooltip(train){
+  const pt = getTrainPt(train);
+  if(!pt) return;
+  const pm = getPMStatus(train.mileage);
+  document.getElementById('tt-id').textContent = train.id;
+  document.getElementById('tt-type').textContent = train.type;
+  document.getElementById('tt-mi').textContent = `${Math.floor(train.mileage).toLocaleString()} km`;
+  document.getElementById('tt-loop').textContent = train.loop +
+    (pm.status !== 'ok' ? ` · ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}` : '');
+  const cp = map.latLngToContainerPoint([pt.lat, pt.lng]);
+  tooltip.style.display = 'block';
+  tooltip.style.left = (cp.x + 14) + 'px';
+  tooltip.style.top  = (cp.y - 10) + 'px';
+}
+
+function hideTrainTooltip(){
+  tooltip.style.display = 'none';
+}
+
+// Deselect on bare map click
+map.on('click', () => {
+  if(selectedTrain){
+    const prev = fleet.find(f => f.id === selectedTrain.id);
+    if(prev && prev._el){
+      prev._el.classList.remove('selected');
+      const c = getTrainColor(prev);
+      prev._el.style.boxShadow = `0 0 7px ${c}`;
+    }
+    selectedTrain = null;
+    updateFleetList();
+  }
+});
+
+map.on('mousemove', e => {
+  document.getElementById('mapcoords').textContent =
+    `${e.latlng.lat.toFixed(4)}°N  ${e.latlng.lng.toFixed(4)}°E`;
+});
 
 // ═══════════════════════════════════════════════════════
 // ANIMATION LOOP
 // ═══════════════════════════════════════════════════════
-let simTime=0;
 function animate(){
-  simTime++;
-  fleet.forEach(train=>{
-    if(train.status!=='in-service'||!train.loop) return;
-    train.pos=(train.pos+train.speed)%1;
-    // accumulate mileage: 1 loop ≈ 5.5km. at 360pts, each step ≈ 5500/360 ≈ 15m
-    // speed per frame, multiply by real distance
-    const loopLen = train.loop.includes('West')?4800:5300; // approx metres
-    train.mileage += train.speed * loopLen / 1000; // km increment
+  fleet.forEach(train => {
+    if(train.status !== 'in-service' || !train.loop) return;
+    train.pos = (train.pos + train.speed) % 1;
+    const loopLen = train.loop.includes('West') ? 4800 : 5300;
+    train.mileage += train.speed * loopLen / 1000;
+
+    if(train.marker){
+      const pt = getTrainPt(train);
+      if(pt) train.marker.setLatLng([pt.lat, pt.lng]);
+
+      if(train._el){
+        const color = getTrainColor(train);
+        train._el.style.background = color;
+        const isSel = selectedTrain && selectedTrain.id === train.id;
+        train._el.style.boxShadow = `0 0 ${isSel ? 20 : color==='#00e888' ? 7 : 5}px ${color}`;
+      }
+    }
   });
 
-  render();
   updateHeaderStats();
+  if(selectedTrain){
+    const t = fleet.find(f => f.id === selectedTrain.id);
+    if(t) updateDetailPanel(t);
+  }
+
   requestAnimationFrame(animate);
 }
 
 // ═══════════════════════════════════════════════════════
-// INTERACTION
-// ═══════════════════════════════════════════════════════
-function getCanvasLogical(e){
-  const rect=canvas.getBoundingClientRect();
-  const cx=e.clientX-rect.left, cy=e.clientY-rect.top;
-  const scaleX=rect.width/LOGICAL_W, scaleY=rect.height/LOGICAL_H;
-  const s=Math.min(scaleX,scaleY);
-  const ox=(rect.width-LOGICAL_W*s)/2, oy=(rect.height-LOGICAL_H*s)/2;
-  return{lx:(cx-ox)/s, ly:(cy-oy)/s};
-}
-
-function findTrainAt(lx,ly,radius=14){
-  let best=null, bestD=radius;
-  fleet.forEach(train=>{
-    if(train.status!=='in-service'||!train.loop) return;
-    const lp=getTrainPos(train);
-    if(!lp) return;
-    const d=Math.hypot(lp.x-lx,lp.y-ly);
-    if(d<bestD){ bestD=d; best=train; }
-  });
-  return best;
-}
-
-const tooltip=document.getElementById('tooltip');
-canvas.addEventListener('mousemove',e=>{
-  const {lx,ly}=getCanvasLogical(e);
-  const t=findTrainAt(lx,ly,16);
-  hoveredTrain=t;
-  if(t){
-    const lp=getTrainPos(t);
-    const rect=canvas.getBoundingClientRect();
-    const {x,y,s}=mapXY(lp.x,lp.y);
-    const pm=getPMStatus(t.mileage);
-    tooltip.style.display='block';
-    tooltip.style.left=(x+12)+'px';
-    tooltip.style.top=(y-10)+'px';
-    document.getElementById('tt-id').textContent=t.id;
-    document.getElementById('tt-type').textContent=t.type;
-    document.getElementById('tt-mi').textContent=`${Math.floor(t.mileage).toLocaleString()} km`;
-    document.getElementById('tt-loop').textContent=t.loop+(pm.status!=='ok'?` · ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}`:'');
-    canvas.style.cursor='pointer';
-  } else {
-    tooltip.style.display='none';
-    canvas.style.cursor='crosshair';
-  }
-  document.getElementById('mapcoords').textContent=`LX ${Math.round(lx)} LY ${Math.round(ly)}`;
-});
-
-canvas.addEventListener('mouseleave',()=>{
-  hoveredTrain=null;
-  tooltip.style.display='none';
-});
-
-canvas.addEventListener('click',e=>{
-  const {lx,ly}=getCanvasLogical(e);
-  const t=findTrainAt(lx,ly,18);
-  if(t){
-    selectedTrain=t;
-    updateDetailPanel(t);
-    switchTab('detail');
-    updateFleetList();
-  } else {
-    selectedTrain=null;
-    updateFleetList();
-  }
-});
-
-// ═══════════════════════════════════════════════════════
 // SIDE PANEL
 // ═══════════════════════════════════════════════════════
-let currentFilter='all';
+let currentFilter = 'all';
 
-function setFilter(f,btn){
-  currentFilter=f;
-  document.querySelectorAll('.flt-btn').forEach(b=>b.classList.remove('active'));
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.flt-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   updateFleetList();
 }
 
 function updateFleetList(){
-  const list=document.getElementById('fleetList');
-  const loopShort={'SK-West':'SKW','SK-East':'SKE','PG-West':'PGW','PG-East':'PGE'};
-  let trains=fleet;
-  if(currentFilter==='in-service') trains=fleet.filter(t=>t.status==='in-service');
-  else if(currentFilter==='depot') trains=fleet.filter(t=>t.status!=='in-service');
-  else if(currentFilter==='pm-alert'){
-    trains=fleet.filter(t=>{
-      const pm=getPMStatus(t.mileage);
-      return pm.status==='over'||pm.status==='soon';
-    });
-  }
+  const list = document.getElementById('fleetList');
+  const loopShort = {'SK-West':'SKW','SK-East':'SKE','PG-West':'PGW','PG-East':'PGE'};
+  let trains = fleet;
+  if(currentFilter==='in-service') trains = fleet.filter(t => t.status==='in-service');
+  else if(currentFilter==='depot')  trains = fleet.filter(t => t.status!=='in-service');
+  else if(currentFilter==='pm-alert') trains = fleet.filter(t => {
+    const pm = getPMStatus(t.mileage);
+    return pm.status==='over'||pm.status==='soon';
+  });
 
-  list.innerHTML=trains.map(t=>{
-    const color=getTrainColor(t);
-    const isSel=selectedTrain&&selectedTrain.id===t.id;
-    const pm=getPMStatus(t.mileage);
-    const loopLabel=t.loop?loopShort[t.loop]||t.loop:'Depot';
+  list.innerHTML = trains.map(t => {
+    const color = getTrainColor(t);
+    const isSel = selectedTrain && selectedTrain.id === t.id;
+    const loopLabel = t.loop ? loopShort[t.loop]||t.loop : 'Depot';
     return `<div class="fi ${isSel?'selected':''}" onclick="selectTrainById('${t.id}')">
       <div class="fi-dot" style="background:${color};${color==='#00e888'?'box-shadow:0 0 5px '+color:''}"></div>
       <div class="fi-id">${t.id}</div>
@@ -868,42 +756,61 @@ function updateFleetList(){
 }
 
 function selectTrainById(id){
-  const t=fleet.find(f=>f.id===id);
-  if(t){ selectedTrain=t; updateDetailPanel(t); switchTab('detail'); updateFleetList(); }
+  // Deselect previous
+  if(selectedTrain){
+    const prev = fleet.find(f => f.id === selectedTrain.id);
+    if(prev && prev._el) prev._el.classList.remove('selected');
+  }
+  const t = fleet.find(f => f.id === id);
+  if(!t) return;
+  selectedTrain = t;
+  if(t._el) t._el.classList.add('selected');
+
+  // Pan map to train
+  const pt = getTrainPt(t);
+  if(pt) map.panTo([pt.lat, pt.lng], {animate:true, duration:0.5});
+
+  updateDetailPanel(t);
+  switchTab('detail');
+  updateFleetList();
 }
 
 function updateDetailPanel(t){
-  const pm=getPMStatus(t.mileage);
-  const loopNames={'SK-West':'Sengkang West Loop','SK-East':'Sengkang East Loop','PG-West':'Punggol West Loop','PG-East':'Punggol East Loop'};
-  const statusClass={'in-service':'sb-svc','depot':'sb-dep','maintenance':'sb-mnt','withdrawn':'sb-wth'};
-  const statusLabel={'in-service':'In Service','depot':'In Depot','maintenance':'Maintenance','withdrawn':'Withdrawn'};
+  const pm = getPMStatus(t.mileage);
+  const loopNames = {
+    'SK-West':'Sengkang West Loop','SK-East':'Sengkang East Loop',
+    'PG-West':'Punggol West Loop','PG-East':'Punggol East Loop'
+  };
+  const statusClass = {'in-service':'sb-svc','depot':'sb-dep','maintenance':'sb-mnt','withdrawn':'sb-wth'};
+  const statusLabel = {'in-service':'In Service','depot':'In Depot','maintenance':'Maintenance','withdrawn':'Withdrawn'};
 
-  // Find nearby station
-  let nearStation='—';
-  if(t.loop&&t.status==='in-service'){
-    const lp=getTrainPos(t);
-    if(lp){
-      const stas=STATIONS[t.loop];
-      let minD=9999, minS='—';
-      stas.forEach(s=>{ const d=Math.hypot(s.x-lp.x,s.y-lp.y); if(d<minD){minD=d;minS=s.name;} });
-      nearStation=minS;
+  // Nearest station (Euclidean in lat/lng — fine for small distances)
+  let nearStation = '—';
+  if(t.loop && t.status==='in-service'){
+    const pt = getTrainPt(t);
+    if(pt){
+      const stas = STATIONS[t.loop];
+      let minD = Infinity, minS = '—';
+      stas.forEach(s => {
+        const d = Math.hypot(s.lat - pt.lat, s.lng - pt.lng);
+        if(d < minD){ minD = d; minS = s.name; }
+      });
+      nearStation = minS;
     }
   }
 
-  const pmData=PM_CYCLES.map((c,i)=>{
-    const pos=t.mileage%c;
-    const rem=c-pos;
-    const overdue=pos>0&&pos<c*0.02&&t.mileage>c;
-    const soon=rem<c*0.08;
-    let s=overdue?'over':soon?'soon':'ok';
-    let remTxt=overdue?`OVERDUE +${Math.floor(pos).toLocaleString()}km`
-      :soon?`${Math.floor(rem).toLocaleString()} km`
-      :`${Math.floor(rem).toLocaleString()} km`;
-    const pct=Math.min(100,Math.floor((pos/c)*100));
-    return{label:PM_LABELS[i],interval:c.toLocaleString()+' km',pct,s,remTxt};
+  const pmData = PM_CYCLES.map((c,i) => {
+    const pos = t.mileage % c, rem = c - pos;
+    const overdue = pos>0 && pos<c*0.02 && t.mileage>c;
+    const soon = rem < c * 0.08;
+    const s = overdue?'over':soon?'soon':'ok';
+    const remTxt = overdue ? `OVERDUE +${Math.floor(pos).toLocaleString()}km`
+      : `${Math.floor(rem).toLocaleString()} km`;
+    const pct = Math.min(100, Math.floor((pos/c)*100));
+    return{label:PM_LABELS[i], interval:c.toLocaleString()+' km', pct, s, remTxt};
   });
 
-  document.getElementById('detailPanel').innerHTML=`
+  document.getElementById('detailPanel').innerHTML = `
     <div class="det">
       <div class="det-header">
         <div class="det-badge">
@@ -911,7 +818,7 @@ function updateDetailPanel(t){
           <div class="det-badge-type">${t.type}</div>
         </div>
         <div class="det-info">
-          <div class="drow"><span class="dlbl">Status</span><span class="sbadge ${statusClass[t.status]}">${statusLabel[t.status]}</span></div>
+          <div class="drow"><span class="dlbl">Status</span><span class="sbadge ${statusClass[t.status]||'sb-dep'}">${statusLabel[t.status]||t.status}</span></div>
           <div class="drow"><span class="dlbl">Serial</span><span class="dval">${t.serial}</span></div>
           <div class="drow"><span class="dlbl">Year</span><span class="dval">${t.year}</span></div>
           <div class="drow"><span class="dlbl">Deploy</span><span class="dval" style="font-size:9px">${t.loop?loopNames[t.loop]:'In Depot'}</span></div>
@@ -935,49 +842,43 @@ function updateDetailPanel(t){
           <div class="pm-track"><div class="pm-fill ${p.s}" style="width:${p.pct}%"></div></div>
         </div>
       `).join('')}
-    </div>
-  `;
+    </div>`;
 }
 
 function updateAlertsPanel(){
-  const alerts=[];
-  fleet.forEach(t=>{
-    const pm=getPMStatus(t.mileage);
+  const alerts = [];
+  fleet.forEach(t => {
+    const pm = getPMStatus(t.mileage);
     if(pm.status==='over') alerts.push({type:'crit',title:`${t.id} — ${pm.name} OVERDUE`,body:`${t.type} · ${Math.floor(t.mileage).toLocaleString()} km · ${t.loop||'Depot'}`,time:'Trigger now'});
     else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${Math.floor(pm.remaining).toLocaleString()} km remaining · ${t.loop||'Depot'}`,time:'Schedule PM'});
   });
-
-  // System alerts
   alerts.push({type:'info',title:'Check-in 1 reminder',body:'Online session scheduled 8–12 Jun 2026. Prepare progress slides.',time:'Upcoming'});
   alerts.push({type:'info',title:'Stock change protocol active',body:'Automated PV re-assignment on train withdrawal is live.',time:'System'});
 
-  const panel=document.getElementById('alertsPanel');
-  panel.innerHTML=`<div style="padding:8px 0">` +
-    alerts.map(a=>`<div class="alert-card ${a.type}"><div class="ac-title">${a.title}</div><div class="ac-body">${a.body}</div><div class="ac-time">${a.time}</div></div>`).join('')+
+  document.getElementById('alertsPanel').innerHTML = `<div style="padding:8px 0">` +
+    alerts.map(a=>`<div class="alert-card ${a.type}"><div class="ac-title">${a.title}</div><div class="ac-body">${a.body}</div><div class="ac-time">${a.time}</div></div>`).join('') +
     `</div>`;
-
-  // Update badge
-  document.getElementById('tab-alerts').textContent=`Alerts (${alerts.filter(a=>a.type!=='info').length})`;
+  document.getElementById('tab-alerts').textContent = `Alerts (${alerts.filter(a=>a.type!=='info').length})`;
 }
 
 function updateHeaderStats(){
-  const inSvc=fleet.filter(t=>t.status==='in-service').length;
-  const inDep=fleet.filter(t=>t.status!=='in-service').length;
-  const over=fleet.filter(t=>getPMStatus(t.mileage).status==='over').length;
-  const soon=fleet.filter(t=>getPMStatus(t.mileage).status==='soon').length;
-  document.getElementById('h-svc').textContent=inSvc;
-  document.getElementById('h-dep').textContent=inDep;
-  document.getElementById('h-over').textContent=over;
-  document.getElementById('h-soon').textContent=soon;
+  const inSvc  = fleet.filter(t=>t.status==='in-service').length;
+  const inDep  = fleet.filter(t=>t.status!=='in-service').length;
+  const over   = fleet.filter(t=>getPMStatus(t.mileage).status==='over').length;
+  const soon   = fleet.filter(t=>getPMStatus(t.mileage).status==='soon').length;
+  document.getElementById('h-svc').textContent  = inSvc;
+  document.getElementById('h-dep').textContent  = inDep;
+  document.getElementById('h-over').textContent = over;
+  document.getElementById('h-soon').textContent = soon;
 }
 
 // ═══════════════════════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════════════════════
 function switchTab(id){
-  ['fleet','alerts','detail'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('active',t===id);
-    document.getElementById('tc-'+t).classList.toggle('active',t===id);
+  ['fleet','alerts','detail'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===id);
+    document.getElementById('tc-'+t).classList.toggle('active', t===id);
   });
   if(id==='alerts') updateAlertsPanel();
 }
@@ -986,25 +887,29 @@ function switchTab(id){
 // TICKER
 // ═══════════════════════════════════════════════════════
 function buildTicker(){
-  const alerts=fleet.filter(t=>getPMStatus(t.mileage).status!=='ok').slice(0,12);
-  const base=[
-    `<span class="as-item i"><span class="as-dot"></span>System online — SPLRT Fleet OPS v1.0</span>`,
+  const alerts = fleet.filter(t=>getPMStatus(t.mileage).status!=='ok').slice(0,12);
+  const base = [
+    `<span class="as-item i"><span class="as-dot"></span>System online — SPLRT Fleet OPS v2.0 · Live map active</span>`,
     `<span class="as-item i"><span class="as-dot"></span>${fleet.filter(t=>t.status==='in-service').length} trains in revenue service</span>`,
-    ...alerts.map(t=>{
-      const pm=getPMStatus(t.mileage);
-      const cls=pm.status==='over'?'c':'w';
+    ...alerts.map(t => {
+      const pm = getPMStatus(t.mileage);
+      const cls = pm.status==='over'?'c':'w';
       return `<span class="as-item ${cls}"><span class="as-dot"></span>${t.id}: ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}</span>`;
     }),
     `<span class="as-item i"><span class="as-dot"></span>Revenue hours: 0500–0100 · Peak headway: 3 min · Off-peak: 8 min</span>`,
     `<span class="as-item i"><span class="as-dot"></span>MMB Depot — ${fleet.filter(t=>t.status==='depot').length} vehicles stabled</span>`,
   ];
-  const inner=document.getElementById('tickerInner');
-  inner.innerHTML=[...base,...base].join('');
+  const inner = document.getElementById('tickerInner');
+  inner.innerHTML = [...base,...base].join('');
 }
 
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
+drawRoutes();
+drawStations();
+drawDepot();
+initTrainMarkers();
 updateFleetList();
 updateHeaderStats();
 buildTicker();

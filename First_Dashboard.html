@@ -467,19 +467,19 @@ function makeFleet(){
     const mi=80000+Math.random()*280000, svc=Math.random()>.28, li=loops[idx%4]; idx++;
     fleet.push({id:`810-${String(i).padStart(3,'0')}`,type:'C810',mileage:Math.floor(mi),
       status:svc?'in-service':'depot',loop:svc?li:null,pos:Math.random(),
-      speed:0.00032+Math.random()*0.00012,serial:`SER${5000+i}`,year:2003+(i%3)});
+      speed:0.00032+Math.random()*0.00012,dir:i%2===0?1:-1,serial:`SER${5000+i}`,year:2003+(i%3)});
   }
   for(let i=1;i<=32;i++){
     const mi=20000+Math.random()*200000, svc=Math.random()>.22, li=loops[idx%4]; idx++;
     fleet.push({id:`810A-${String(i).padStart(3,'0')}`,type:'C810A',mileage:Math.floor(mi),
       status:svc?'in-service':'depot',loop:svc?li:null,pos:Math.random(),
-      speed:0.00034+Math.random()*0.00012,serial:`SER${6000+i}`,year:2008+(i%5)});
+      speed:0.00034+Math.random()*0.00012,dir:i%2===0?1:-1,serial:`SER${6000+i}`,year:2008+(i%5)});
   }
   for(let i=1;i<=7;i++){
     const mi=5000+Math.random()*100000, svc=Math.random()>.30, li=loops[idx%4]; idx++;
     fleet.push({id:`810D-${String(i).padStart(3,'0')}`,type:'C810D',mileage:Math.floor(mi),
       status:svc?'in-service':'depot',loop:svc?li:null,pos:Math.random(),
-      speed:0.00038+Math.random()*0.00010,serial:`SER${7000+i}`,year:2015+(i%4)});
+      speed:0.00038+Math.random()*0.00010,dir:i%2===0?1:-1,serial:`SER${7000+i}`,year:2015+(i%4)});
   }
 
   // Force PM alert scenarios
@@ -692,7 +692,7 @@ map.on('mousemove', e => {
 function animate(){
   fleet.forEach(train => {
     if(train.status !== 'in-service' || !train.loop) return;
-    train.pos = (train.pos + train.speed) % 1;
+    train.pos = ((train.pos + train.speed * train.dir) % 1 + 1) % 1;
     const loopLen = train.loop.includes('West') ? 4800 : 5300;
     train.mileage += train.speed * loopLen / 1000;
 

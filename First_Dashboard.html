@@ -107,10 +107,22 @@ header{
   border-radius:50%;cursor:pointer;
   transform:translate(-50%,-50%);
   transition:box-shadow .15s;
+  position:relative;
 }
 .train-dot.selected{
   border:2px solid #fff !important;
   box-shadow:0 0 18px currentColor !important;
+}
+/* Direction arrow — points "up" (north) at 0deg, rotated to heading in JS */
+.train-arrow{
+  position:absolute;
+  top:-6px;left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:3px solid transparent;
+  border-right:3px solid transparent;
+  border-bottom:6px solid #00e888; /* color overridden in JS */
+  pointer-events:none;
 }
 
 /* Overlays sit above Leaflet tiles (z-index > 400) */
@@ -381,47 +393,47 @@ updateClock();
 // ═══════════════════════════════════════════════════════
 const STATIONS = {
   'SK-West': [
-    {name:'Sengkang',      lat:1.39149, lng:103.89517, hub:true},
-    {name:'Cheng Lim',     lat:1.39641, lng:103.88582},
-    {name:'Farmway',       lat:1.39882, lng:103.87928},
-    {name:'Kupang',        lat:1.39628, lng:103.87480},
-    {name:'Thanggam',      lat:1.39185, lng:103.87380},
-    {name:'Fernvale',      lat:1.38745, lng:103.87540},
-    {name:'Layar',         lat:1.38382, lng:103.87992},
-    {name:'Tongkang',      lat:1.38375, lng:103.88598},
-    {name:'Renjong',       lat:1.38648, lng:103.89128},
+    {name:'Sengkang',      lat:1.39128, lng:103.89521, hub:true},
+    {name:'Cheng Lim',     lat:1.39633, lng:103.89381},
+    {name:'Farmway',       lat:1.39725, lng:103.88895},
+    {name:'Kupang',        lat:1.39818, lng:103.88130},
+    {name:'Thanggam',      lat:1.39290, lng:103.87150},
+    {name:'Fernvale',      lat:1.39191, lng:103.87627},
+    {name:'Layar',         lat:1.38970, lng:103.87450},
+    {name:'Tongkang',      lat:1.38800, lng:103.88480},
+    {name:'Renjong',       lat:1.38530, lng:103.88760},
   ],
   'SK-East': [
-    {name:'Sengkang',      lat:1.39149, lng:103.89517, hub:true},
-    {name:'Compassvale',   lat:1.39608, lng:103.90028},
-    {name:'Rumbia',        lat:1.39820, lng:103.90598},
-    {name:'Bakau',         lat:1.39618, lng:103.91118},
-    {name:'Kangkar',       lat:1.39238, lng:103.91178},
-    {name:'Ranggung',      lat:1.38928, lng:103.90848},
+    {name:'Sengkang',      lat:1.39128, lng:103.89521, hub:true},
+    {name:'Compassvale',   lat:1.39461, lng:103.90015},
+    {name:'Rumbia',        lat:1.39111, lng:103.90628},
+    {name:'Bakau',         lat:1.38784, lng:103.90527},
+    {name:'Kangkar',       lat:1.38370, lng:103.90224},
+    {name:'Ranggung',      lat:1.38363, lng:103.89777},
   ],
   'PG-West': [
-    {name:'Punggol',       lat:1.40528, lng:103.90218, hub:true},
-    {name:'Soo Teck',      lat:1.40198, lng:103.90218},
-    {name:'Sumang',        lat:1.39978, lng:103.89898},
-    {name:'Nibong',        lat:1.39848, lng:103.89518},
-    {name:'Samudera',      lat:1.39938, lng:103.89118},
-    {name:'Punggol Point', lat:1.40298, lng:103.88948},
-    {name:'Teck Lee',      lat:1.40628, lng:103.89178},
-    {name:'Sam Kee',       lat:1.40728, lng:103.89678},
+    {name:'Punggol',       lat:1.40558, lng:103.90253, hub:true},
+    {name:'Soo Teck',      lat:1.40534, lng:103.89728},
+    {name:'Sumang',        lat:1.40851, lng:103.89853},
+    {name:'Nibong',        lat:1.41186, lng:103.90035},
+    {name:'Samudera',      lat:1.41587, lng:103.90216},
+    {name:'Punggol Point', lat:1.41687, lng:103.90669},
+    {name:'Teck Lee',      lat:1.41275, lng:103.90656},
+    {name:'Sam Kee',       lat:1.40976, lng:103.90489},
   ],
   'PG-East': [
-    {name:'Punggol',       lat:1.40528, lng:103.90218, hub:true},
-    {name:'Cove',          lat:1.40778, lng:103.90618},
-    {name:'Meridian',      lat:1.40818, lng:103.91048},
-    {name:'Coral Edge',    lat:1.40618, lng:103.91478},
-    {name:'Riviera',       lat:1.40258, lng:103.91518},
-    {name:'Kadaloor',      lat:1.39948, lng:103.91298},
-    {name:'Oasis',         lat:1.39798, lng:103.90878},
-    {name:'Damai',         lat:1.39928, lng:103.90478},
+    {name:'Punggol',       lat:1.40558, lng:103.90253, hub:true},
+    {name:'Cove',          lat:1.39921, lng:103.90629},
+    {name:'Meridian',      lat:1.39679, lng:103.90916},
+    {name:'Coral Edge',    lat:1.39386, lng:103.91273},
+    {name:'Riviera',       lat:1.39474, lng:103.91632},
+    {name:'Kadaloor',      lat:1.39310, lng:103.90980},
+    {name:'Oasis',         lat:1.40163, lng:103.91370},
+    {name:'Damai',         lat:1.40567, lng:103.90800},
   ]
 };
 
-const DEPOT = {lat:1.38350, lng:103.88580, name:'MMB Depot'};
+const DEPOT = {lat:1.38720, lng:103.87680, name:'MMB Depot'};
 
 // ═══════════════════════════════════════════════════════
 // CATMULL-ROM SPLINE — smooth loop paths in lat/lng space
@@ -520,8 +532,8 @@ function getTrainColor(train){
 // LEAFLET MAP INIT
 // ═══════════════════════════════════════════════════════
 const map = L.map('map', {
-  center: [1.3984, 103.8990],
-  zoom: 14,
+  center: [1.4000, 103.8960],
+  zoom: 13,
   zoomControl: true,
   attributionControl: true
 });
@@ -632,8 +644,13 @@ function initTrainMarkers(){
     el.className = 'train-dot';
     const color = getTrainColor(train);
     el.style.cssText = `width:11px;height:11px;background:${color};box-shadow:0 0 7px ${color}`;
+    const arrow = document.createElement('div');
+    arrow.className = 'train-arrow';
+    arrow.style.borderBottomColor = color;
+    el.appendChild(arrow);
 
     train._el = el;
+    train._arrow = arrow;
     train.marker = L.marker([pt.lat, pt.lng], {
       icon: L.divIcon({html:el, className:'', iconSize:[0,0], iconAnchor:[0,0]}),
       zIndexOffset: 300,
@@ -697,14 +714,25 @@ function animate(){
     train.mileage += train.speed * loopLen / 1000;
 
     if(train.marker){
-      const pt = getTrainPt(train);
-      if(pt) train.marker.setLatLng([pt.lat, pt.lng]);
+      const pts = LOOPS[train.loop];
+      const n = pts.length;
+      const curIdx = Math.floor(train.pos * n) % n;
+      const pt = pts[curIdx];
+      train.marker.setLatLng([pt.lat, pt.lng]);
 
       if(train._el){
         const color = getTrainColor(train);
         train._el.style.background = color;
         const isSel = selectedTrain && selectedTrain.id === train.id;
         train._el.style.boxShadow = `0 0 ${isSel ? 20 : color==='#00e888' ? 7 : 5}px ${color}`;
+
+        // Rotate marker to face direction of travel
+        const nextIdx = ((curIdx + (train.dir > 0 ? 4 : -4)) % n + n) % n;
+        const nxt = pts[nextIdx];
+        const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI;
+        train._el.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
+
+        if(train._arrow) train._arrow.style.borderBottomColor = color;
       }
     }
   });

@@ -9,7 +9,9 @@ SPLRT Fleet Management Dashboard — single-file HTML/CSS/JS app (`First_Dashboa
 
 ## Key Data Structures
 - `STATIONS` — source of truth for station positions. Keyed by loop ID (`'SK-West'`, `'SK-East'`, `'PG-West'`, `'PG-East'`), each an ordered array of `{name, lat, lng, hub?}` in WGS84.
-- `LOOPS` — derived from `STATIONS` via `buildLoop()` using Catmull-Rom spline (~400 lat/lng points). Used for polyline rendering and train position interpolation.
+- `LOOPS` — real track points (OpenStreetMap monorail geometry). Used for polyline rendering and train position interpolation; stations are snapped to nearest track point for alignment.
+- `LOOP_METRICS` — precomputed closed-loop points + cumulative distances for distance-based interpolation and loop length lookup.
+- `TRACKS` / `TRACK_METRICS` — dual offset tracks per loop (cw/ccw) for bidirectional rendering and train placement.
 - `DEPOT` — `{lat, lng, name}` for MMB Depot.
 - `fleet` — 59 train objects from `makeFleet()`: `{id, type, mileage, status, loop, pos, speed, marker, _el, ...}`.
 - `PM_CYCLES` — `[2000, 13000, 40000, 120000, 360000]` km thresholds.

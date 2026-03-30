@@ -78,7 +78,7 @@ python3 -m http.server 8080
 Dark theme UI, animated trains, clickable train detail panel, sidebar fleet stats, PM alerts list, train roster, colour coding (green/yellow/red), live SGT clock, depot section, map legend, stock change logic.
 
 ### Known Issues ❌
-- Station positions are geographically inaccurate (correct coords in `CLAUDE.md`)
+- Track geometry is from OpenStreetMap; OneMap verification pending
 - No real backend — all data simulated with `Math.random()`
 - No stock change UI
 - No depot animation on map

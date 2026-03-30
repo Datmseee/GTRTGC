@@ -116,10 +116,21 @@ header{
 
 /* Train dot markers */
 .train-dot{
-  border-radius:50%;cursor:pointer;
+  width:12px;height:24px;border-radius:3px;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.35) 0 18%, currentColor 18% 82%, rgba(0,0,0,0.35) 82% 100%),
+    linear-gradient(180deg, rgba(255,255,255,0.35), rgba(0,0,0,0.5));
+  border:1px solid currentColor;cursor:pointer;
   transform:translate(-50%,-50%);
-  transition:box-shadow .15s;
+  transition:box-shadow .15s, color .15s;
   position:relative;
+}
+.train-dot::before{
+  content:'';position:absolute;inset:-8px;
+}
+.train-dot::after{
+  content:'';position:absolute;left:2px;right:2px;top:4px;height:3px;
+  border-radius:2px;background:rgba(15,24,36,0.65);
 }
 .train-dot.selected{
   border:2px solid #fff !important;
@@ -128,13 +139,26 @@ header{
 /* Direction arrow — points "up" (north) at 0deg, rotated to heading in JS */
 .train-arrow{
   position:absolute;
-  top:-6px;left:50%;
+  top:-8px;left:50%;
   transform:translateX(-50%);
   width:0;height:0;
-  border-left:3px solid transparent;
-  border-right:3px solid transparent;
-  border-bottom:6px solid #00e888; /* color overridden in JS */
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-bottom:8px solid #00e888; /* color overridden in JS */
   pointer-events:none;
+}
+.train-label{
+  position:absolute;
+  left:50%;
+  bottom:100%;
+  transform:translate(-50%,-2px);
+  font-family:var(--sans);
+  font-size:7px;
+  letter-spacing:0.06em;
+  color:var(--txt0);
+  text-shadow:0 0 4px rgba(0,0,0,0.8);
+  pointer-events:none;
+  white-space:nowrap;
 }
 
 /* Overlays sit above Leaflet tiles (z-index > 400) */
@@ -333,6 +357,7 @@ header{
       <div class="tt-id" id="tt-id">—</div>
       <div class="tt-row" id="tt-type">—</div>
       <div class="tt-row" id="tt-mi">—</div>
+      <div class="tt-row" id="tt-speed">—</div>
       <div class="tt-row" id="tt-loop">—</div>
     </div>
     <div class="map-legend">
@@ -445,7 +470,7 @@ const STATIONS = {
   ]
 };
 
-const DEPOT = {lat:1.38350, lng:103.88580, name:'MMB Depot'};
+const DEPOT = {lat:1.38906, lng:103.88626, name:'MMB Depot'};
 
 // ═══════════════════════════════════════════════════════
 // REAL TRACK GEOMETRY — from OpenStreetMap (railway=monorail)
@@ -457,6 +482,44 @@ const LOOPS = {
   'PG-West': [{lat:1.4039173,lng:103.9017530},{lat:1.4036905,lng:103.9016929},{lat:1.4035935,lng:103.9016524},{lat:1.4026910,lng:103.9011510},{lat:1.4023962,lng:103.9008889},{lat:1.4022774,lng:103.9007665},{lat:1.4021939,lng:103.9006209},{lat:1.4021440,lng:103.9004585},{lat:1.4021367,lng:103.9003408},{lat:1.4021502,lng:103.9001877},{lat:1.4022090,lng:103.8999900},{lat:1.4023417,lng:103.8996353},{lat:1.4027284,lng:103.8985700},{lat:1.4030249,lng:103.8977090},{lat:1.4031387,lng:103.8973609},{lat:1.4032505,lng:103.8971593},{lat:1.4033815,lng:103.8970160},{lat:1.4035701,lng:103.8968984},{lat:1.4037569,lng:103.8968459},{lat:1.4039455,lng:103.8968419},{lat:1.4041199,lng:103.8968701},{lat:1.4053356,lng:103.8972078},{lat:1.4057535,lng:103.8973432},{lat:1.4060277,lng:103.8974292},{lat:1.4065091,lng:103.8976305},{lat:1.4072241,lng:103.8979269},{lat:1.4076182,lng:103.8980788},{lat:1.4085059,lng:103.8985386},{lat:1.4087457,lng:103.8986628},{lat:1.4093171,lng:103.8990121},{lat:1.4107306,lng:103.8997565},{lat:1.4111232,lng:103.8999159},{lat:1.4119065,lng:103.9003305},{lat:1.4121899,lng:103.9004805},{lat:1.4125339,lng:103.9006906},{lat:1.4127244,lng:103.9007816},{lat:1.4128429,lng:103.9008391},{lat:1.4150630,lng:103.9015178},{lat:1.4152443,lng:103.9015926},{lat:1.4153453,lng:103.9016469},{lat:1.4154591,lng:103.9017275},{lat:1.4159551,lng:103.9021455},{lat:1.4162603,lng:103.9024219},{lat:1.4164209,lng:103.9025984},{lat:1.4165085,lng:103.9027293},{lat:1.4169474,lng:103.9034127},{lat:1.4171828,lng:103.9038155},{lat:1.4173114,lng:103.9040577},{lat:1.4174143,lng:103.9043039},{lat:1.4174793,lng:103.9045710},{lat:1.4175123,lng:103.9048570},{lat:1.4174997,lng:103.9050626},{lat:1.4174538,lng:103.9053218},{lat:1.4173900,lng:103.9055429},{lat:1.4173131,lng:103.9057627},{lat:1.4172174,lng:103.9060086},{lat:1.4171626,lng:103.9061235},{lat:1.4171133,lng:103.9062269},{lat:1.4170203,lng:103.9064079},{lat:1.4169856,lng:103.9064912},{lat:1.4168865,lng:103.9066789},{lat:1.4168215,lng:103.9068021},{lat:1.4167010,lng:103.9070581},{lat:1.4165818,lng:103.9072065},{lat:1.4163709,lng:103.9074142},{lat:1.4162041,lng:103.9075517},{lat:1.4160171,lng:103.9076698},{lat:1.4158377,lng:103.9077362},{lat:1.4157142,lng:103.9077736},{lat:1.4154950,lng:103.9078061},{lat:1.4151913,lng:103.9078077},{lat:1.4149166,lng:103.9077325},{lat:1.4145257,lng:103.9075934},{lat:1.4134417,lng:103.9069928},{lat:1.4128856,lng:103.9066873},{lat:1.4127398,lng:103.9066053},{lat:1.4123556,lng:103.9063891},{lat:1.4114446,lng:103.9058882},{lat:1.4098859,lng:103.9050306},{lat:1.4097021,lng:103.9049293},{lat:1.4091288,lng:103.9046131},{lat:1.4077695,lng:103.9038642},{lat:1.4069691,lng:103.9034286},{lat:1.4059021,lng:103.9028434},{lat:1.4054715,lng:103.9027155},{lat:1.4050898,lng:103.9025057},{lat:1.4047704,lng:103.9023301},{lat:1.4044956,lng:103.9021070},{lat:1.4043344,lng:103.9019951},{lat:1.4039173,lng:103.9017530}],
   'PG-East': [{lat:1.4018418,lng:103.9013407},{lat:1.4017324,lng:103.9015273},{lat:1.4015654,lng:103.9018670},{lat:1.4013876,lng:103.9022209},{lat:1.4005831,lng:103.9038489},{lat:1.4000037,lng:103.9050271},{lat:1.3998437,lng:103.9053055},{lat:1.3996056,lng:103.9056546},{lat:1.3995010,lng:103.9057976},{lat:1.3990228,lng:103.9064513},{lat:1.3985977,lng:103.9069089},{lat:1.3976518,lng:103.9080377},{lat:1.3973169,lng:103.9084939},{lat:1.3969740,lng:103.9089086},{lat:1.3966319,lng:103.9093223},{lat:1.3953051,lng:103.9109596},{lat:1.3941981,lng:103.9123259},{lat:1.3938955,lng:103.9126915},{lat:1.3936359,lng:103.9130052},{lat:1.3933834,lng:103.9132720},{lat:1.3930235,lng:103.9137048},{lat:1.3929479,lng:103.9138121},{lat:1.3928429,lng:103.9140023},{lat:1.3927917,lng:103.9141595},{lat:1.3927699,lng:103.9143070},{lat:1.3927726,lng:103.9144883},{lat:1.3928193,lng:103.9146807},{lat:1.3929016,lng:103.9148477},{lat:1.3929816,lng:103.9149494},{lat:1.3930892,lng:103.9150661},{lat:1.3931987,lng:103.9151580},{lat:1.3938882,lng:103.9156547},{lat:1.3942113,lng:103.9158552},{lat:1.3945592,lng:103.9161061},{lat:1.3950956,lng:103.9164929},{lat:1.3956303,lng:103.9169109},{lat:1.3971845,lng:103.9180196},{lat:1.3973257,lng:103.9181030},{lat:1.3974558,lng:103.9181554},{lat:1.3975341,lng:103.9181809},{lat:1.3977071,lng:103.9182092},{lat:1.3977959,lng:103.9182124},{lat:1.3979106,lng:103.9182050},{lat:1.3980139,lng:103.9181831},{lat:1.3981226,lng:103.9181504},{lat:1.3982214,lng:103.9181073},{lat:1.3983419,lng:103.9180394},{lat:1.3984706,lng:103.9179275},{lat:1.3986059,lng:103.9177879},{lat:1.3989783,lng:103.9172705},{lat:1.3992691,lng:103.9168134},{lat:1.3995084,lng:103.9164816},{lat:1.3999520,lng:103.9158664},{lat:1.4004905,lng:103.9151945},{lat:1.4017105,lng:103.9134932},{lat:1.4020473,lng:103.9129830},{lat:1.4022379,lng:103.9127109},{lat:1.4026901,lng:103.9120654},{lat:1.4030159,lng:103.9116554},{lat:1.4033300,lng:103.9112416},{lat:1.4038832,lng:103.9104504},{lat:1.4050742,lng:103.9087633},{lat:1.4051980,lng:103.9085953},{lat:1.4053673,lng:103.9083654},{lat:1.4055312,lng:103.9081342},{lat:1.4057865,lng:103.9077856},{lat:1.4060172,lng:103.9074870},{lat:1.4067826,lng:103.9063110},{lat:1.4070475,lng:103.9058127},{lat:1.4074647,lng:103.9049574},{lat:1.4075179,lng:103.9047996},{lat:1.4075525,lng:103.9046708},{lat:1.4075743,lng:103.9044855},{lat:1.4075634,lng:103.9043166},{lat:1.4075435,lng:103.9042025},{lat:1.4074989,lng:103.9040701},{lat:1.4074483,lng:103.9039589},{lat:1.4073595,lng:103.9038206},{lat:1.4072466,lng:103.9036876},{lat:1.4071062,lng:103.9035536},{lat:1.4069691,lng:103.9034286},{lat:1.4018418,lng:103.9013407}]
 };
+
+const DEPOT_TRACKS = [
+  [{lat:1.3883458,lng:103.8855765},{lat:1.3891897,lng:103.8842371},{lat:1.3893222,lng:103.8840252},{lat:1.3893560,lng:103.8839709},{lat:1.3894709,lng:103.8837843},{lat:1.3896616,lng:103.8834701},{lat:1.3896990,lng:103.8834293},{lat:1.3897378,lng:103.8833981},{lat:1.3897822,lng:103.8833703},{lat:1.3898312,lng:103.8833535},{lat:1.3898834,lng:103.8833410},{lat:1.3899258,lng:103.8833386},{lat:1.3899611,lng:103.8833423},{lat:1.3904725,lng:103.8834593}],
+  [{lat:1.3900899,lng:103.8834478},{lat:1.3899388,lng:103.8834163},{lat:1.3898829,lng:103.8834171},{lat:1.3898433,lng:103.8834266},{lat:1.3898067,lng:103.8834434},{lat:1.3897749,lng:103.8834621},{lat:1.3897480,lng:103.8834852},{lat:1.3897212,lng:103.8835171},{lat:1.3896156,lng:103.8836858},{lat:1.3893672,lng:103.8840823},{lat:1.3893495,lng:103.8841147},{lat:1.3893339,lng:103.8841552},{lat:1.3893231,lng:103.8842051},{lat:1.3892739,lng:103.8844510},{lat:1.3892169,lng:103.8847218},{lat:1.3891879,lng:103.8848721},{lat:1.3891527,lng:103.8849718},{lat:1.3890537,lng:103.8851229},{lat:1.3888184,lng:103.8855031}],
+  [{lat:1.3892546,lng:103.8842298},{lat:1.3892337,lng:103.8842883},{lat:1.3892105,lng:103.8843385},{lat:1.3884196,lng:103.8856169}],
+  [{lat:1.3873936,lng:103.8890133},{lat:1.3872936,lng:103.8892845}],
+  [{lat:1.3885707,lng:103.8857371},{lat:1.3890890,lng:103.8849080},{lat:1.3891139,lng:103.8848599},{lat:1.3891378,lng:103.8847975}],
+  [{lat:1.3871913,lng:103.8892240},{lat:1.3873936,lng:103.8890133}],
+  [{lat:1.3892739,lng:103.8844510},{lat:1.3893016,lng:103.8843766},{lat:1.3893308,lng:103.8843239},{lat:1.3895701,lng:103.8839359}],
+  [{lat:1.3892202,lng:103.8844019},{lat:1.3891976,lng:103.8844711},{lat:1.3891766,lng:103.8845204},{lat:1.3884673,lng:103.8856612}],
+  [{lat:1.3900899,lng:103.8834478},{lat:1.3901656,lng:103.8834565},{lat:1.3902298,lng:103.8834595},{lat:1.3903949,lng:103.8834547},{lat:1.3904248,lng:103.8834563},{lat:1.3904725,lng:103.8834593}],
+  [{lat:1.3891780,lng:103.8846019},{lat:1.3891512,lng:103.8846726},{lat:1.3891267,lng:103.8847251},{lat:1.3885150,lng:103.8857016}],
+  [{lat:1.3893560,lng:103.8839709},{lat:1.3894027,lng:103.8839132},{lat:1.3894383,lng:103.8838755},{lat:1.3895367,lng:103.8837801},{lat:1.3895708,lng:103.8837423},{lat:1.3896156,lng:103.8836858}],
+  [{lat:1.3876470,lng:103.8886308},{lat:1.3877795,lng:103.8883102}],
+  [{lat:1.3876470,lng:103.8886308},{lat:1.3873936,lng:103.8890133}],
+  [{lat:1.3878859,lng:103.8883759},{lat:1.3876470,lng:103.8886308}],
+  [{lat:1.3896086,lng:103.8834008},{lat:1.3895782,lng:103.8834746},{lat:1.3895601,lng:103.8835273},{lat:1.3895249,lng:103.8836457},{lat:1.3895053,lng:103.8837067},{lat:1.3894709,lng:103.8837843}],
+  [{lat:1.3896081,lng:103.8839593},{lat:1.3893922,lng:103.8843093},{lat:1.3893722,lng:103.8843460},{lat:1.3893581,lng:103.8843885},{lat:1.3893473,lng:103.8844330},{lat:1.3893336,lng:103.8844791},{lat:1.3893030,lng:103.8845472}],
+  [{lat:1.3892169,lng:103.8847218},{lat:1.3892413,lng:103.8846566},{lat:1.3892658,lng:103.8846015},{lat:1.3893030,lng:103.8845472},{lat:1.3896463,lng:103.8839828}],
+  [{lat:1.3897737,lng:103.8840612},{lat:1.3900070,lng:103.8836824}],
+  [{lat:1.3896854,lng:103.8840069},{lat:1.3894329,lng:103.8844182},{lat:1.3894166,lng:103.8844491},{lat:1.3894002,lng:103.8844916},{lat:1.3893882,lng:103.8845394},{lat:1.3893770,lng:103.8845851},{lat:1.3893512,lng:103.8846480}],
+  [{lat:1.3897263,lng:103.8840321},{lat:1.3895499,lng:103.8843150},{lat:1.3893512,lng:103.8846480},{lat:1.3892469,lng:103.8848094},{lat:1.3891527,lng:103.8849718}],
+  [{lat:1.3893222,lng:103.8840252},{lat:1.3892870,lng:103.8840989},{lat:1.3892673,lng:103.8841651},{lat:1.3892546,lng:103.8842298},{lat:1.3892202,lng:103.8844019},{lat:1.3891780,lng:103.8846019},{lat:1.3891378,lng:103.8847975},{lat:1.3890942,lng:103.8850130},{lat:1.3890853,lng:103.8850491},{lat:1.3890735,lng:103.8850815},{lat:1.3890537,lng:103.8851229}],
+  [{lat:1.3902801,lng:103.8833029},{lat:1.3899280,lng:103.8832356},{lat:1.3898713,lng:103.8832298},{lat:1.3898234,lng:103.8832354},{lat:1.3897703,lng:103.8832481},{lat:1.3897224,lng:103.8832729},{lat:1.3896819,lng:103.8833036},{lat:1.3896490,lng:103.8833383},{lat:1.3896086,lng:103.8834008},{lat:1.3889500,lng:103.8844867},{lat:1.3882838,lng:103.8855523}],
+  [{lat:1.3889500,lng:103.8844867},{lat:1.3889914,lng:103.8844338},{lat:1.3890214,lng:103.8844030},{lat:1.3891153,lng:103.8843154},{lat:1.3891451,lng:103.8842859},{lat:1.3891897,lng:103.8842371}],
+  [{lat:1.3895499,lng:103.8843150},{lat:1.3895989,lng:103.8842560},{lat:1.3896313,lng:103.8842221},{lat:1.3896890,lng:103.8841726},{lat:1.3897168,lng:103.8841423},{lat:1.3897405,lng:103.8841111},{lat:1.3897737,lng:103.8840612}],
+  [{lat:1.3899597,lng:103.8836534},{lat:1.3897263,lng:103.8840321}],
+  [{lat:1.3899234,lng:103.8836269},{lat:1.3896854,lng:103.8840069}],
+  [{lat:1.3896463,lng:103.8839828},{lat:1.3898838,lng:103.8836022}],
+  [{lat:1.3898465,lng:103.8835804},{lat:1.3896081,lng:103.8839593}],
+  [{lat:1.3895701,lng:103.8839359},{lat:1.3898112,lng:103.8835561}],
+  [{lat:1.3896050,lng:103.8844209},{lat:1.3900567,lng:103.8837061}],
+  [{lat:1.3892469,lng:103.8848094},{lat:1.3892878,lng:103.8847575},{lat:1.3893171,lng:103.8847289},{lat:1.3894655,lng:103.8846181},{lat:1.3895092,lng:103.8845740},{lat:1.3895432,lng:103.8845254},{lat:1.3896050,lng:103.8844209}],
+  [{lat:1.3905542,lng:103.8839628},{lat:1.3905946,lng:103.8838266},{lat:1.3905982,lng:103.8837678},{lat:1.3905922,lng:103.8837233},{lat:1.3905765,lng:103.8836687},{lat:1.3905593,lng:103.8836400},{lat:1.3905370,lng:103.8836083},{lat:1.3905064,lng:103.8835770},{lat:1.3904822,lng:103.8835593}],
+  [{lat:1.3905346,lng:103.8834740},{lat:1.3906192,lng:103.8834910},{lat:1.3906747,lng:103.8834925},{lat:1.3907316,lng:103.8834872},{lat:1.3907872,lng:103.8834674},{lat:1.3908407,lng:103.8834289},{lat:1.3909225,lng:103.8833786}],
+  [{lat:1.3904822,lng:103.8835593},{lat:1.3904602,lng:103.8835445},{lat:1.3904116,lng:103.8835234},{lat:1.3900899,lng:103.8834478}],
+  [{lat:1.3904725,lng:103.8834593},{lat:1.3905346,lng:103.8834740}]
+];
 
 function getDistanceMeters(a, b){
   const R = 6371000;
@@ -535,6 +598,38 @@ function makeClosedLatLngs(pts){
   return latlngs;
 }
 
+function projectPointOnSegment(p, a, b){
+  const ax = a.lng, ay = a.lat;
+  const bx = b.lng, by = b.lat;
+  const px = p.lng, py = p.lat;
+  const abx = bx - ax;
+  const aby = by - ay;
+  const ab2 = abx * abx + aby * aby;
+  if(ab2 === 0) return {lat:a.lat, lng:a.lng};
+  let t = ((px - ax) * abx + (py - ay) * aby) / ab2;
+  t = Math.max(0, Math.min(1, t));
+  return {lat: ay + aby * t, lng: ax + abx * t};
+}
+
+function stationDistanceOnTrack(sta, metrics){
+  if(!metrics || !metrics.pts || metrics.pts.length < 2) return 0;
+  let bestD2 = Infinity;
+  let bestDist = 0;
+  for(let i=0;i<metrics.pts.length - 1;i++){
+    const a = metrics.pts[i];
+    const b = metrics.pts[i + 1];
+    const proj = projectPointOnSegment(sta, a, b);
+    const dx = proj.lng - sta.lng;
+    const dy = proj.lat - sta.lat;
+    const d2 = dx * dx + dy * dy;
+    if(d2 < bestD2){
+      bestD2 = d2;
+      bestDist = metrics.cum[i] + getDistanceMeters(a, proj);
+    }
+  }
+  return bestDist % metrics.length;
+}
+
 function findNearestTrackPoint(sta, track){
   let best = null;
   let bestD = Infinity;
@@ -578,6 +673,16 @@ for(const [loopId, pts] of Object.entries(LOOPS)){
   TRACK_METRICS[loopId] = {cw: buildMetricsForTrack(cw), ccw: buildMetricsForTrack(ccw)};
 }
 snapStationsToLoops();
+const STATION_STOPS = {};
+for(const [loopId, stas] of Object.entries(STATIONS)){
+  const cwMetrics = TRACK_METRICS[loopId] && TRACK_METRICS[loopId].cw;
+  const ccwMetrics = TRACK_METRICS[loopId] && TRACK_METRICS[loopId].ccw;
+  const cw = stas.map(s => ({name:s.name, dist:stationDistanceOnTrack(s, cwMetrics)}))
+    .sort((a,b) => a.dist - b.dist);
+  const ccw = stas.map(s => ({name:s.name, dist:stationDistanceOnTrack(s, ccwMetrics)}))
+    .sort((a,b) => a.dist - b.dist);
+  STATION_STOPS[loopId] = {cw, ccw};
+}
 
 // ═══════════════════════════════════════════════════════
 // FLEET DATA — 59 trains
@@ -620,7 +725,77 @@ function makeFleet(){
   return fleet;
 }
 
+const SIM = {
+  dwellSec: 22,
+  dwellMinSec: 12,
+  minHeadwayM: 120,
+  speedMinMps: 11.0,
+  speedMaxMps: 15.5,
+  stopEpsilonM: 8,
+  gapHoldRatio: 0.75,
+  gapReleaseRatio: 0.9,
+  gapCatchUpRatio: 1.25
+};
+
+function getStops(loopId, dir){
+  const stops = STATION_STOPS[loopId];
+  if(!stops) return null;
+  return dir >= 0 ? stops.cw : stops.ccw;
+}
+
+function getNextStop(loopId, dir, dist){
+  const stops = getStops(loopId, dir);
+  if(!stops || !stops.length) return null;
+  const eps = SIM.stopEpsilonM;
+  if(dir >= 0){
+    for(const s of stops){
+      if(s.dist > dist + eps) return s;
+    }
+    return stops[0];
+  }
+  for(let i=stops.length - 1;i>=0;i--){
+    if(stops[i].dist < dist - eps) return stops[i];
+  }
+  return stops[stops.length - 1];
+}
+
+function distanceToStop(dist, stopDist, loopLen, dir){
+  if(loopLen <= 0) return 0;
+  return dir >= 0
+    ? (stopDist - dist + loopLen) % loopLen
+    : (dist - stopDist + loopLen) % loopLen;
+}
+
+function initSimulation(){
+  const groups = {};
+  fleet.forEach(train => {
+    if(train.status !== 'in-service' || !train.loop) return;
+    const metrics = getTrackMetrics(train.loop, train.dir);
+    const loopLen = metrics ? metrics.length : (LOOP_LENGTHS[train.loop] || 0);
+    const key = train.loop + (train.dir >= 0 ? '|cw' : '|ccw');
+    if(!groups[key]) groups[key] = [];
+    train._loopLen = loopLen;
+    groups[key].push(train);
+  });
+  Object.values(groups).forEach(list => {
+    if(!list.length) return;
+    const loopLen = list[0]._loopLen || 0;
+    const offset = Math.random() * (loopLen || 1);
+    list.sort((a,b) => a.id.localeCompare(b.id));
+    list.forEach((train, i) => {
+      train.dist = loopLen ? (offset + (i / list.length) * loopLen) % loopLen : 0;
+      train.pos = loopLen ? train.dist / loopLen : (train.pos || 0);
+      train.cruiseMps = SIM.speedMinMps + Math.random() * (SIM.speedMaxMps - SIM.speedMinMps);
+      train.dwell = 0;
+      train.atStop = false;
+      train.currentSpeedMps = 0;
+      train.displaySpeedMps = 0;
+    });
+  });
+}
+
 const fleet = makeFleet();
+initSimulation();
 
 function getCycleStatus(mileage, cycle){
   const pos = mileage % cycle;
@@ -665,12 +840,34 @@ function formatKm(value){
   });
 }
 
+function formatKmh(value){
+  return Number(value).toLocaleString('en-SG', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  });
+}
+
+function getDisplaySpeedMps(train){
+  if(train.displaySpeedMps != null) return train.displaySpeedMps;
+  return train.currentSpeedMps || 0;
+}
+
 function getTrainColor(train){
   if(train.status==='depot'||train.status==='maintenance') return '#3a5570';
   const pm=getPMStatus(train.mileage);
   if(pm.status==='over') return '#ff3a5c';
   if(pm.status==='soon') return '#ffb020';
   return '#00e888';
+}
+
+function updateDisplaySpeeds(){
+  fleet.forEach(train => {
+    if(train.status !== 'in-service'){
+      train.displaySpeedMps = 0;
+      return;
+    }
+    train.displaySpeedMps = train.currentSpeedMps || 0;
+  });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -778,12 +975,12 @@ function drawDepot(){
     interactive: false
   }).addTo(map);
 
-  const renjong = STATIONS['SK-West'].find(s => s.name === 'Renjong');
-  if(renjong){
-    L.polyline([[DEPOT.lat, DEPOT.lng],[renjong.lat, renjong.lng]], {
-      color:'#2a4055', weight:1.5, dashArray:'5 4', opacity:0.7
+  DEPOT_TRACKS.forEach(track => {
+    const latlngs = track.map(p => [p.lat, p.lng]);
+    L.polyline(latlngs, {
+      color:'#2a4055', weight:2, opacity:0.75
     }).addTo(map);
-  }
+  });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -839,11 +1036,15 @@ function initTrainMarkers(){
     const el = document.createElement('div');
     el.className = 'train-dot';
     const color = getTrainColor(train);
-    el.style.cssText = `width:11px;height:11px;background:${color};box-shadow:0 0 7px ${color}`;
+    el.style.cssText = `color:${color};box-shadow:0 0 10px ${color}`;
     const arrow = document.createElement('div');
     arrow.className = 'train-arrow';
     arrow.style.borderBottomColor = color;
+    const label = document.createElement('div');
+    label.className = 'train-label';
+    label.textContent = train.serial;
     el.appendChild(arrow);
+    el.appendChild(label);
 
     train._el = el;
     train._arrow = arrow;
@@ -873,6 +1074,8 @@ function showTrainTooltip(train){
   document.getElementById('tt-id').textContent = train.id;
   document.getElementById('tt-type').textContent = train.type;
   document.getElementById('tt-mi').textContent = `${formatKm(train.mileage)} km`;
+  const speedMps = getDisplaySpeedMps(train);
+  document.getElementById('tt-speed').textContent = `Speed ${formatKmh(speedMps * 3.6)} km/h`;
   document.getElementById('tt-loop').textContent = train.loop +
     (pm.status !== 'ok' ? ` · ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}` : '');
   const cp = map.latLngToContainerPoint([pt.lat, pt.lng]);
@@ -892,7 +1095,7 @@ map.on('click', () => {
     if(prev && prev._el){
       prev._el.classList.remove('selected');
       const c = getTrainColor(prev);
-      prev._el.style.boxShadow = `0 0 7px ${c}`;
+      prev._el.style.boxShadow = `0 0 10px ${c}`;
     }
     selectedTrain = null;
     renderNoSelection();
@@ -913,13 +1116,85 @@ let lastFrame = null;
 function animate(now){
   if(lastFrame === null) lastFrame = now;
   const dt = Math.min(0.05, (now - lastFrame) / 1000);
-  const frameScale = dt * 60;
   lastFrame = now;
+  const moving = fleet.filter(t => t.status === 'in-service' && t.loop);
+  const groups = {};
+  moving.forEach(t => {
+    const metrics = getTrackMetrics(t.loop, t.dir);
+    const loopLen = metrics ? metrics.length : (LOOP_LENGTHS[t.loop] || 0);
+    if(t.dist == null) t.dist = (t.pos || 0) * loopLen;
+    const key = t.loop + (t.dir >= 0 ? '|cw' : '|ccw');
+    if(!groups[key]) groups[key] = [];
+    t._loopLen = loopLen;
+    groups[key].push(t);
+  });
+  Object.values(groups).forEach(list => {
+    if(!list.length) return;
+    const loopLen = list[0]._loopLen || (LOOP_LENGTHS[list[0].loop] || 0);
+    const targetGap = loopLen && list.length ? loopLen / list.length : loopLen;
+    list.sort((a,b) => a.dist - b.dist);
+    if(list.length === 1){
+      list[0]._maxMove = Infinity;
+      list[0]._gapAhead = loopLen;
+      list[0]._targetGap = loopLen;
+      return;
+    }
+    for(let i=0;i<list.length;i++){
+      const t = list[i];
+      const ahead = list[(i + 1) % list.length];
+      const gap = (ahead.dist - t.dist + loopLen) % loopLen;
+      t._gapAhead = gap;
+      t._targetGap = targetGap;
+      t._maxMove = Math.max(0, gap - SIM.minHeadwayM);
+    }
+  });
   fleet.forEach(train => {
     if(train.status !== 'in-service' || !train.loop) return;
-    train.pos = ((train.pos + train.speed * frameScale * train.dir) % 1 + 1) % 1;
-    const loopLen = LOOP_LENGTHS[train.loop] || (train.loop.includes('West') ? 4800 : 5300);
-    train.mileage += train.speed * frameScale * loopLen / 1000;
+    const loopLen = train._loopLen || (LOOP_LENGTHS[train.loop] || (train.loop.includes('West') ? 4800 : 5300));
+    if(train.dist == null) train.dist = (train.pos || 0) * loopLen;
+    const gapAhead = train._gapAhead == null ? loopLen : train._gapAhead;
+    const targetGap = train._targetGap == null ? loopLen : train._targetGap;
+    let moved = 0;
+    const stop = getNextStop(train.loop, train.dir, train.dist);
+    const toStop = stop ? distanceToStop(train.dist, stop.dist, loopLen, train.dir) : Infinity;
+    if(train.dwell > 0){
+      train.dwell = Math.max(0, train.dwell - dt);
+    } else if(train.atStop && gapAhead < targetGap * SIM.gapReleaseRatio){
+      train.dwell = 1;
+    } else if(stop && toStop <= SIM.stopEpsilonM){
+      train.dist = stop.dist;
+      train.atStop = true;
+      train.dwell = gapAhead > targetGap * SIM.gapCatchUpRatio ? SIM.dwellMinSec : SIM.dwellSec;
+    } else {
+      train.atStop = false;
+      let speed = train.cruiseMps || SIM.speedMinMps;
+      const ratio = targetGap > 0 ? gapAhead / targetGap : 1;
+      if(ratio < 0.85){
+        speed *= Math.max(0.3, ratio / 0.85);
+      } else if(ratio > 1.2){
+        speed *= Math.min(1.35, ratio / 1.2);
+      }
+      speed = Math.max(SIM.speedMinMps, Math.min(speed, SIM.speedMaxMps));
+      const desiredMove = speed * dt;
+      const maxMove = Math.min(desiredMove, train._maxMove == null ? desiredMove : train._maxMove);
+      if(stop){
+        if(toStop <= maxMove + SIM.stopEpsilonM){
+          train.dist = stop.dist;
+          train.atStop = true;
+          train.dwell = gapAhead > targetGap * SIM.gapCatchUpRatio ? SIM.dwellMinSec : SIM.dwellSec;
+          moved = toStop;
+        } else {
+          train.dist = (train.dist + (train.dir >= 0 ? 1 : -1) * maxMove + loopLen) % loopLen;
+          moved = maxMove;
+        }
+      } else {
+        train.dist = (train.dist + (train.dir >= 0 ? 1 : -1) * maxMove + loopLen) % loopLen;
+        moved = maxMove;
+      }
+    }
+    train.pos = loopLen ? train.dist / loopLen : train.pos;
+    train.mileage += moved / 1000;
+    train.currentSpeedMps = dt > 0 ? moved / dt : 0;
 
     if(train.marker){
       const posInfo = getPointAlongLoop(train.loop, train.pos, train.dir);
@@ -929,12 +1204,13 @@ function animate(now){
 
       if(train._el){
         const color = getTrainColor(train);
-        train._el.style.background = color;
+        train._el.style.color = color;
         const isSel = selectedTrain && selectedTrain.id === train.id;
         train._el.style.boxShadow = `0 0 ${isSel ? 20 : color==='#00e888' ? 7 : 5}px ${color}`;
 
         // Rotate marker to face direction of travel
-        const step = Math.max(0.002, train.speed * 5);
+        const aheadDist = 25;
+        const step = loopLen ? (aheadDist / loopLen) : 0.002;
         const aheadPos = ((train.pos + (train.dir > 0 ? step : -step)) % 1 + 1) % 1;
         const aheadInfo = getPointAlongLoop(train.loop, aheadPos, train.dir);
         const nxt = aheadInfo ? aheadInfo.pt : posInfo.next;
@@ -1020,6 +1296,9 @@ function updateDetailPanel(t){
   };
   const statusClass = {'in-service':'sb-svc','depot':'sb-dep','maintenance':'sb-mnt','withdrawn':'sb-wth'};
   const statusLabel = {'in-service':'In Service','depot':'In Depot','maintenance':'Maintenance','withdrawn':'Withdrawn'};
+  const speedKmh = t.status === 'in-service'
+    ? `${formatKmh(getDisplaySpeedMps(t) * 3.6)} km/h`
+    : '—';
 
   // Nearest station (Euclidean in lat/lng — fine for small distances)
   let nearStation = '—';
@@ -1054,6 +1333,7 @@ function updateDetailPanel(t){
         </div>
         <div class="det-info">
           <div class="drow"><span class="dlbl">Status</span><span class="sbadge ${statusClass[t.status]||'sb-dep'}">${statusLabel[t.status]||t.status}</span></div>
+          <div class="drow"><span class="dlbl">Speed</span><span class="dval">${speedKmh}</span></div>
           <div class="drow"><span class="dlbl">Serial</span><span class="dval">${t.serial}</span></div>
           <div class="drow"><span class="dlbl">Year</span><span class="dval">${t.year}</span></div>
           <div class="drow"><span class="dlbl">Deploy</span><span class="dval" style="font-size:9px">${t.loop?loopNames[t.loop]:'In Depot'}</span></div>
@@ -1148,7 +1428,9 @@ initTrainMarkers();
 updateFleetList();
 updateHeaderStats();
 buildTicker();
+updateDisplaySpeeds();
 setInterval(buildTicker, 15000);
+setInterval(updateDisplaySpeeds, 1000);
 requestAnimationFrame(animate);
 </script>
 </body>

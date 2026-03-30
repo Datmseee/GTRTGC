@@ -658,6 +658,13 @@ function getPMStatus(mileage){
   return best;
 }
 
+function formatKm(value){
+  return Number(value).toLocaleString('en-SG', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  });
+}
+
 function getTrainColor(train){
   if(train.status==='depot'||train.status==='maintenance') return '#3a5570';
   const pm=getPMStatus(train.mileage);
@@ -865,7 +872,7 @@ function showTrainTooltip(train){
   const pm = getPMStatus(train.mileage);
   document.getElementById('tt-id').textContent = train.id;
   document.getElementById('tt-type').textContent = train.type;
-  document.getElementById('tt-mi').textContent = `${Math.floor(train.mileage).toLocaleString()} km`;
+  document.getElementById('tt-mi').textContent = `${formatKm(train.mileage)} km`;
   document.getElementById('tt-loop').textContent = train.loop +
     (pm.status !== 'ok' ? ` · ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}` : '');
   const cp = map.latLngToContainerPoint([pt.lat, pt.lng]);
@@ -980,7 +987,7 @@ function updateFleetList(){
       <div class="fi-id">${t.id}</div>
       <div class="fi-type">${t.type}</div>
       <div class="fi-loop" style="color:${t.loop?'#4a7a90':'#3a5570'}">${loopLabel}</div>
-      <div class="fi-mi">${Math.floor(t.mileage).toLocaleString()}</div>
+      <div class="fi-mi">${formatKm(t.mileage)}</div>
     </div>`;
   }).join('');
 }
@@ -1033,8 +1040,8 @@ function updateDetailPanel(t){
     const info = getCycleStatus(t.mileage, c);
     const s = info.status;
     const remTxt = s === 'over'
-      ? (info.pos === 0 ? 'DUE NOW' : `OVERDUE +${Math.floor(info.pos).toLocaleString()}km`)
-      : `${Math.floor(info.rem).toLocaleString()} km`;
+      ? (info.pos === 0 ? 'DUE NOW' : `OVERDUE +${formatKm(info.pos)} km`)
+      : `${formatKm(info.rem)} km`;
     return{label:PM_LABELS[i], interval:c.toLocaleString()+' km', pct:info.pct, s, remTxt};
   });
 
@@ -1056,7 +1063,7 @@ function updateDetailPanel(t){
     </div>
     <div class="sec-title">Mileage</div>
     <div class="mi-display">
-      <div><span class="mi-big">${Math.floor(t.mileage).toLocaleString()}</span><span class="mi-unit">km</span></div>
+      <div><span class="mi-big">${formatKm(t.mileage)}</span><span class="mi-unit">km</span></div>
       <div class="mi-sub">Next PM: ${pm.name} — ${pm.status==='over'?'<span style="color:var(--red)">OVERDUE</span>':pm.status==='soon'?'<span style="color:var(--amber)">Due soon</span>':'<span style="color:var(--green)">OK</span>'}</div>
     </div>
     <div class="sec-title">PM Schedule</div>
@@ -1077,8 +1084,8 @@ function updateAlertsPanel(){
   const alerts = [];
   fleet.forEach(t => {
     const pm = getPMStatus(t.mileage);
-    if(pm.status==='over') alerts.push({type:'crit',title:`${t.id} — ${pm.name} OVERDUE`,body:`${t.type} · ${Math.floor(t.mileage).toLocaleString()} km · ${t.loop||'Depot'}`,time:'Trigger now'});
-    else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${Math.floor(pm.remaining).toLocaleString()} km remaining · ${t.loop||'Depot'}`,time:'Schedule PM'});
+    if(pm.status==='over') alerts.push({type:'crit',title:`${t.id} — ${pm.name} OVERDUE`,body:`${t.type} · ${formatKm(t.mileage)} km · ${t.loop||'Depot'}`,time:'Trigger now'});
+    else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${formatKm(pm.remaining)} km remaining · ${t.loop||'Depot'}`,time:'Schedule PM'});
   });
   alerts.push({type:'info',title:'Check-in 1 reminder',body:'Online session scheduled 8–12 Jun 2026. Prepare progress slides.',time:'Upcoming'});
   alerts.push({type:'info',title:'Stock change protocol active',body:'Automated PV re-assignment on train withdrawal is live.',time:'System'});

@@ -83,14 +83,24 @@ header{
 
 /* Station tooltip labels */
 .sta-label{
-  background:transparent !important;border:none !important;
-  box-shadow:none !important;padding:0 !important;
-  font-family:var(--mono) !important;font-size:8.5px !important;
-  color:#3a5570 !important;font-weight:400;white-space:nowrap;
+  background:rgba(5,8,15,0.9) !important;
+  border:1px solid rgba(36,62,88,0.95) !important;
+  box-shadow:0 3px 10px rgba(0,0,0,0.35) !important;
+  padding:4px 8px !important;
+  border-radius:4px !important;
+  font-family:var(--sans) !important;
+  font-size:12px !important;
+  line-height:1.2 !important;
+  color:#d9edf8 !important;
+  font-weight:700 !important;
+  white-space:nowrap;
+  letter-spacing:0.03em;
 }
 .sta-label.hub-label{
-  color:#a0c4d8 !important;font-size:10px !important;
-  font-family:var(--sans) !important;font-weight:600 !important;
+  color:#ffffff !important;
+  font-size:13px !important;
+  border-color:rgba(0,212,232,0.45) !important;
+  background:rgba(0,212,232,0.12) !important;
 }
 .leaflet-tooltip::before{display:none !important}
 
@@ -512,44 +522,81 @@ updateClock();
 const STATIONS = {
   'SK-West': [
     {name:'Sengkang',      lat:1.39149, lng:103.89517, hub:true},
-    {name:'Cheng Lim',     lat:1.39641, lng:103.88582},
-    {name:'Farmway',       lat:1.39882, lng:103.87928},
-    {name:'Kupang',        lat:1.39628, lng:103.87480},
-    {name:'Thanggam',      lat:1.39185, lng:103.87380},
-    {name:'Fernvale',      lat:1.38745, lng:103.87540},
-    {name:'Layar',         lat:1.38382, lng:103.87992},
-    {name:'Tongkang',      lat:1.38375, lng:103.88598},
-    {name:'Renjong',       lat:1.38648, lng:103.89128},
+    {name:'Cheng Lim',     lat:1.3963558, lng:103.8938037},
+    {name:'Farmway',       lat:1.3972456, lng:103.8892272},
+    {name:'Kupang',        lat:1.3982814, lng:103.8812472},
+    {name:'Thanggam',      lat:1.3973541, lng:103.8755854},
+    {name:'Fernvale',      lat:1.3918967, lng:103.8762650},
+    {name:'Layar',         lat:1.3920721, lng:103.8800095},
+    {name:'Tongkang',      lat:1.3893645, lng:103.8858026},
+    {name:'Renjong',       lat:1.3866780, lng:103.8905176},
   ],
   'SK-East': [
     {name:'Sengkang',      lat:1.39149, lng:103.89517, hub:true},
-    {name:'Compassvale',   lat:1.39608, lng:103.90028},
-    {name:'Rumbia',        lat:1.39820, lng:103.90598},
-    {name:'Bakau',         lat:1.39618, lng:103.91118},
-    {name:'Kangkar',       lat:1.39238, lng:103.91178},
-    {name:'Ranggung',      lat:1.38928, lng:103.90848},
+    {name:'Compassvale',   lat:1.3944795, lng:103.9004243},
+    {name:'Rumbia',        lat:1.3914623, lng:103.9059474},
+    {name:'Bakau',         lat:1.3881045, lng:103.9053557},
+    {name:'Kangkar',       lat:1.3839731, lng:103.9021654},
+    {name:'Ranggung',      lat:1.3840757, lng:103.8974023},
   ],
   'PG-West': [
     {name:'Punggol',       lat:1.40528, lng:103.90218, hub:true},
-    {name:'Soo Teck',      lat:1.40198, lng:103.90218},
-    {name:'Sumang',        lat:1.39978, lng:103.89898},
-    {name:'Nibong',        lat:1.39848, lng:103.89518},
-    {name:'Samudera',      lat:1.39938, lng:103.89118},
-    {name:'Punggol Point', lat:1.40298, lng:103.88948},
-    {name:'Teck Lee',      lat:1.40628, lng:103.89178},
-    {name:'Sam Kee',       lat:1.40728, lng:103.89678},
+    {name:'Soo Teck',      lat:1.4053356, lng:103.8972078},
+    {name:'Sumang',        lat:1.4085059, lng:103.8985386},
+    {name:'Nibong',        lat:1.4119065, lng:103.9003305},
+    {name:'Samudera',      lat:1.4159551, lng:103.9021455},
+    {name:'Punggol Point', lat:1.4168865, lng:103.9066789},
+    {name:'Teck Lee',      lat:1.4127398, lng:103.9066053},
+    {name:'Sam Kee',       lat:1.4097021, lng:103.9049293},
   ],
   'PG-East': [
     {name:'Punggol',       lat:1.40528, lng:103.90218, hub:true},
-    {name:'Cove',          lat:1.40778, lng:103.90618},
-    {name:'Meridian',      lat:1.40818, lng:103.91048},
-    {name:'Coral Edge',    lat:1.40618, lng:103.91478},
-    {name:'Riviera',       lat:1.40258, lng:103.91518},
-    {name:'Kadaloor',      lat:1.39948, lng:103.91298},
-    {name:'Oasis',         lat:1.39798, lng:103.90878},
-    {name:'Damai',         lat:1.39928, lng:103.90478},
+    {name:'Cove',          lat:1.3995010, lng:103.9057976},
+    {name:'Meridian',      lat:1.3969740, lng:103.9089086},
+    {name:'Coral Edge',    lat:1.3938955, lng:103.9126915},
+    {name:'Riviera',       lat:1.3945592, lng:103.9161061},
+    {name:'Kadaloor',      lat:1.3995084, lng:103.9164816},
+    {name:'Oasis',         lat:1.4022379, lng:103.9127109},
+    {name:'Damai',         lat:1.4051980, lng:103.9085953},
   ]
 };
+
+const STATION_CODES = {
+  'Sengkang': 'STC',
+  'Cheng Lim': 'SW1',
+  'Farmway': 'SW2',
+  'Kupang': 'SW3',
+  'Thanggam': 'SW4',
+  'Fernvale': 'SW5',
+  'Layar': 'SW6',
+  'Tongkang': 'SW7',
+  'Renjong': 'SW8',
+  'Compassvale': 'SE1',
+  'Rumbia': 'SE2',
+  'Bakau': 'SE3',
+  'Kangkar': 'SE4',
+  'Ranggung': 'SE5',
+  'Punggol': 'PTC',
+  'Sam Kee': 'PW1',
+  'Teck Lee': 'PW2',
+  'Punggol Point': 'PW3',
+  'Samudera': 'PW4',
+  'Nibong': 'PW5',
+  'Sumang': 'PW6',
+  'Soo Teck': 'PW7',
+  'Cove': 'PE1',
+  'Meridian': 'PE2',
+  'Coral Edge': 'PE3',
+  'Riviera': 'PE4',
+  'Kadaloor': 'PE5',
+  'Oasis': 'PE6',
+  'Damai': 'PE7'
+};
+
+function getStationLabel(sta){
+  const code = STATION_CODES[sta.name];
+  return code ? `${code}  ${sta.name}` : sta.name;
+}
 
 const DEPOT = {lat:1.38906, lng:103.88626, name:'MMB Depot'};
 
@@ -711,35 +758,6 @@ function stationDistanceOnTrack(sta, metrics){
   return bestDist % metrics.length;
 }
 
-function findNearestTrackPoint(sta, track){
-  let best = null;
-  let bestD = Infinity;
-  for(const p of track){
-    const dLat = sta.lat - p.lat;
-    const dLng = sta.lng - p.lng;
-    const d = dLat * dLat + dLng * dLng;
-    if(d < bestD){
-      bestD = d;
-      best = p;
-    }
-  }
-  return best;
-}
-
-function snapStationsToLoops(){
-  for(const [loopId, stas] of Object.entries(STATIONS)){
-    const track = LOOPS[loopId];
-    if(!track) continue;
-    stas.forEach(sta => {
-      const nearest = findNearestTrackPoint(sta, track);
-      if(nearest){
-        sta.lat = nearest.lat;
-        sta.lng = nearest.lng;
-      }
-    });
-  }
-}
-
 const LOOP_METRICS = buildLoopMetrics(LOOPS);
 const LOOP_LENGTHS = Object.fromEntries(
   Object.entries(LOOP_METRICS).map(([id, m]) => [id, m.length])
@@ -753,7 +771,6 @@ for(const [loopId, pts] of Object.entries(LOOPS)){
   TRACKS[loopId] = {cw, ccw};
   TRACK_METRICS[loopId] = {cw: buildMetricsForTrack(cw), ccw: buildMetricsForTrack(ccw)};
 }
-snapStationsToLoops();
 const STATION_STOPS = {};
 for(const [loopId, stas] of Object.entries(STATIONS)){
   const cwMetrics = TRACK_METRICS[loopId] && TRACK_METRICS[loopId].cw;
@@ -1013,12 +1030,12 @@ function drawStations(){
           radius:8, fillColor:color, color:color,
           weight:2, fillOpacity:1
         })
-        .bindTooltip(sta.name, {
+        .bindTooltip(getStationLabel(sta), {
           permanent:true, direction:'top', offset:[0,-10],
           className:'sta-label hub-label'
         })
         .bindPopup(`<div style="font-family:var(--mono);font-size:11px;min-width:140px">
-          <div style="font-weight:600;color:${color};margin-bottom:4px">${sta.name} Station</div>
+          <div style="font-weight:600;color:${color};margin-bottom:4px">${getStationLabel(sta)} Station</div>
           <div style="color:#6a8aa8;font-size:10px">Hub / Interchange</div>
           <div style="color:#6a8aa8;font-size:10px;margin-top:2px">Serves: ${hubInfo}</div>
           <div style="color:#3a5570;font-size:9px;margin-top:4px">${sta.lat.toFixed(5)}°N, ${sta.lng.toFixed(5)}°E</div>
@@ -1029,12 +1046,12 @@ function drawStations(){
           radius:4, fillColor:'#111d2e', color:color,
           weight:1.5, fillOpacity:1
         })
-        .bindTooltip(sta.name, {
+        .bindTooltip(getStationLabel(sta), {
           permanent:true, direction:'top', offset:[0,-6],
           className:'sta-label'
         })
         .bindPopup(`<div style="font-family:var(--mono);font-size:11px;min-width:140px">
-          <div style="font-weight:600;color:${color};margin-bottom:4px">${sta.name} Station</div>
+          <div style="font-weight:600;color:${color};margin-bottom:4px">${getStationLabel(sta)} Station</div>
           <div style="color:#6a8aa8;font-size:10px">${lineName} LRT — ${loopSide}</div>
           <div style="color:#3a5570;font-size:9px;margin-top:4px">${sta.lat.toFixed(5)}°N, ${sta.lng.toFixed(5)}°E</div>
         </div>`, {className:'station-popup'})

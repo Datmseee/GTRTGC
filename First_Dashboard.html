@@ -305,6 +305,87 @@ header{
 
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 .pulsing{animation:pulse 1.4s ease-in-out infinite}
+
+@media (max-width: 900px){
+  html,body{height:auto;min-height:100%;overflow:auto}
+  body{min-height:100vh;overflow:auto}
+  header{
+    height:auto;align-items:flex-start;flex-wrap:wrap;
+    padding:10px 12px;gap:10px;
+  }
+  .hlogo{
+    width:100%;padding-right:0;padding-bottom:8px;
+    border-right:none;border-bottom:1px solid var(--border);
+  }
+  .hstats{
+    margin-left:0;width:100%;
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+  }
+  .hs{
+    padding:8px 10px;border:1px solid var(--border);
+    background:var(--bg2);
+  }
+  .hs-val{font-size:18px}
+  .hclock{
+    width:100%;margin-left:0;padding-top:2px;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .hclock-time{font-size:18px}
+  .main{
+    flex-direction:column;overflow:visible;
+    min-height:0;flex:0 0 auto;
+  }
+  .map-panel{
+    flex:none;height:54vh;min-height:320px;
+    border-bottom:1px solid var(--border);
+  }
+  .side{
+    width:100%;min-height:0;flex:0 0 auto;
+    border-left:none;
+  }
+  .tabs{position:sticky;top:0;z-index:950;background:var(--bg1)}
+  .tcontent{
+    max-height:42vh;
+    -webkit-overflow-scrolling:touch;
+  }
+  .sys-label{font-size:9px;letter-spacing:0.12em}
+  #lbl-sk{left:12px}
+  #lbl-pg{right:12px}
+  .map-legend{
+    left:8px;right:8px;bottom:8px;
+    padding:7px 9px;
+  }
+  .leg-row{font-size:8px;gap:6px}
+  .map-coords{display:none}
+  #tooltip{font-size:9px;padding:5px 8px;max-width:70vw}
+  .det-header{flex-direction:column}
+  .det-badge{width:100%}
+  .drow{gap:10px}
+  .fi-id{min-width:58px}
+  .fi-loop{min-width:40px}
+  .fi-mi{min-width:60px}
+  .alert-strip{
+    height:34px;padding:0 10px;
+  }
+  .as-lbl{font-size:8px}
+  .as-item{font-size:9px}
+}
+
+@media (max-width: 520px){
+  header{padding:8px 10px}
+  .hstats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hlogo-title{font-size:11px}
+  .hlogo-sub{font-size:8px}
+  .hs{padding:7px 8px}
+  .hs-lbl{font-size:8px}
+  .hs-val{font-size:16px}
+  .map-panel{height:50vh;min-height:280px}
+  .tcontent{max-height:38vh}
+  .map-legend{display:none}
+  .train-label{font-size:6px}
+  .tab{font-size:8px;padding:9px 2px}
+}
 </style>
 </head>
 <body>

@@ -146,7 +146,7 @@ CREATE TABLE stock_changes (
 
 ---
 
-## Team
+## Team (Tentative)
 
 | Member | Role | Scope |
 |--------|------|-------|

@@ -348,7 +348,7 @@ header{
     min-height:0;flex:0 0 auto;
   }
   .map-panel{
-    flex:none;height:54vh;min-height:320px;
+    flex:none;height:60vh;min-height:360px;
     border-bottom:1px solid var(--border);
   }
   .side{
@@ -394,7 +394,7 @@ header{
   .map-panel{height:50vh;min-height:280px}
   .tcontent{max-height:38vh}
   .map-legend{display:none}
-  .train-label{font-size:10px}
+  .train-label{display:none}
   .tab{font-size:8px;padding:9px 2px}
 }
 </style>
@@ -1037,7 +1037,7 @@ function drawStations(){
           weight:3, fillOpacity:1
         })
         .bindTooltip(getStationLabel(sta), {
-          permanent:true, direction:'top', offset:[0,-10],
+          permanent:true, direction:'top', offset:[0,-14],
           className:'sta-label hub-label'
         })
         .bindPopup(`<div style="font-family:var(--mono);font-size:14px;min-width:180px">
@@ -1053,7 +1053,7 @@ function drawStations(){
           weight:2.5, fillOpacity:1
         })
         .bindTooltip(getStationLabel(sta), {
-          permanent:true, direction:'top', offset:[0,-6],
+          permanent:false, direction:'top', offset:[0,-6],
           className:'sta-label'
         })
         .bindPopup(`<div style="font-family:var(--mono);font-size:14px;min-width:180px">

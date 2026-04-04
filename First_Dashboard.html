@@ -1166,10 +1166,13 @@ function drawRouteArrows(train){
   if(!metrics || !metrics.pts.length) return;
   const step = 90;          // one chevron every 90 m — dense
   const animDur = 2.8;      // seconds for wave to travel full loop
+  const look = 30 / metrics.length; // fraction to look ahead for bearing
+  const cw = train.dir >= 0;
   const count = Math.floor(metrics.length / step);
   for(let i = 0; i < count; i++){
     const pos = (i * step) / metrics.length;
-    const posAhead = Math.min(pos + 30 / metrics.length, 1);
+    // For CCW trains pos increases against direction of travel, so look backwards in pos
+    const posAhead = cw ? Math.min(pos + look, 1) : Math.max(pos - look, 0);
     const info = getPointAlongLoop(train.loop, pos, train.dir);
     const infoAhead = getPointAlongLoop(train.loop, posAhead, train.dir);
     if(!info || !infoAhead) continue;
@@ -1177,8 +1180,10 @@ function drawRouteArrows(train){
     const nxt = infoAhead.pt;
     // angle=0 means north; ❯ points right by default, so subtract 90°
     const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI - 90;
-    // Stagger delay: pos 0→1 maps to delay 0→-animDur, wave flows forward
-    const delay = (pos - 1) * animDur;
+    // Wave must flow in direction of travel:
+    //   CW  (pos increases with travel): delay = (pos-1)*D  → wave moves forward
+    //   CCW (pos decreases with travel): delay = -pos*D     → wave moves backward in pos = forward in travel
+    const delay = cw ? (pos - 1) * animDur : -pos * animDur;
     const outer = document.createElement('div');
     outer.className = 'route-arrow-icon';
     outer.style.cssText = `animation:arrowMove ${animDur}s ease-in-out infinite;animation-delay:${delay}s;opacity:0`;

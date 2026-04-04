@@ -1159,49 +1159,49 @@ function clearRouteArrows(){
   _routeArrows = [];
 }
 
-function drawRouteArrows(train){
+function initRouteArrows(train){
   clearRouteArrows();
   if(!train.loop || train.dist == null) return;
-  const metrics = getTrackMetrics(train.loop, train.dir);
-  if(!metrics || !metrics.pts.length) return;
-  const loopLen = metrics.length;
-  const extendM = 1000;                  // only 1 km ahead of the train
-  const step = 90;                       // one chevron every 90 m
+  const count = Math.floor(1000 / 90);
   const animDur = 2.8;
-  const lookM = 30;                      // metres ahead for bearing calculation
-  const cw = train.dir >= 0;
-  const count = Math.floor(extendM / step);
   for(let i = 0; i < count; i++){
-    const distFromTrain = i * step;
-    // Actual metre-distance along the selected track, wrapping around loop
-    const d    = cw ? (train.dist + distFromTrain)         % loopLen
-                    : ((train.dist - distFromTrain) % loopLen + loopLen) % loopLen;
-    const dAhd = cw ? (train.dist + distFromTrain + lookM) % loopLen
-                    : ((train.dist - distFromTrain - lookM) % loopLen + loopLen) % loopLen;
-    const pos     = d    / loopLen;
-    const posAhead = dAhd / loopLen;
-    const info      = getPointAlongLoop(train.loop, pos,      train.dir);
-    const infoAhead = getPointAlongLoop(train.loop, posAhead, train.dir);
-    if(!info || !infoAhead) continue;
-    const pt  = info.pt;
-    const nxt = infoAhead.pt;
-    const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI - 90;
-    // Wave flows outward from train: i=0 (at train) fires first, i=count-1 fires last
-    const delay = (i / count) * animDur;
     const outer = document.createElement('div');
     outer.className = 'route-arrow-icon';
-    outer.style.cssText = `animation:arrowMove ${animDur}s ease-in-out infinite;animation-delay:${delay}s;opacity:0`;
+    outer.style.cssText = `animation:arrowMove ${animDur}s ease-in-out infinite;animation-delay:${(i/count)*animDur}s;opacity:0`;
     const inner = document.createElement('span');
     inner.className = 'route-arrow-inner';
-    inner.style.transform = `rotate(${angle}deg)`;
     inner.textContent = '❯';
     outer.appendChild(inner);
+    const pt = getTrainPt(train) || {lat:0, lng:0};
     const marker = L.marker([pt.lat, pt.lng], {
       icon: L.divIcon({html:outer, className:'', iconSize:[16,16], iconAnchor:[8,8]}),
       interactive: false, zIndexOffset: 100
     }).addTo(map);
-    _routeArrows.push(marker);
+    _routeArrows.push({marker, inner});
   }
+  updateRouteArrowPositions(train);
+}
+
+function updateRouteArrowPositions(train){
+  if(!_routeArrows.length || !train.loop || train.dist == null) return;
+  const metrics = getTrackMetrics(train.loop, train.dir);
+  if(!metrics) return;
+  const loopLen = metrics.length;
+  const step = 90, lookM = 30;
+  const cw = train.dir >= 0;
+  _routeArrows.forEach(({marker, inner}, i) => {
+    const df = i * step;
+    const d    = cw ? (train.dist + df)          % loopLen
+                    : ((train.dist - df)          % loopLen + loopLen) % loopLen;
+    const dAhd = cw ? (train.dist + df + lookM)  % loopLen
+                    : ((train.dist - df - lookM)  % loopLen + loopLen) % loopLen;
+    const info      = getPointAlongLoop(train.loop, d    / loopLen, train.dir);
+    const infoAhead = getPointAlongLoop(train.loop, dAhd / loopLen, train.dir);
+    if(!info || !infoAhead) return;
+    const angle = Math.atan2(infoAhead.pt.lng - info.pt.lng, infoAhead.pt.lat - info.pt.lat) * 180 / Math.PI - 90;
+    marker.setLatLng([info.pt.lat, info.pt.lng]);
+    inner.style.transform = `rotate(${angle}deg)`;
+  });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1447,7 +1447,10 @@ function animate(now){
   updateHeaderStats();
   if(selectedTrain){
     const t = fleet.find(f => f.id === selectedTrain.id);
-    if(t) updateDetailPanel(t);
+    if(t){
+      updateRouteArrowPositions(t);
+      updateDetailPanel(t);
+    }
   }
 
   requestAnimationFrame(animate);
@@ -1505,7 +1508,7 @@ function selectTrainById(id){
   const pt = getTrainPt(t);
   if(pt) map.panTo([pt.lat, pt.lng], {animate:true, duration:0.5});
 
-  drawRouteArrows(t);
+  initRouteArrows(t);
   updateDetailPanel(t);
   switchTab('detail');
   updateFleetList();

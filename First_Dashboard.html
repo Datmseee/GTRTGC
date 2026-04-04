@@ -360,6 +360,11 @@ header{
     max-height:42vh;
     -webkit-overflow-scrolling:touch;
   }
+  .train-dot{width:12px;height:20px}
+  .train-dot::after{top:3px;height:2px;left:1px;right:1px}
+  .train-arrow{top:-6px;border-left-width:3px;border-right-width:3px;border-bottom-width:6px}
+  .sta-label{font-size:11px !important;padding:3px 6px !important}
+  .sta-label.hub-label{font-size:13px !important;padding:4px 8px !important}
   .sys-label{font-size:9px;letter-spacing:0.12em}
   #lbl-sk{left:12px}
   #lbl-pg{right:12px}
@@ -394,7 +399,7 @@ header{
   .map-panel{height:50vh;min-height:280px}
   .tcontent{max-height:38vh}
   .map-legend{display:none}
-  .train-label{display:none}
+  .train-label{font-size:8px}
   .tab{font-size:8px;padding:9px 2px}
 }
 </style>
@@ -1044,7 +1049,6 @@ function drawStations(){
           <div style="font-weight:700;color:${color};margin-bottom:6px;font-size:15px">${getStationLabel(sta)} Station</div>
           <div style="color:#6a8aa8;font-size:13px">Hub / Interchange</div>
           <div style="color:#6a8aa8;font-size:13px;margin-top:3px">Serves: ${hubInfo}</div>
-          <div style="color:#3a5570;font-size:11px;margin-top:6px">${sta.lat.toFixed(5)}°N, ${sta.lng.toFixed(5)}°E</div>
         </div>`, {className:'station-popup'})
         .addTo(map);
       } else {
@@ -1052,14 +1056,13 @@ function drawStations(){
           radius:8, fillColor:'#111d2e', color:color,
           weight:2.5, fillOpacity:1
         })
-        .bindTooltip(getStationLabel(sta), {
-          permanent:false, direction:'top', offset:[0,-6],
+        .bindTooltip(STATION_CODES[sta.name] || sta.name, {
+          permanent:true, direction:'top', offset:[0,-8],
           className:'sta-label'
         })
         .bindPopup(`<div style="font-family:var(--mono);font-size:14px;min-width:180px">
           <div style="font-weight:700;color:${color};margin-bottom:6px;font-size:15px">${getStationLabel(sta)} Station</div>
           <div style="color:#6a8aa8;font-size:13px">${lineName} LRT — ${loopSide}</div>
-          <div style="color:#3a5570;font-size:11px;margin-top:6px">${sta.lat.toFixed(5)}°N, ${sta.lng.toFixed(5)}°E</div>
         </div>`, {className:'station-popup'})
         .addTo(map);
       }

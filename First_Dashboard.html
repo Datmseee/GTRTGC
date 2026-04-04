@@ -321,14 +321,19 @@ header{
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 .pulsing{animation:pulse 1.4s ease-in-out infinite}
 
-/* Route direction arrows on map */
+/* Route direction arrows on map — chaser-light animation */
 .route-arrow-icon{
   width:0;height:0;
   border-left:5px solid transparent;
   border-right:5px solid transparent;
-  border-bottom:9px solid currentColor;
-  opacity:0.55;
+  border-bottom:9px solid rgba(255,255,255,0.9);
+  opacity:0;
   pointer-events:none;
+}
+@keyframes arrowFlow{
+  0%,100%{opacity:0}
+  20%{opacity:0.85}
+  40%{opacity:0}
 }
 
 /* Next station display in detail panel */
@@ -892,6 +897,25 @@ function getNextStop(loopId, dir, dist){
   return stops[stops.length - 1];
 }
 
+function getPrevStop(loopId, dir, dist){
+  const stops = getStops(loopId, dir);
+  if(!stops || !stops.length) return null;
+  const eps = SIM.stopEpsilonM;
+  if(dir >= 0){
+    // CW: last stop whose dist is behind the train
+    for(let i = stops.length - 1; i >= 0; i--){
+      if(stops[i].dist <= dist + eps) return stops[i];
+    }
+    return stops[stops.length - 1]; // wrap — last stop on loop
+  } else {
+    // CCW: first stop whose dist is behind the train (higher dist = behind for CCW)
+    for(let i = 0; i < stops.length; i++){
+      if(stops[i].dist >= dist - eps) return stops[i];
+    }
+    return stops[0]; // wrap
+  }
+}
+
 function distanceToStop(dist, stopDist, loopLen, dir){
   if(loopLen <= 0) return 0;
   return dir >= 0
@@ -1134,21 +1158,24 @@ function drawRouteArrows(train){
   if(!train.loop) return;
   const metrics = getTrackMetrics(train.loop, train.dir);
   if(!metrics || !metrics.pts.length) return;
-  const color = LOOP_COLORS[train.loop] || '#00d4e8';
-  const step = 240; // place an arrow every 240 metres
+  const step = 220;        // one arrow every 220 m
+  const animDur = 3.5;     // seconds for wave to complete one loop
   const count = Math.floor(metrics.length / step);
   for(let i = 0; i < count; i++){
-    const pos = (i * step) / metrics.length;
-    const posAhead = Math.min(((i * step) + 40) / metrics.length, 1);
+    const pos = (i * step) / metrics.length;               // 0 → 1 along direction of travel
+    const posAhead = Math.min(pos + 35 / metrics.length, 1);
     const info = getPointAlongLoop(train.loop, pos, train.dir);
     const infoAhead = getPointAlongLoop(train.loop, posAhead, train.dir);
     if(!info || !infoAhead) continue;
     const pt = info.pt;
     const nxt = infoAhead.pt;
     const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI;
+    // Stagger delay so the lit arrow appears to flow in the direction of travel
+    const delay = (pos - 1) * animDur;
     const el = document.createElement('div');
     el.className = 'route-arrow-icon';
-    el.style.cssText = `color:${color};transform:rotate(${angle}deg);transform-origin:center 60%;border-bottom-color:${color}`;
+    el.style.cssText = `transform:rotate(${angle}deg);transform-origin:center 60%;` +
+      `animation:arrowFlow ${animDur}s linear infinite;animation-delay:${delay}s`;
     const marker = L.marker([pt.lat, pt.lng], {
       icon: L.divIcon({html:el, className:'', iconSize:[10,9], iconAnchor:[5,4]}),
       interactive: false, zIndexOffset: 100
@@ -1476,20 +1503,12 @@ function updateDetailPanel(t){
     ? `${formatKmh(getDisplaySpeedMps(t) * 3.6)} km/h`
     : '—';
 
-  // Current and next station
-  let nearStation = '—', nearCode = '', nextStation = '—', nextCode = '';
-  if(t.loop && t.status==='in-service'){
-    const pt = getTrainPt(t);
-    if(pt){
-      const stas = STATIONS[t.loop];
-      let minD = Infinity, minS = null;
-      stas.forEach(s => {
-        const d = getDistanceMeters(s, pt);
-        if(d < minD){ minD = d; minS = s; }
-      });
-      if(minS){ nearStation = minS.name; nearCode = STATION_CODES[minS.name] || ''; }
-    }
+  // Previous and next station using track-based position
+  let prevStation = '—', prevCode = '', nextStation = '—', nextCode = '';
+  if(t.loop && t.status==='in-service' && t.dist != null){
+    const prevStop = getPrevStop(t.loop, t.dir, t.dist);
     const nextStop = getNextStop(t.loop, t.dir, t.dist);
+    if(prevStop){ prevStation = prevStop.name; prevCode = STATION_CODES[prevStop.name] || ''; }
     if(nextStop){ nextStation = nextStop.name; nextCode = STATION_CODES[nextStop.name] || ''; }
   }
 
@@ -1520,11 +1539,11 @@ function updateDetailPanel(t){
     </div>
     ${t.status==='in-service' && t.loop ? `
     <div class="nxt-sta-box">
-      <div class="nxt-sta-lbl">Station Progress</div>
+      <div class="nxt-sta-lbl">${t.atStop && t.dwell > 0 ? 'At Station' : 'In Transit'}</div>
       <div class="nxt-sta-row">
         <div style="text-align:center">
-          <div class="nxt-sta-name">${nearStation}</div>
-          <span class="nxt-sta-code">${nearCode}</span>
+          <div class="nxt-sta-name">${prevStation}</div>
+          <span class="nxt-sta-code">${prevCode}</span>
         </div>
         <div class="nxt-sta-sep">
           <span class="nxt-arr">›</span>

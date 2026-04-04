@@ -33,88 +33,137 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--mono);background:var(--bg0);color:var(--txt0);display:flex;flex-direction:column}
 
-/* ── HEADER ── */
+/* ══════════════════════════════════════════════════════════
+   HEADER — two-row mission control
+   ══════════════════════════════════════════════════════════ */
 header{
-  height:52px;background:var(--bg1);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;padding:0 16px;gap:0;flex-shrink:0;
+  background:var(--bg1);
+  border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
+  position:relative;z-index:10;
 }
-.hlogo{display:flex;align-items:center;gap:8px;padding-right:20px;border-right:1px solid var(--border)}
+/* Cyan accent bar across top */
+header::before{
+  content:'';display:block;height:3px;flex-shrink:0;
+  background:linear-gradient(90deg, var(--cyan) 0%, rgba(0,212,232,0.3) 35%, rgba(0,232,136,0.3) 65%, var(--green) 100%);
+}
+/* Top row: logo + clock */
+.hdr-top{
+  display:flex;align-items:center;padding:8px 16px;
+  border-bottom:1px solid rgba(24,46,69,0.4);
+}
+.hlogo{display:flex;align-items:center;gap:10px}
 .hlogo-mark{
-  width:30px;height:30px;background:var(--cyan);border-radius:3px;
+  width:34px;height:34px;
+  background:var(--cyan);
+  border-radius:5px;
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--sans);font-size:11px;font-weight:700;color:var(--bg0);letter-spacing:0.05em;
+  font-family:var(--sans);font-size:12px;font-weight:700;color:var(--bg0);letter-spacing:0.05em;
+  box-shadow:0 0 20px rgba(0,212,232,0.35);
 }
 .hlogo-text{line-height:1.2}
-.hlogo-title{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:0.08em;color:var(--txt0)}
-.hlogo-sub{font-size:11px;color:var(--txt1);letter-spacing:0.1em}
-.hstats{display:flex;margin-left:16px;flex:1;gap:0}
-.hs{padding:0 16px;border-right:1px solid var(--border)}
-.hs-lbl{font-size:11px;color:var(--txt2);letter-spacing:0.1em;text-transform:uppercase}
-.hs-val{font-size:24px;font-weight:300;line-height:1.1}
-.hs-val.c{color:var(--cyan)}.hs-val.g{color:var(--green)}.hs-val.a{color:var(--amber)}.hs-val.r{color:var(--red)}
+.hlogo-title{font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:0.1em;color:#fff}
+.hlogo-sub{font-size:9px;color:var(--txt2);letter-spacing:0.14em;text-transform:uppercase}
+/* Live indicator */
+.hdr-live{
+  display:flex;align-items:center;gap:6px;
+  margin-left:20px;padding:4px 12px;
+  border:1px solid rgba(0,232,136,0.3);border-radius:20px;
+  background:rgba(0,232,136,0.06);
+}
+.hdr-live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--green)}50%{opacity:0.5;box-shadow:0 0 3px var(--green)}}
+.hdr-live-txt{font-family:var(--sans);font-size:10px;font-weight:700;color:var(--green);letter-spacing:0.15em}
 .hclock{margin-left:auto;text-align:right}
-.hclock-time{font-size:22px;font-weight:300;letter-spacing:0.04em;color:var(--txt0)}
-.hclock-date{font-size:9px;color:var(--txt1);letter-spacing:0.08em}
+.hclock-time{font-size:24px;font-weight:300;letter-spacing:0.06em;color:#fff}
+.hclock-date{font-size:9px;color:var(--txt2);letter-spacing:0.1em}
 
-/* ── MAIN ── */
+/* Bottom row: stat cards */
+.hstats{
+  display:flex;padding:0;gap:0;flex:1;
+}
+.hs{
+  flex:1;padding:8px 16px;
+  border-right:1px solid rgba(24,46,69,0.5);
+  position:relative;
+  transition:background 0.2s;
+}
+.hs:last-child{border-right:none}
+.hs:hover{background:rgba(255,255,255,0.015)}
+/* Colored top accent per stat */
+.hs::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:2px;
+  border-radius:0 0 2px 2px;opacity:0.6;
+}
+.hs:nth-child(1)::before{background:var(--cyan)}
+.hs:nth-child(2)::before{background:var(--green)}
+.hs:nth-child(3)::before{background:var(--txt2)}
+.hs:nth-child(4)::before{background:var(--red)}
+.hs:nth-child(5)::before{background:var(--amber)}
+.hs-lbl{font-size:9px;color:var(--txt2);letter-spacing:0.14em;text-transform:uppercase;font-family:var(--sans);font-weight:600}
+.hs-val{
+  font-size:28px;font-weight:300;line-height:1.15;
+  text-shadow:0 0 25px currentColor;
+}
+.hs-val.c{color:var(--cyan)}.hs-val.g{color:var(--green)}.hs-val.a{color:var(--amber)}.hs-val.r{color:var(--red)}
+
+/* ══════════════════════════════════════════════════════════
+   MAIN LAYOUT
+   ══════════════════════════════════════════════════════════ */
 .main{flex:1;display:flex;overflow:hidden;min-height:0}
 
-/* ── MAP ── */
-.map-panel{
-  flex:1;position:relative;background:var(--bg0);overflow:hidden;
-}
-#map{
-  position:absolute;inset:0;z-index:1;
+/* ══════════════════════════════════════════════════════════
+   MAP PANEL
+   ══════════════════════════════════════════════════════════ */
+.map-panel{flex:1;position:relative;background:var(--bg0);overflow:hidden}
+#map{position:absolute;inset:0;z-index:1}
+
+/* Vignette overlay on map edges */
+.map-panel::after{
+  content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
+  box-shadow:inset 0 0 80px rgba(5,8,15,0.5);
 }
 
-/* Leaflet dark theme overrides */
+/* Leaflet dark theme */
 .leaflet-control-zoom a{
-  background:var(--bg2) !important;color:var(--txt1) !important;
+  background:rgba(9,14,26,0.9) !important;color:var(--txt1) !important;
   border-color:var(--border) !important;font-size:16px !important;
-  line-height:24px !important;
+  line-height:28px !important;width:30px !important;height:30px !important;
+  transition:all 0.15s !important;
 }
-.leaflet-control-zoom a:hover{background:var(--bg3) !important;color:var(--txt0) !important}
-.leaflet-bar{border:1px solid var(--border) !important;box-shadow:none !important}
-.leaflet-control-attribution{
-  background:rgba(5,8,15,0.75) !important;color:var(--txt2) !important;
-  font-size:8px !important;font-family:var(--mono) !important;
-}
+.leaflet-control-zoom a:hover{background:var(--bg4) !important;color:var(--cyan) !important}
+.leaflet-bar{border:1px solid var(--border) !important;box-shadow:0 4px 20px rgba(0,0,0,0.5) !important;border-radius:6px !important;overflow:hidden}
+.leaflet-control-attribution{background:rgba(5,8,15,0.8) !important;color:var(--txt2) !important;font-size:8px !important;font-family:var(--mono) !important}
 .leaflet-control-attribution a{color:var(--txt1) !important}
 
-/* Station tooltip labels */
+/* Station labels */
 .sta-label{
   background:rgba(5,8,15,0.92) !important;
   border:1px solid rgba(36,62,88,0.95) !important;
   box-shadow:0 3px 12px rgba(0,0,0,0.5) !important;
-  padding:5px 8px !important;
-  border-radius:4px !important;
-  font-family:var(--sans) !important;
-  font-size:14px !important;
-  line-height:1.25 !important;
-  color:#d9edf8 !important;
-  font-weight:700 !important;
-  white-space:normal !important;
-  text-align:center !important;
-  letter-spacing:0.03em;
+  padding:5px 8px !important;border-radius:4px !important;
+  font-family:var(--sans) !important;font-size:14px !important;
+  line-height:1.25 !important;color:#d9edf8 !important;
+  font-weight:700 !important;white-space:normal !important;
+  text-align:center !important;letter-spacing:0.03em;
 }
 .sta-label.hub-label{
-  color:#ffffff !important;
-  font-size:15px !important;
+  color:#ffffff !important;font-size:15px !important;
   border-color:rgba(0,212,232,0.55) !important;
   background:rgba(0,212,232,0.14) !important;
-  white-space:nowrap !important;
-  text-align:left !important;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,212,232,0.12) !important;
+  white-space:nowrap !important;text-align:left !important;
 }
 .sta-name-small{font-size:10px;font-weight:600;opacity:0.85;display:block}
 .leaflet-tooltip::before{display:none !important}
 
-/* Station popup dark theme */
 .station-popup .leaflet-popup-content-wrapper{
-  background:rgba(9,14,26,0.96) !important;
-  border:1px solid var(--border2) !important;
-  border-radius:4px !important;
-  box-shadow:0 4px 16px rgba(0,0,0,0.5) !important;
-  color:var(--txt0) !important;
+  background:rgba(9,14,26,0.96) !important;border:1px solid var(--border2) !important;
+  border-radius:6px !important;box-shadow:0 8px 32px rgba(0,0,0,0.6) !important;color:var(--txt0) !important;
 }
 .station-popup .leaflet-popup-tip{background:rgba(9,14,26,0.96) !important}
 .station-popup .leaflet-popup-close-button{color:var(--txt2) !important}
@@ -128,7 +177,9 @@ header{
   transform:translate(-50%,-50%);position:absolute;
 }
 
-/* Train dot markers */
+/* ══════════════════════════════════════════════════════════
+   TRAIN MARKERS
+   ══════════════════════════════════════════════════════════ */
 .train-dot{
   width:18px;height:32px;border-radius:3px;
   background:
@@ -136,252 +187,293 @@ header{
     linear-gradient(180deg, rgba(255,255,255,0.35), rgba(0,0,0,0.5));
   border:1px solid currentColor;cursor:pointer;
   transform:translate(-50%,-50%);
-  transition:box-shadow .15s, color .15s;
+  transition:box-shadow .2s, transform .15s;
   position:relative;
+  box-shadow:0 0 10px currentColor;
 }
-.train-dot::before{
-  content:'';position:absolute;inset:-8px;
-}
+.train-dot::before{content:'';position:absolute;inset:-8px}
 .train-dot::after{
   content:'';position:absolute;left:2px;right:2px;top:4px;height:3px;
   border-radius:2px;background:rgba(15,24,36,0.65);
 }
+.train-dot:hover{transform:translate(-50%,-50%) scale(1.2);z-index:999 !important}
 .train-dot.selected{
   border:2px solid #fff !important;
-  box-shadow:0 0 18px currentColor !important;
+  box-shadow:0 0 30px currentColor, 0 0 8px rgba(255,255,255,0.4) !important;
+  transform:translate(-50%,-50%) scale(1.15);
 }
-/* Direction arrow — points "up" (north) at 0deg, rotated to heading in JS */
 .train-arrow{
-  position:absolute;
-  top:-8px;left:50%;
-  transform:translateX(-50%);
-  width:0;height:0;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-bottom:8px solid #00e888; /* color overridden in JS */
-  pointer-events:none;
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;
+  border-bottom:8px solid #00e888;pointer-events:none;
+  filter:drop-shadow(0 0 4px currentColor);
 }
 .train-label{
-  position:absolute;
-  left:50%;
-  bottom:100%;
-  transform:translate(-50%,-3px);
-  font-family:var(--sans);
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:0.06em;
-  color:#ffffff;
+  position:absolute;left:50%;bottom:100%;transform:translate(-50%,-3px);
+  font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:0.06em;color:#ffffff;
   text-shadow:0 0 6px rgba(0,0,0,1), 0 0 3px rgba(0,0,0,1);
-  pointer-events:none;
-  white-space:nowrap;
+  pointer-events:none;white-space:nowrap;
 }
 
-/* Overlays sit above Leaflet tiles (z-index > 400) */
+/* Map overlays */
 .sys-label{
   position:absolute;font-family:var(--sans);font-size:11px;font-weight:700;
-  letter-spacing:0.18em;text-transform:uppercase;pointer-events:none;
-  user-select:none;z-index:800;
+  letter-spacing:0.18em;text-transform:uppercase;pointer-events:none;user-select:none;z-index:800;
 }
 #lbl-sk{top:12px;left:50px;color:var(--cyan);opacity:0.5}
 #lbl-pg{top:12px;right:60px;color:var(--green);opacity:0.5;text-align:right}
+
+/* Map legend */
 .map-legend{
   position:absolute;bottom:12px;left:12px;z-index:800;
-  background:rgba(5,8,15,0.9);border:1px solid var(--border);
-  padding:8px 12px;border-radius:3px;
+  background:rgba(5,8,15,0.92);border:1px solid var(--border);
+  padding:10px 14px;border-radius:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
 }
 .leg-row{display:flex;align-items:center;gap:7px;margin-bottom:6px;font-size:12px;color:var(--txt1);letter-spacing:0.06em}
 .leg-row:last-child{margin-bottom:0}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .leg-line{width:20px;height:3px;flex-shrink:0;border-radius:1px}
-.map-coords{
-  position:absolute;bottom:12px;right:12px;z-index:800;
-  font-size:9px;color:var(--txt2);letter-spacing:0.06em;
-}
+.map-coords{position:absolute;bottom:12px;right:12px;z-index:800;font-size:9px;color:var(--txt2);letter-spacing:0.06em}
+
+/* Tooltip */
 #tooltip{
   position:absolute;z-index:900;pointer-events:none;display:none;
-  background:rgba(9,14,26,0.96);border:1px solid var(--cyan);
-  padding:6px 10px;border-radius:3px;font-size:10px;white-space:nowrap;
+  background:rgba(9,14,26,0.95);border:1px solid var(--cyan);
+  padding:8px 12px;border-radius:6px;font-size:10px;white-space:nowrap;
+  box-shadow:0 8px 30px rgba(0,0,0,0.6), 0 0 15px rgba(0,212,232,0.15);
 }
-.tt-id{color:var(--cyan);font-weight:600;margin-bottom:2px}
-.tt-row{color:var(--txt1);line-height:1.5}
+.tt-id{color:var(--cyan);font-weight:600;margin-bottom:3px;font-size:12px}
+.tt-row{color:var(--txt1);line-height:1.6}
 
-/* ── SIDE PANEL ── */
+/* ══════════════════════════════════════════════════════════
+   SIDE PANEL
+   ══════════════════════════════════════════════════════════ */
 .side{
-  width:310px;flex-shrink:0;background:var(--bg1);
+  width:320px;flex-shrink:0;background:var(--bg1);
   border-left:1px solid var(--border);display:flex;flex-direction:column;
 }
-.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.tab{
-  flex:1;padding:13px 4px;text-align:center;font-size:13px;letter-spacing:0.1em;
-  text-transform:uppercase;color:var(--txt2);cursor:pointer;
-  border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s;
+/* Tabs — segmented control style */
+.tabs{
+  display:flex;flex-shrink:0;
+  padding:10px 12px;gap:0;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
 }
-.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
-.tab:hover:not(.active){color:var(--txt1)}
+.tab{
+  flex:1;padding:9px 4px;text-align:center;font-size:11px;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--txt2);cursor:pointer;
+  border:1px solid var(--border);
+  transition:all 0.2s;font-family:var(--sans);font-weight:700;
+  background:transparent;
+}
+.tab:first-child{border-radius:6px 0 0 6px}
+.tab:last-child{border-radius:0 6px 6px 0}
+.tab:not(:first-child){border-left:none}
+.tab.active{
+  color:var(--cyan);
+  background:rgba(0,212,232,0.1);
+  border-color:rgba(0,212,232,0.4);
+  box-shadow:0 0 15px rgba(0,212,232,0.1);
+}
+.tab:hover:not(.active){color:var(--txt1);background:rgba(255,255,255,0.02)}
+
 .tcontent{flex:1;overflow-y:auto;overflow-x:hidden;display:none}
 .tcontent.active{display:block}
-.tcontent::-webkit-scrollbar{width:3px}
-.tcontent::-webkit-scrollbar-track{background:var(--bg1)}
-.tcontent::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.tcontent::-webkit-scrollbar{width:4px}
+.tcontent::-webkit-scrollbar-track{background:transparent}
+.tcontent::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.tcontent::-webkit-scrollbar-thumb:hover{background:var(--txt2)}
 
-/* fleet list */
+/* Fleet filter — pill buttons */
 .flt-filter{
-  padding:8px 12px;border-bottom:1px solid var(--border);
+  padding:10px 12px;border-bottom:1px solid var(--border);
   display:flex;gap:6px;flex-wrap:wrap;
 }
 .flt-btn{
-  font-family:var(--mono);font-size:12px;letter-spacing:0.06em;
-  padding:7px 14px;border-radius:3px;border:1px solid var(--border);
-  background:transparent;color:var(--txt2);cursor:pointer;transition:all 0.15s;
+  font-family:var(--sans);font-size:11px;letter-spacing:0.08em;font-weight:700;
+  padding:6px 14px;border-radius:20px;border:1px solid var(--border);
+  background:transparent;color:var(--txt2);cursor:pointer;transition:all 0.2s;
 }
-.flt-btn.active{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-dim)}
+.flt-btn:hover{border-color:var(--border2);color:var(--txt1)}
+.flt-btn.active{
+  border-color:var(--cyan);color:var(--cyan);
+  background:rgba(0,212,232,0.1);
+  box-shadow:0 0 12px rgba(0,212,232,0.15);
+}
+
+/* Fleet list — card rows */
 .fleet-list{padding:4px 0}
 .fi{
   display:flex;align-items:center;gap:8px;padding:10px 12px;
-  cursor:pointer;border-left:3px solid transparent;transition:background 0.1s;
+  cursor:pointer;border-left:3px solid transparent;transition:all 0.12s;
+  margin:2px 8px;border-radius:6px;
 }
-.fi:hover{background:var(--bg2)}
-.fi.selected{background:rgba(0,212,232,0.05);border-left-color:var(--cyan)}
-.fi-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.fi:hover{background:var(--bg3)}
+.fi.selected{
+  background:rgba(0,212,232,0.08);border-left-color:var(--cyan);
+  box-shadow:0 0 15px rgba(0,212,232,0.08);
+}
+.fi-dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 8px currentColor;
+}
 .fi-id{font-size:13px;font-weight:600;color:var(--txt0);min-width:72px;letter-spacing:0.03em}
 .fi-type{font-size:11px;color:var(--txt2);flex:1}
 .fi-loop{font-size:11px;color:var(--txt1);min-width:52px;text-align:center}
 .fi-mi{font-size:11px;color:var(--txt1);min-width:58px;text-align:right}
 
-/* detail panel */
-.det{padding:12px;border-bottom:1px solid var(--border)}
-.det-nosel{padding:40px 20px;text-align:center;color:var(--txt2);font-size:10px;line-height:2}
-.det-header{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+/* ══════════════════════════════════════════════════════════
+   DETAIL PANEL
+   ══════════════════════════════════════════════════════════ */
+.det{padding:14px;border-bottom:1px solid var(--border)}
+.det-nosel{padding:48px 20px;text-align:center;color:var(--txt2);font-size:11px;line-height:2.2}
+.det-header{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
 .det-badge{
-  background:var(--bg3);border:1px solid var(--border2);border-radius:3px;
-  padding:8px 10px;text-align:center;min-width:88px;
+  background:var(--bg3);
+  border:1px solid var(--border2);border-radius:8px;
+  padding:12px 14px;text-align:center;min-width:92px;
+  position:relative;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
 }
-.det-badge-id{font-size:15px;font-weight:600;color:var(--cyan);letter-spacing:0.04em}
-.det-badge-type{font-size:9px;color:var(--txt2);margin-top:3px;letter-spacing:0.06em}
+/* Colored top edge on badge */
+.det-badge::after{
+  content:'';position:absolute;top:-1px;left:15%;right:15%;height:2px;
+  background:var(--cyan);border-radius:0 0 2px 2px;
+}
+.det-badge-id{font-size:17px;font-weight:600;color:var(--cyan);letter-spacing:0.04em;text-shadow:0 0 20px rgba(0,212,232,0.3)}
+.det-badge-type{font-size:9px;color:var(--txt2);margin-top:4px;letter-spacing:0.08em;text-transform:uppercase}
 .det-info{flex:1}
-.drow{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px}
-.dlbl{color:var(--txt2);text-transform:uppercase;font-size:11px;letter-spacing:0.1em}
+.drow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px}
+.drow+.drow{border-top:1px solid rgba(24,46,69,0.3)}
+.dlbl{color:var(--txt2);text-transform:uppercase;font-size:10px;letter-spacing:0.1em;font-family:var(--sans);font-weight:600}
 .dval{color:var(--txt0)}
+
+/* Status badges */
 .sbadge{
-  display:inline-flex;align-items:center;gap:4px;padding:2px 7px;
-  border-radius:2px;font-size:9px;letter-spacing:0.06em;
+  display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+  border-radius:20px;font-size:9px;letter-spacing:0.06em;font-family:var(--sans);font-weight:700;
 }
-.sbadge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-.sb-svc{color:var(--green);background:rgba(0,232,136,0.1)}
-.sb-dep{color:var(--txt1);background:rgba(106,138,168,0.1)}
-.sb-mnt{color:var(--amber);background:rgba(255,176,32,0.1)}
-.sb-wth{color:var(--red);background:rgba(255,58,92,0.1)}
+.sbadge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
+.sb-svc{color:var(--green);background:rgba(0,232,136,0.12);border:1px solid rgba(0,232,136,0.2)}
+.sb-dep{color:var(--txt1);background:rgba(106,138,168,0.08);border:1px solid rgba(106,138,168,0.15)}
+.sb-mnt{color:var(--amber);background:rgba(255,176,32,0.12);border:1px solid rgba(255,176,32,0.2)}
+.sb-wth{color:var(--red);background:rgba(255,58,92,0.12);border:1px solid rgba(255,58,92,0.2)}
 
+/* Section titles */
 .sec-title{
-  font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--txt2);
-  padding:10px 12px 6px;border-top:1px solid var(--border);
+  font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--txt2);
+  padding:12px 14px 6px;border-top:1px solid var(--border);
+  font-family:var(--sans);font-weight:700;
 }
-.mi-display{padding:2px 12px 10px}
-.mi-big{font-size:28px;font-weight:300;color:var(--txt0);letter-spacing:-0.02em}
-.mi-unit{font-size:11px;color:var(--txt1);margin-left:2px}
-.mi-sub{font-size:9px;color:var(--txt2);margin-top:1px}
 
-.pm-wrap{padding:0 12px 8px}
-.pm-item{margin-bottom:9px}
-.pm-hdr{display:flex;justify-content:space-between;font-size:9px;margin-bottom:3px}
+/* Mileage display */
+.mi-display{padding:4px 14px 12px}
+.mi-big{font-size:32px;font-weight:300;color:#fff;letter-spacing:-0.02em;text-shadow:0 0 30px rgba(0,212,232,0.15)}
+.mi-unit{font-size:11px;color:var(--txt1);margin-left:3px}
+.mi-sub{font-size:9px;color:var(--txt2);margin-top:2px}
+
+/* PM bars — thicker and glowing */
+.pm-wrap{padding:2px 14px 10px}
+.pm-item{margin-bottom:12px}
+.pm-hdr{display:flex;justify-content:space-between;font-size:9px;margin-bottom:5px;font-family:var(--sans);font-weight:600}
 .pm-name{color:var(--txt1)}
 .pm-rem.ok{color:var(--green)}.pm-rem.soon{color:var(--amber)}.pm-rem.over{color:var(--red)}
-.pm-track{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
-.pm-fill{height:100%;border-radius:2px}
-.pm-fill.ok{background:var(--green)}.pm-fill.soon{background:var(--amber)}.pm-fill.over{background:var(--red)}
+.pm-track{height:6px;background:var(--bg4);border-radius:6px;overflow:hidden}
+.pm-fill{height:100%;border-radius:6px;transition:width 0.3s}
+.pm-fill.ok{background:linear-gradient(90deg, #006644, var(--green));box-shadow:0 0 10px rgba(0,232,136,0.4)}
+.pm-fill.soon{background:linear-gradient(90deg, #664400, var(--amber));box-shadow:0 0 10px rgba(255,176,32,0.4)}
+.pm-fill.over{background:linear-gradient(90deg, #660022, var(--red));box-shadow:0 0 10px rgba(255,58,92,0.4)}
 
-/* alerts tab */
+/* ══════════════════════════════════════════════════════════
+   ALERTS TAB
+   ══════════════════════════════════════════════════════════ */
 .alert-card{
-  margin:8px 12px;padding:10px 11px;border-radius:3px;border-left:3px solid;
+  margin:8px 12px;padding:12px 14px;border-radius:8px;border-left:4px solid;
   background:var(--bg2);
+  box-shadow:0 2px 12px rgba(0,0,0,0.3);
+  transition:transform 0.15s, box-shadow 0.15s;
 }
-.alert-card.crit{border-color:var(--red)}
-.alert-card.warn{border-color:var(--amber)}
-.alert-card.info{border-color:var(--blue)}
-.ac-title{font-size:13px;font-weight:500;margin-bottom:4px}
+.alert-card:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,0.4)}
+.alert-card.crit{border-color:var(--red);background:linear-gradient(135deg, var(--bg2), rgba(255,58,92,0.04))}
+.alert-card.warn{border-color:var(--amber);background:linear-gradient(135deg, var(--bg2), rgba(255,176,32,0.04))}
+.alert-card.info{border-color:var(--blue);background:linear-gradient(135deg, var(--bg2), rgba(68,136,255,0.04))}
+.ac-title{font-size:13px;font-weight:600;margin-bottom:4px;font-family:var(--sans)}
 .alert-card.crit .ac-title{color:var(--red)}
 .alert-card.warn .ac-title{color:var(--amber)}
 .alert-card.info .ac-title{color:var(--blue)}
 .ac-body{font-size:12px;color:var(--txt1);line-height:1.5}
 .ac-time{font-size:11px;color:var(--txt2);margin-top:5px}
 
-/* ── ALERT STRIP ── */
+/* ══════════════════════════════════════════════════════════
+   ALERT STRIP / TICKER
+   ══════════════════════════════════════════════════════════ */
 .alert-strip{
-  height:38px;background:var(--bg1);border-top:1px solid var(--border);
+  height:36px;background:var(--bg2);
+  border-top:1px solid var(--border);
   display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;overflow:hidden;
 }
-.as-lbl{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--txt2);white-space:nowrap;flex-shrink:0}
+.as-lbl{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--txt2);white-space:nowrap;flex-shrink:0;font-family:var(--sans);font-weight:700}
 .as-ticker{flex:1;overflow:hidden;mask-image:linear-gradient(90deg,transparent,black 5%,black 95%,transparent)}
 .as-inner{display:flex;gap:28px;white-space:nowrap;animation:ticker 40s linear infinite}
 @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.as-item{display:inline-flex;align-items:center;gap:5px;font-size:13px}
+.as-item{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-family:var(--sans)}
 .as-item.w{color:var(--amber)}.as-item.c{color:var(--red)}.as-item.i{color:var(--txt1)}
-.as-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.as-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;box-shadow:0 0 8px currentColor}
 
+/* ══════════════════════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════════════════════ */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 .pulsing{animation:pulse 1.4s ease-in-out infinite}
 
-/* Route direction arrows on map — animated chevrons */
-.route-arrow-icon{
-  pointer-events:none;
-  display:flex;align-items:center;justify-content:center;
-}
-.route-arrow-inner{
-  color:rgba(255,255,255,0.92);
-  font-size:15px;
-  font-weight:900;
-  line-height:1;
-  display:block;
-  font-family:sans-serif;
-  text-shadow:0 0 4px rgba(0,0,0,0.8);
-}
-@keyframes arrowMove{
-  0%{opacity:0}
-  40%{opacity:1}
-  70%{opacity:1}
-  100%{opacity:0}
-}
+.route-arrow-icon{pointer-events:none;display:flex;align-items:center;justify-content:center}
+.route-arrow-inner{color:rgba(255,255,255,0.92);font-size:15px;font-weight:900;line-height:1;display:block;font-family:sans-serif;text-shadow:0 0 4px rgba(0,0,0,0.8)}
+@keyframes arrowMove{0%{opacity:0}40%{opacity:1}70%{opacity:1}100%{opacity:0}}
 
-/* Next station display in detail panel */
+/* Next station box */
 .nxt-sta-box{
-  margin:10px 12px;padding:12px;
-  background:var(--bg2);border:1px solid var(--border2);border-radius:4px;
+  margin:10px 12px;padding:14px;
+  background:var(--bg2);border:1px solid var(--border2);border-radius:8px;
+  position:relative;
+}
+.nxt-sta-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:8px 8px 0 0;
+  background:linear-gradient(90deg, var(--cyan), rgba(0,212,232,0.2), var(--cyan));
 }
 .nxt-sta-row{display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap}
-.nxt-sta-name{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--txt0);text-align:center}
+.nxt-sta-name{font-family:var(--sans);font-size:15px;font-weight:700;color:var(--txt0);text-align:center}
 .nxt-sta-code{font-size:11px;color:var(--txt1);display:block;margin-top:1px}
 .nxt-sta-sep{display:flex;gap:3px;align-items:center}
-.nxt-arr{font-size:14px;color:var(--cyan);animation:arrowSlide 0.9s ease-in-out infinite}
+.nxt-arr{font-size:14px;color:var(--cyan);animation:arrowSlide 0.9s ease-in-out infinite;text-shadow:0 0 8px rgba(0,212,232,0.5)}
 .nxt-arr:nth-child(2){animation-delay:0.3s}
 .nxt-arr:nth-child(3){animation-delay:0.6s}
 @keyframes arrowSlide{0%,100%{opacity:0.2;transform:translateX(-3px)}50%{opacity:1;transform:translateX(3px)}}
-.nxt-sta-lbl{font-size:10px;color:var(--txt2);letter-spacing:0.1em;text-transform:uppercase;text-align:center;margin-bottom:5px}
+.nxt-sta-lbl{font-size:10px;color:var(--txt2);letter-spacing:0.12em;text-transform:uppercase;text-align:center;margin-bottom:6px;font-family:var(--sans);font-weight:700}
 
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
 @media (max-width: 900px){
   html,body{height:auto;min-height:100%;overflow:auto}
   body{min-height:100vh;overflow:auto}
-  header{
-    height:auto;align-items:flex-start;flex-wrap:wrap;
-    padding:10px 12px;gap:10px;
-  }
+  header{height:auto}
+  .hdr-top{flex-wrap:wrap;gap:8px}
+  .hdr-live{margin-left:auto}
   .hlogo{
-    width:100%;padding-right:0;padding-bottom:8px;
-    border-right:none;border-bottom:1px solid var(--border);
+    padding-right:0;border-right:none;
   }
   .hstats{
-    margin-left:0;width:100%;
     display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:6px;
+    gap:4px;padding:8px;
   }
   .hs{
     padding:8px 10px;border:1px solid var(--border);
-    background:var(--bg2);
+    background:var(--bg2);border-radius:6px;border-right:1px solid var(--border);
   }
+  .hs::before{display:none}
   .hs-val{font-size:18px}
-  .hclock{
-    width:100%;margin-left:0;padding-top:2px;
-    display:flex;justify-content:space-between;align-items:baseline;
-  }
+  .hclock{padding-left:0}
   .hclock-time{font-size:18px}
   .main{
     flex-direction:column;overflow:visible;
@@ -396,10 +488,7 @@ header{
     border-left:none;
   }
   .tabs{position:sticky;top:0;z-index:950;background:var(--bg1)}
-  .tcontent{
-    max-height:42vh;
-    -webkit-overflow-scrolling:touch;
-  }
+  .tcontent{max-height:42vh;-webkit-overflow-scrolling:touch}
   .train-dot{width:12px;height:20px}
   .train-dot::after{top:3px;height:2px;left:1px;right:1px}
   .train-arrow{top:-6px;border-left-width:3px;border-right-width:3px;border-bottom-width:6px}
@@ -408,29 +497,26 @@ header{
   .sys-label{font-size:9px;letter-spacing:0.12em}
   #lbl-sk{left:12px}
   #lbl-pg{right:12px}
-  .map-legend{
-    left:8px;right:8px;bottom:8px;
-    padding:7px 9px;
-  }
+  .map-legend{left:8px;right:8px;bottom:8px;padding:7px 9px}
   .leg-row{font-size:8px;gap:6px}
   .map-coords{display:none}
   #tooltip{font-size:9px;padding:5px 8px;max-width:70vw}
   .det-header{flex-direction:column}
   .det-badge{width:100%}
   .drow{gap:10px}
+  .fi{margin:2px 4px}
   .fi-id{min-width:58px}
   .fi-loop{min-width:40px}
   .fi-mi{min-width:60px}
-  .alert-strip{
-    height:34px;padding:0 10px;
-  }
+  .alert-strip{height:34px;padding:0 10px}
   .as-lbl{font-size:8px}
   .as-item{font-size:9px}
 }
 
 @media (max-width: 520px){
-  header{padding:8px 10px}
-  .hstats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  header{padding:0}
+  .hdr-top{padding:8px 10px}
+  .hstats{grid-template-columns:repeat(2,minmax(0,1fr));padding:6px}
   .hlogo-title{font-size:11px}
   .hlogo-sub{font-size:8px}
   .hs{padding:7px 8px}
@@ -441,6 +527,8 @@ header{
   .map-legend{display:none}
   .train-label{font-size:8px}
   .tab{font-size:8px;padding:9px 2px}
+  .hdr-live{padding:3px 8px}
+  .hdr-live-txt{font-size:8px}
 }
 </style>
 </head>
@@ -448,11 +536,21 @@ header{
 
 <!-- HEADER -->
 <header>
-  <div class="hlogo">
-    <div class="hlogo-mark">LTA</div>
-    <div class="hlogo-text">
-      <div class="hlogo-title">SPLRT FLEET OPS CENTER</div>
-      <div class="hlogo-sub">SENGKANG–PUNGGOL LIGHT RAIL TRANSIT</div>
+  <div class="hdr-top">
+    <div class="hlogo">
+      <div class="hlogo-mark">LTA</div>
+      <div class="hlogo-text">
+        <div class="hlogo-title">SPLRT FLEET OPS CENTER</div>
+        <div class="hlogo-sub">SENGKANG–PUNGGOL LIGHT RAIL TRANSIT</div>
+      </div>
+    </div>
+    <div class="hdr-live">
+      <div class="hdr-live-dot"></div>
+      <div class="hdr-live-txt">LIVE</div>
+    </div>
+    <div class="hclock">
+      <div class="hclock-time" id="clock">—</div>
+      <div class="hclock-date" id="clkdate">—</div>
     </div>
   </div>
   <div class="hstats">
@@ -476,10 +574,6 @@ header{
       <div class="hs-lbl">PM Due Soon</div>
       <div class="hs-val a" id="h-soon">—</div>
     </div>
-  </div>
-  <div class="hclock">
-    <div class="hclock-time" id="clock">—</div>
-    <div class="hclock-date" id="clkdate">—</div>
   </div>
 </header>
 
@@ -1039,8 +1133,8 @@ function updateDisplaySpeeds(){
 const LRT_BOUNDS = L.latLngBounds([1.370, 103.858], [1.430, 103.932]);
 const map = L.map('map', {
   center: [1.3980, 103.8970],
-  zoom: 14,
-  minZoom: 13,
+  zoom: 15,
+  minZoom: 15,
   maxZoom: 18,
   maxBounds: LRT_BOUNDS,
   maxBoundsViscosity: 1.0,
@@ -1096,7 +1190,7 @@ function drawStations(){
         const hubLoops = Object.keys(STATIONS).filter(lid =>
           STATIONS[lid].some(s => s.name === sta.name && s.hub));
         const hubInfo = hubLoops.map(l => l.replace('-',' ')).join(', ');
-        L.circleMarker([sta.lat, sta.lng], {
+        const hubMarker = L.circleMarker([sta.lat, sta.lng], {
           radius:13, fillColor:color, color:color,
           weight:3, fillOpacity:1
         })
@@ -1104,14 +1198,13 @@ function drawStations(){
           permanent:true, direction:'top', offset:[0,-14],
           className:'sta-label hub-label'
         })
-        .bindPopup(`<div style="font-family:var(--mono);font-size:14px;min-width:180px">
-          <div style="font-weight:700;color:${color};margin-bottom:6px;font-size:15px">${getStationLabel(sta)} Station</div>
-          <div style="color:#6a8aa8;font-size:13px">Hub / Interchange</div>
-          <div style="color:#6a8aa8;font-size:13px;margin-top:3px">Serves: ${hubInfo}</div>
-        </div>`, {className:'station-popup'})
         .addTo(map);
+        hubMarker.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
+        });
       } else {
-        L.circleMarker([sta.lat, sta.lng], {
+        const staMarker = L.circleMarker([sta.lat, sta.lng], {
           radius:8, fillColor:'#111d2e', color:color,
           weight:2.5, fillOpacity:1
         })
@@ -1119,11 +1212,11 @@ function drawStations(){
           permanent:true, direction:'top', offset:[0,-8],
           className:'sta-label'
         })
-        .bindPopup(`<div style="font-family:var(--mono);font-size:14px;min-width:180px">
-          <div style="font-weight:700;color:${color};margin-bottom:6px;font-size:15px">${getStationLabel(sta)} Station</div>
-          <div style="color:#6a8aa8;font-size:13px">${lineName} LRT — ${loopSide}</div>
-        </div>`, {className:'station-popup'})
         .addTo(map);
+        staMarker.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
+        });
       }
     });
   }
@@ -1208,6 +1301,7 @@ function updateRouteArrowPositions(train){
 // TRAIN MARKERS
 // ═══════════════════════════════════════════════════════
 let selectedTrain = null;
+let selectedStation = null; // {name, loopId, lat, lng, hub, color, lineName, loopSide}
 
 function getTrackMetrics(loopId, dir){
   const tracks = TRACK_METRICS[loopId];
@@ -1288,6 +1382,158 @@ function renderNoSelection(){
   document.getElementById('detailPanel').innerHTML = NO_SELECTION_HTML;
 }
 
+function selectStation(sta){
+  // Deselect any train
+  if(selectedTrain){
+    const prev = fleet.find(f => f.id === selectedTrain.id);
+    if(prev && prev._el) prev._el.classList.remove('selected');
+    selectedTrain = null;
+    clearRouteArrows();
+  }
+  selectedStation = sta;
+  updateStationDetailPanel();
+  switchTab('detail');
+  updateFleetList();
+}
+
+function getTrainsApproaching(stationName, loopId){
+  const results = [];
+  // Find all loops this station is on
+  const loops = loopId ? [loopId] : Object.keys(STATIONS);
+  const targetLoops = [];
+  for(const lid of loops){
+    const stas = STATIONS[lid];
+    if(stas && stas.some(s => s.name === stationName)) targetLoops.push(lid);
+  }
+  // For hub stations, check all loops they serve
+  if(!loopId){
+    for(const lid of Object.keys(STATIONS)){
+      if(!targetLoops.includes(lid) && STATIONS[lid].some(s => s.name === stationName)){
+        targetLoops.push(lid);
+      }
+    }
+  }
+
+  for(const lid of targetLoops){
+    const moving = fleet.filter(t => t.status === 'in-service' && t.loop === lid && t.dist != null);
+    for(const t of moving){
+      const dir = t.dir;
+      const stops = getStops(lid, dir);
+      if(!stops) continue;
+      const staDist = stops.find(s => s.name === stationName);
+      if(!staDist) continue;
+      const loopLen = t._loopLen || (LOOP_LENGTHS[lid] || 0);
+      if(loopLen <= 0) continue;
+      const dist = distanceToStop(t.dist, staDist.dist, loopLen, dir);
+      const speed = t.cruiseMps || SIM.speedMinMps;
+      // Rough ETA: distance / speed + estimated dwell stops in between
+      const stopsInBetween = countStopsBetween(t.dist, staDist.dist, stops, dir, loopLen);
+      const etaSec = (dist / speed) + (stopsInBetween * SIM.dwellSec);
+      results.push({train:t, dist, etaSec, loop:lid, dir});
+    }
+  }
+  results.sort((a,b) => a.etaSec - b.etaSec);
+  return results;
+}
+
+function countStopsBetween(trainDist, staDist, stops, dir, loopLen){
+  let count = 0;
+  for(const s of stops){
+    const d = distanceToStop(trainDist, s.dist, loopLen, dir);
+    const dSta = distanceToStop(trainDist, staDist, loopLen, dir);
+    if(d > 0 && d < dSta) count++;
+  }
+  return count;
+}
+
+function formatETA(sec){
+  if(sec < 60) return '<1 min';
+  const m = Math.floor(sec / 60);
+  return m === 1 ? '1 min' : `${m} min`;
+}
+
+function updateStationDetailPanel(){
+  const sta = selectedStation;
+  if(!sta) return;
+  const code = STATION_CODES[sta.name] || '';
+  const loopNames = {
+    'SK-West':'Sengkang West Loop','SK-East':'Sengkang East Loop',
+    'PG-West':'Punggol West Loop','PG-East':'Punggol East Loop'
+  };
+
+  // For hub stations, get trains from all loops they serve
+  const allLoops = Object.keys(STATIONS).filter(lid =>
+    STATIONS[lid].some(s => s.name === sta.name));
+  const approaching = [];
+  for(const lid of allLoops){
+    approaching.push(...getTrainsApproaching(sta.name, lid));
+  }
+  // Deduplicate (a train only appears once)
+  const seen = new Set();
+  const unique = approaching.filter(a => {
+    if(seen.has(a.train.id)) return false;
+    seen.add(a.train.id);
+    return true;
+  });
+  unique.sort((a,b) => a.etaSec - b.etaSec);
+
+  const nextTrain = unique.length > 0 ? unique[0] : null;
+  const dirLabel = d => d >= 0 ? 'CW' : 'CCW';
+
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="det">
+      <div class="det-header">
+        <div class="det-badge" style="border-color:${sta.color}">
+          <div class="det-badge-id" style="color:${sta.color}">${code || sta.name.slice(0,3).toUpperCase()}</div>
+          <div class="det-badge-type">STATION</div>
+        </div>
+        <div class="det-info">
+          <div style="font-size:15px;font-weight:600;color:var(--txt0);margin-bottom:6px">${sta.name}</div>
+          <div class="drow"><span class="dlbl">Line</span><span class="dval" style="font-size:11px">${sta.hub ? 'Hub / Interchange' : sta.lineName + ' LRT'}</span></div>
+          <div class="drow"><span class="dlbl">Loop</span><span class="dval" style="font-size:11px">${sta.hub ? allLoops.map(l=>loopNames[l]||l).join(', ') : (loopNames[sta.loopId]||sta.loopId)}</span></div>
+        </div>
+      </div>
+    </div>
+    ${nextTrain ? `
+    <div class="nxt-sta-box">
+      <div class="nxt-sta-lbl">Next Train Arriving</div>
+      <div class="nxt-sta-row">
+        <div style="text-align:center">
+          <div class="nxt-sta-name" style="color:var(--cyan)">${nextTrain.train.id}</div>
+          <span class="nxt-sta-code">${nextTrain.train.type}</span>
+        </div>
+        <div class="nxt-sta-sep">
+          <span class="nxt-arr">›</span>
+          <span class="nxt-arr">›</span>
+          <span class="nxt-arr">›</span>
+        </div>
+        <div style="text-align:center">
+          <div class="nxt-sta-name" style="color:var(--green);font-size:18px">${formatETA(nextTrain.etaSec)}</div>
+          <span class="nxt-sta-code">${loopNames[nextTrain.loop]||nextTrain.loop} · ${dirLabel(nextTrain.dir)}</span>
+        </div>
+      </div>
+    </div>` : `
+    <div class="nxt-sta-box">
+      <div class="nxt-sta-lbl">No Trains Approaching</div>
+    </div>`}
+    <div class="sec-title">Train Timings</div>
+    <div style="padding:0 12px 8px">
+      ${unique.length === 0 ? '<div style="color:var(--txt2);font-size:11px;padding:8px 0">No active trains on this line</div>' :
+        unique.slice(0,10).map((a,i) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;${i>0?'border-top:1px solid var(--border);':''}">
+            <div>
+              <span style="color:${i===0?'var(--cyan)':'var(--txt0)'};font-size:13px;font-weight:${i===0?'600':'400'}">${a.train.id}</span>
+              <span style="color:var(--txt2);font-size:10px;margin-left:6px">${a.train.type}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="color:${i===0?'var(--green)':a.etaSec<120?'var(--cyan)':'var(--txt0)'};font-size:13px;font-weight:600">${formatETA(a.etaSec)}</span>
+              <div style="color:var(--txt2);font-size:9px">${loopNames[a.loop]||a.loop} · ${dirLabel(a.dir)} · ${Math.round(a.dist)}m</div>
+            </div>
+          </div>
+        `).join('')}
+    </div>`;
+}
+
 function showTrainTooltip(train){
   const pt = getTrainPt(train);
   if(!pt) return;
@@ -1322,6 +1568,10 @@ map.on('click', () => {
     clearRouteArrows();
     renderNoSelection();
     updateFleetList();
+  }
+  if(selectedStation){
+    selectedStation = null;
+    renderNoSelection();
   }
 });
 
@@ -1452,6 +1702,9 @@ function animate(now){
       updateDetailPanel(t);
     }
   }
+  if(selectedStation){
+    updateStationDetailPanel();
+  }
 
   requestAnimationFrame(animate);
 }
@@ -1499,6 +1752,7 @@ function selectTrainById(id){
     const prev = fleet.find(f => f.id === selectedTrain.id);
     if(prev && prev._el) prev._el.classList.remove('selected');
   }
+  selectedStation = null;
   const t = fleet.find(f => f.id === id);
   if(!t) return;
   selectedTrain = t;

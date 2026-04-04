@@ -1161,29 +1161,33 @@ function clearRouteArrows(){
 
 function drawRouteArrows(train){
   clearRouteArrows();
-  if(!train.loop) return;
+  if(!train.loop || train.dist == null) return;
   const metrics = getTrackMetrics(train.loop, train.dir);
   if(!metrics || !metrics.pts.length) return;
-  const step = 90;          // one chevron every 90 m — dense
-  const animDur = 2.8;      // seconds for wave to travel full loop
-  const look = 30 / metrics.length; // fraction to look ahead for bearing
+  const loopLen = metrics.length;
+  const extendM = 1000;                  // only 1 km ahead of the train
+  const step = 90;                       // one chevron every 90 m
+  const animDur = 2.8;
+  const lookM = 30;                      // metres ahead for bearing calculation
   const cw = train.dir >= 0;
-  const count = Math.floor(metrics.length / step);
+  const count = Math.floor(extendM / step);
   for(let i = 0; i < count; i++){
-    const pos = (i * step) / metrics.length;
-    // For CCW trains pos increases against direction of travel, so look backwards in pos
-    const posAhead = cw ? Math.min(pos + look, 1) : Math.max(pos - look, 0);
-    const info = getPointAlongLoop(train.loop, pos, train.dir);
+    const distFromTrain = i * step;
+    // Actual metre-distance along the selected track, wrapping around loop
+    const d    = cw ? (train.dist + distFromTrain)         % loopLen
+                    : ((train.dist - distFromTrain) % loopLen + loopLen) % loopLen;
+    const dAhd = cw ? (train.dist + distFromTrain + lookM) % loopLen
+                    : ((train.dist - distFromTrain - lookM) % loopLen + loopLen) % loopLen;
+    const pos     = d    / loopLen;
+    const posAhead = dAhd / loopLen;
+    const info      = getPointAlongLoop(train.loop, pos,      train.dir);
     const infoAhead = getPointAlongLoop(train.loop, posAhead, train.dir);
     if(!info || !infoAhead) continue;
-    const pt = info.pt;
+    const pt  = info.pt;
     const nxt = infoAhead.pt;
-    // angle=0 means north; ❯ points right by default, so subtract 90°
     const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI - 90;
-    // Wave must flow in direction of travel:
-    //   CW  (pos increases with travel): delay = (pos-1)*D  → wave moves forward
-    //   CCW (pos decreases with travel): delay = -pos*D     → wave moves backward in pos = forward in travel
-    const delay = cw ? (pos - 1) * animDur : -pos * animDur;
+    // Wave flows outward from train: i=0 (at train) fires first, i=count-1 fires last
+    const delay = (i / count) * animDur;
     const outer = document.createElement('div');
     outer.className = 'route-arrow-icon';
     outer.style.cssText = `animation:arrowMove ${animDur}s ease-in-out infinite;animation-delay:${delay}s;opacity:0`;

@@ -321,19 +321,13 @@ header{
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 .pulsing{animation:pulse 1.4s ease-in-out infinite}
 
-/* Route direction arrows on map — chaser-light animation */
+/* Route direction arrows on map — static white */
 .route-arrow-icon{
   width:0;height:0;
   border-left:5px solid transparent;
   border-right:5px solid transparent;
-  border-bottom:9px solid rgba(255,255,255,0.9);
-  opacity:0;
+  border-bottom:9px solid rgba(255,255,255,0.75);
   pointer-events:none;
-}
-@keyframes arrowFlow{
-  0%,100%{opacity:0}
-  20%{opacity:0.85}
-  40%{opacity:0}
 }
 
 /* Next station display in detail panel */
@@ -1158,8 +1152,7 @@ function drawRouteArrows(train){
   if(!train.loop) return;
   const metrics = getTrackMetrics(train.loop, train.dir);
   if(!metrics || !metrics.pts.length) return;
-  const step = 220;        // one arrow every 220 m
-  const animDur = 3.5;     // seconds for wave to complete one loop
+  const step = 220; // one arrow every 220 m
   const count = Math.floor(metrics.length / step);
   for(let i = 0; i < count; i++){
     const pos = (i * step) / metrics.length;               // 0 → 1 along direction of travel
@@ -1171,11 +1164,9 @@ function drawRouteArrows(train){
     const nxt = infoAhead.pt;
     const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI;
     // Stagger delay so the lit arrow appears to flow in the direction of travel
-    const delay = (pos - 1) * animDur;
     const el = document.createElement('div');
     el.className = 'route-arrow-icon';
-    el.style.cssText = `transform:rotate(${angle}deg);transform-origin:center 60%;` +
-      `animation:arrowFlow ${animDur}s linear infinite;animation-delay:${delay}s`;
+    el.style.cssText = `transform:rotate(${angle}deg);transform-origin:center 60%`;
     const marker = L.marker([pt.lat, pt.lng], {
       icon: L.divIcon({html:el, className:'', iconSize:[10,9], iconAnchor:[5,4]}),
       interactive: false, zIndexOffset: 100

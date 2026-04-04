@@ -321,13 +321,25 @@ header{
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 .pulsing{animation:pulse 1.4s ease-in-out infinite}
 
-/* Route direction arrows on map — static white */
+/* Route direction arrows on map — animated chevrons */
 .route-arrow-icon{
-  width:0;height:0;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-bottom:9px solid rgba(255,255,255,0.75);
   pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.route-arrow-inner{
+  color:rgba(255,255,255,0.92);
+  font-size:15px;
+  font-weight:900;
+  line-height:1;
+  display:block;
+  font-family:sans-serif;
+  text-shadow:0 0 4px rgba(0,0,0,0.8);
+}
+@keyframes arrowMove{
+  0%{opacity:0}
+  40%{opacity:1}
+  70%{opacity:1}
+  100%{opacity:0}
 }
 
 /* Next station display in detail panel */
@@ -1152,23 +1164,31 @@ function drawRouteArrows(train){
   if(!train.loop) return;
   const metrics = getTrackMetrics(train.loop, train.dir);
   if(!metrics || !metrics.pts.length) return;
-  const step = 220; // one arrow every 220 m
+  const step = 90;          // one chevron every 90 m — dense
+  const animDur = 2.8;      // seconds for wave to travel full loop
   const count = Math.floor(metrics.length / step);
   for(let i = 0; i < count; i++){
-    const pos = (i * step) / metrics.length;               // 0 → 1 along direction of travel
-    const posAhead = Math.min(pos + 35 / metrics.length, 1);
+    const pos = (i * step) / metrics.length;
+    const posAhead = Math.min(pos + 30 / metrics.length, 1);
     const info = getPointAlongLoop(train.loop, pos, train.dir);
     const infoAhead = getPointAlongLoop(train.loop, posAhead, train.dir);
     if(!info || !infoAhead) continue;
     const pt = info.pt;
     const nxt = infoAhead.pt;
-    const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI;
-    // Stagger delay so the lit arrow appears to flow in the direction of travel
-    const el = document.createElement('div');
-    el.className = 'route-arrow-icon';
-    el.style.cssText = `transform:rotate(${angle}deg);transform-origin:center 60%`;
+    // angle=0 means north; ❯ points right by default, so subtract 90°
+    const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI - 90;
+    // Stagger delay: pos 0→1 maps to delay 0→-animDur, wave flows forward
+    const delay = (pos - 1) * animDur;
+    const outer = document.createElement('div');
+    outer.className = 'route-arrow-icon';
+    outer.style.cssText = `animation:arrowMove ${animDur}s ease-in-out infinite;animation-delay:${delay}s;opacity:0`;
+    const inner = document.createElement('span');
+    inner.className = 'route-arrow-inner';
+    inner.style.transform = `rotate(${angle}deg)`;
+    inner.textContent = '❯';
+    outer.appendChild(inner);
     const marker = L.marker([pt.lat, pt.lng], {
-      icon: L.divIcon({html:el, className:'', iconSize:[10,9], iconAnchor:[5,4]}),
+      icon: L.divIcon({html:outer, className:'', iconSize:[16,16], iconAnchor:[8,8]}),
       interactive: false, zIndexOffset: 100
     }).addTo(map);
     _routeArrows.push(marker);

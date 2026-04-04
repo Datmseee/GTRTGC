@@ -1155,7 +1155,7 @@ function drawDepot(){
 let _routeArrows = [];
 
 function clearRouteArrows(){
-  _routeArrows.forEach(m => map.removeLayer(m));
+  _routeArrows.forEach(({marker}) => map.removeLayer(marker));
   _routeArrows = [];
 }
 

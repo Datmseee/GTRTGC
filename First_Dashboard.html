@@ -151,6 +151,13 @@ header::before{
   font-weight:700 !important;white-space:normal !important;
   text-align:center !important;letter-spacing:0.04em;
   z-index:600;cursor:pointer !important;pointer-events:auto !important;
+  transition:all 0.2s !important;
+}
+.sta-label:hover{
+  border-color:var(--cyan) !important;
+  box-shadow:0 6px 24px rgba(0,0,0,0.7),0 0 35px rgba(0,212,232,0.35) !important;
+  transform:scale(1.05);
+  background:rgba(0,212,232,0.15) !important;
 }
 .sta-label.hub-label{
   color:#ffffff !important;font-size:16px !important;
@@ -159,6 +166,13 @@ header::before{
   box-shadow:0 6px 24px rgba(0,0,0,0.6), 0 0 30px rgba(0,212,232,0.2) !important;
   white-space:nowrap !important;text-align:left !important;
   z-index:601;cursor:pointer !important;pointer-events:auto !important;
+  transition:all 0.2s !important;
+}
+.sta-label.hub-label:hover{
+  border-color:#fff !important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.7), 0 0 45px rgba(0,212,232,0.45) !important;
+  transform:scale(1.08);
+  background:rgba(0,212,232,0.3) !important;
 }
 .sta-name-small{font-size:10px;font-weight:600;opacity:0.85;display:block}
 .leaflet-tooltip::before{display:none !important}
@@ -173,10 +187,15 @@ header::before{
 
 /* Depot icon */
 .depot-icon{
-  background:rgba(24,46,69,0.7);border:1px solid var(--txt2);
-  padding:3px 7px;font-family:var(--sans);font-size:8px;font-weight:600;
+  background:rgba(24,46,69,0.85);border:1px solid var(--txt2);
+  padding:5px 10px;font-family:var(--sans);font-size:10px;font-weight:600;
   color:var(--txt2);letter-spacing:0.1em;white-space:nowrap;
   transform:translate(-50%,-50%);position:absolute;
+  cursor:pointer;transition:all 0.2s;
+}
+.depot-icon:hover{
+  background:rgba(0,212,232,0.15);border-color:var(--cyan);color:var(--cyan);
+  box-shadow:0 0 20px rgba(0,212,232,0.25);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -198,7 +217,7 @@ header::before{
   content:'';position:absolute;left:2px;right:2px;top:4px;height:3px;
   border-radius:2px;background:rgba(15,24,36,0.65);
 }
-.train-dot:hover{transform:translate(-50%,-50%) scale(1.2);z-index:999 !important}
+.train-dot:hover{transform:translate(-50%,-50%) scale(1.25);z-index:999 !important;box-shadow:0 0 20px currentColor, 0 0 35px currentColor !important}
 .train-dot.selected{
   border:2px solid #fff !important;
   box-shadow:0 0 30px currentColor, 0 0 8px rgba(255,255,255,0.4) !important;
@@ -311,7 +330,7 @@ header::before{
   cursor:pointer;border-left:3px solid transparent;transition:all 0.12s;
   margin:2px 8px;border-radius:6px;
 }
-.fi:hover{background:var(--bg3)}
+.fi:hover{background:var(--bg3);border-left-color:var(--cyan);box-shadow:0 0 15px rgba(0,212,232,0.15)}
 .fi.selected{
   background:rgba(0,212,232,0.08);border-left-color:var(--cyan);
   box-shadow:0 0 15px rgba(0,212,232,0.08);
@@ -1289,11 +1308,21 @@ function drawStations(){
           STATIONS[lid].some(s => s.name === sta.name && s.hub));
         const hubInfo = hubLoops.map(l => l.replace('-',' ')).join(', ');
         
-        // Outer glow
-        L.circleMarker([sta.lat, sta.lng], {
-          radius:28, fillColor:color, color:color,
-          weight:1, fillOpacity:0.15
+        // Outer glow - interactive
+        const outerGlow = L.circleMarker([sta.lat, sta.lng], {
+          radius:32, fillColor:color, color:color,
+          weight:1, fillOpacity: 0.1
         }).addTo(map);
+        outerGlow.on('mouseover', function() {
+          this.setStyle({fillOpacity: 0.25, weight: 2});
+        });
+        outerGlow.on('mouseout', function() {
+          this.setStyle({fillOpacity: 0.1, weight: 1});
+        });
+        outerGlow.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
+        });
         // Middle ring
         L.circleMarker([sta.lat, sta.lng], {
           radius:22, fillColor:color, color:color,
@@ -1320,11 +1349,21 @@ function drawStations(){
         });
       } else {
         // Regular stations: larger with shadow effect
-        // Outer glow
-        L.circleMarker([sta.lat, sta.lng], {
-          radius:18, fillColor:color, color:color,
-          weight:1, fillOpacity:0.12
+        // Outer glow - larger hover area
+        const outerGlow = L.circleMarker([sta.lat, sta.lng], {
+          radius:22, fillColor:color, color:color,
+          weight:1, fillOpacity:0.08
         }).addTo(map);
+        outerGlow.on('mouseover', function() {
+          this.setStyle({fillOpacity: 0.2, weight: 2});
+        });
+        outerGlow.on('mouseout', function() {
+          this.setStyle({fillOpacity: 0.08, weight: 1});
+        });
+        outerGlow.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
+        });
         // Core station
         const staMarker = L.circleMarker([sta.lat, sta.lng], {
           radius:12, fillColor:'#0a1422', color:color,

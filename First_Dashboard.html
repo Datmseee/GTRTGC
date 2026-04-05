@@ -1661,9 +1661,8 @@ function selectStation(sta){
   switchTab('detail');
   updateFleetList();
   
-  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].id === 'station'){
-    tutStep++;
-    renderTutorialStep();
+  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickStation'){
+    onTutTaskComplete('You can see train arrivals for this station!');
   }
 }
 
@@ -2048,9 +2047,8 @@ function selectTrainById(id){
   switchTab('detail');
   updateFleetList();
   
-  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].id === 'train'){
-    tutStep++;
-    renderTutorialStep();
+  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickTrain'){
+    onTutTaskComplete('You can see this train\'s mileage, PM schedule, and more!');
   }
 }
 
@@ -2163,6 +2161,10 @@ function updateHeaderStats(){
   document.getElementById('h-dep').textContent  = inDep;
   document.getElementById('h-over').textContent = over;
   document.getElementById('h-soon').textContent = soon;
+  
+  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickStat'){
+    onTutTaskComplete('You can see fleet statistics at a glance!');
+  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2174,6 +2176,10 @@ function switchTab(id){
     document.getElementById('tc-'+t).classList.toggle('active', t===id);
   });
   if(id==='alerts') updateAlertsPanel();
+  
+  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickTab'){
+    onTutTaskComplete('You can see all trains in this category!');
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2187,6 +2193,10 @@ function filterTrains(){
     const id = item.querySelector('.fi-id').textContent.toLowerCase();
     item.style.display = id.includes(query) ? '' : 'none';
   });
+  
+  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickSearch' && query.length > 0){
+    onTutTaskComplete('You found trains matching your search!');
+  }
 }
 
 function showHelp(){
@@ -2207,28 +2217,26 @@ function initHelp(){
 }
 
 // ══════════════════════════════════════════════════════════
-// TUTORIAL SYSTEM - Simple and clean
+// TUTORIAL SYSTEM - Interactive with tasks
 // ══════════════════════════════════════════════════════════
 const TUTORIAL_STEPS = [
-  {id:'intro', title:'Welcome!', desc:'Quick tour of the dashboard. Click Next to start.'},
-  {id:'header', title:'Fleet Stats', desc:'Top bar shows: total trains, in service, in depot, PM alerts.'},
-  {id:'map', title:'Interactive Map', desc:'Shows all 4 LRT loops with moving trains. Click stations for timings.'},
-  {id:'station', title:'Your Turn!', desc:'Click any station on the map to see train arrivals. I\'ll wait!'},
-  {id:'train', title:'Trains', desc:'Now click any train marker to view its details.'},
-  {id:'fleet', title:'Fleet List', desc:'All 59 trains listed here. Use search and filters.'},
-  {id:'search', title:'Search', desc:'Type a train ID to find it quickly.'},
-  {id:'alerts', title:'Alerts', desc:'See all trains needing maintenance.'},
-  {id:'done', title:'All Done!', desc:'You now know how to use the dashboard!'}
+  {id:'intro', title:'Welcome!', desc:'Quick tour of the dashboard. Click Start to begin!', action:'button'},
+  {id:'header', title:'Fleet Stats', desc:'Click on any stat box: Total, In Service, In Depot, PM Overdue, or PM Due Soon.', action:'clickStat'},
+  {id:'map', title:'Interactive Map', desc:'The map shows all 4 LRT loops with moving trains.', action:'button'},
+  {id:'station', title:'Your Turn!', desc:'Click any STATION on the map to see train arrivals.', action:'clickStation', hint:'Look for the colored circles - these are stations!'},
+  {id:'train', title:'Trains', desc:'Click any TRAIN marker on the map to view its details.', action:'clickTrain', hint:'Look for the small rectangles moving on the tracks!'},
+  {id:'fleet', title:'Fleet List', desc:'Click the "Fleet" tab in the side panel.', action:'clickTab', target:'tab-fleet'},
+  {id:'search', title:'Search', desc:'Click on the search input box.', action:'clickSearch', hint:'It\'s at the top of the Fleet list'},
+  {id:'alerts', title:'Alerts', desc:'Click the "Alerts" tab to see maintenance needs.', action:'clickTab', target:'tab-alerts'},
+  {id:'done', title:'🎉 All Done!', desc:'You now know how to use the dashboard! Enjoy monitoring your fleet!', action:'finish'}
 ];
 
 let tutStep = 0;
-let tutStationClicked = false;
-let tutTrainClicked = false;
+let tutCompleted = false;
 
 function startTutorial(){
   tutStep = 0;
-  tutStationClicked = false;
-  tutTrainClicked = false;
+  tutCompleted = false;
   document.getElementById('tutPanel').style.display = 'block';
   renderTutorialStep();
 }
@@ -2246,25 +2254,25 @@ function renderTutorialStep(){
   const arrow = document.getElementById('tutArrow');
   const btn = document.getElementById('tutActionBtn');
   
-  if(step.id === 'station'){
-    arrow.innerHTML = '👆 Click a station!';
+  if(step.action === 'clickStation' || step.action === 'clickTrain' || step.action === 'clickStat' || step.action === 'clickSearch' || step.action === 'clickTab'){
+    arrow.innerHTML = step.hint || '👆 Your turn!';
     arrow.style.color = 'var(--amber)';
     btn.textContent = 'Skip';
     btn.className = 'tut-float-btn skip';
-  } else if(step.id === 'train'){
-    arrow.innerHTML = '👆 Click a train!';
-    arrow.style.color = 'var(--amber)';
-    btn.textContent = 'Skip';
-    btn.className = 'tut-float-btn skip';
-  } else if(step.id === 'done'){
+  } else if(step.action === 'finish'){
     arrow.innerHTML = '🎉';
     arrow.style.color = 'var(--green)';
     btn.textContent = 'Done';
     btn.className = 'tut-float-btn primary';
+  } else if(step.action === 'button'){
+    arrow.innerHTML = '↓';
+    arrow.style.color = 'var(--cyan)';
+    btn.textContent = 'Start';
+    btn.className = 'tut-float-btn primary';
   } else {
     arrow.innerHTML = '↓';
     arrow.style.color = 'var(--cyan)';
-    btn.textContent = tutStep >= TUTORIAL_STEPS.length - 1 ? 'Finish' : 'Next';
+    btn.textContent = 'Next';
     btn.className = 'tut-float-btn primary';
   }
 }
@@ -2272,14 +2280,30 @@ function renderTutorialStep(){
 function handleTutorialAction(){
   const step = TUTORIAL_STEPS[tutStep];
   
-  if(step.id === 'done'){
+  if(step.action === 'finish'){
     closeTutorial();
     return;
   }
   
-  if(step.id !== 'station' && step.id !== 'train'){
+  if(step.action === 'button' || step.action === 'button'){
     tutStep++;
     renderTutorialStep();
+  }
+}
+
+function onTutTaskComplete(msg){
+  if(tutStep < TUTORIAL_STEPS.length){
+    const step = TUTORIAL_STEPS[tutStep];
+    if(step.action === 'clickStation' || step.action === 'clickTrain' || step.action === 'clickStat' || step.action === 'clickSearch' || step.action === 'clickTab'){
+      document.getElementById('tutTitle').textContent = '✅ Great job!';
+      document.getElementById('tutDesc').textContent = msg || 'You completed the task!';
+      document.getElementById('tutArrow').innerHTML = '👍';
+      document.getElementById('tutArrow').style.color = 'var(--green)';
+      document.getElementById('tutActionBtn').textContent = 'Next';
+      document.getElementById('tutActionBtn').className = 'tut-float-btn primary';
+      tutStep++;
+      setTimeout(renderTutorialStep, 2000);
+    }
   }
 }
 

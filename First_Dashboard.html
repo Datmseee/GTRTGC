@@ -613,7 +613,7 @@ header::before{
 .tut-float{
   position:fixed;top:70px;left:16px;z-index:1800;
   background:var(--bg1);border:1px solid var(--cyan);
-  border-radius:12px;width:240px;
+  border-radius:12px;width:260px;
   box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 25px rgba(0,212,232,0.2);
   overflow:hidden;animation:tutSlideIn 0.3s ease-out
 }
@@ -638,11 +638,12 @@ header::before{
 .tut-float-btn.secondary:hover{background:var(--bg3);color:var(--txt0)}
 .tut-float-btn.skip{background:transparent;border-color:var(--txt2);color:var(--txt2)}
 .tut-float-btn.skip:hover{background:transparent;border-color:var(--red);color:var(--red)}
-.tut-success{color:var(--green);font-weight:700}
-.tut-float-pointer{position:absolute;pointer-events:none;z-index:1801}
-.tut-pointer-line{stroke:var(--cyan);stroke-width:3;stroke-dasharray:8,4;animation:dash 0.5s linear infinite}
-@keyframes dash{to{stroke-dashoffset:-12}}
-.tut-pointer-head{fill:var(--cyan);filter:drop-shadow(0 0 5px var(--cyan))}}
+.tut-highlight{position:relative;z-index:999}
+.tut-highlight::after{content:'';position:absolute;inset:-4px;border:4px solid #fff;border-radius:8px;box-shadow:0 0 0 4px var(--cyan),0 0 30px var(--cyan);pointer-events:none;animation:tutPulseGlow 0.8s ease-in-out infinite}
+header.tut-highlight::after{border-radius:4px}
+.leaflet-container.tut-highlight::after{border-radius:10px;border-width:5px}
+#h-total.tut-highlight::after,#h-svc.tut-highlight::after,#h-dep.tut-highlight::after,#h-over.tut-highlight::after,#h-soon.tut-highlight::after{border-radius:50%;inset:-2px}
+@keyframes tutPulseGlow{0%,100%{box-shadow:0 0 0 4px var(--cyan),0 0 30px var(--cyan)}50%{box-shadow:0 0 0 6px var(--cyan),0 0 50px var(--cyan),0 0 70px rgba(0,212,232,0.4)}}}
 .tut-tooltip{position:absolute;z-index:1001;background:var(--bg1);border:1px solid var(--cyan);border-radius:8px;padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,0.6);max-width:280px}
 .tut-tooltip::before{content:'';position:absolute;width:12px;height:12px;background:var(--bg1);border-left:1px solid var(--cyan);border-top:1px solid var(--cyan);transform:rotate(45deg)}
 .tut-tooltip.top::before{bottom:-7px;left:50%;margin-left:-6px}
@@ -828,7 +829,7 @@ header::before{
       <button class="tut-float-close" onclick="closeTutorial()">×</button>
     </div>
     <div class="tut-float-body">
-      <div class="tut-float-step" id="tutStepNum">STEP 1 OF 11</div>
+      <div class="tut-float-step" id="tutStepNum">STEP 1 OF 14</div>
       <h3 class="tut-float-h3" id="tutTitle">Welcome</h3>
       <p class="tut-float-p" id="tutDesc">Let's learn how to use the dashboard.</p>
       <div class="tut-float-arrow" id="tutArrow">↓</div>
@@ -1660,13 +1661,10 @@ function selectStation(sta){
   switchTab('detail');
   updateFleetList();
   
-  const step = TUTORIAL_STEPS[tutStep];
-  if(step && step.action === 'clickStation'){
-    document.getElementById('tutTitle').textContent = 'Great!';
-    document.getElementById('tutDesc').textContent = 'You can see train arrival times for this station. Now try clicking a train! 👇';
-    document.getElementById('tutArrow').innerHTML = '👆 Click a train!';
+  if(tutStep < TUTORIAL_STEPS.length && TUTORIAL_STEPS[tutStep].action === 'clickStation'){
     tutStep++;
     renderTutorialStep();
+    applyHighlight();
   }
 }
 
@@ -2051,13 +2049,10 @@ function selectTrainById(id){
   switchTab('detail');
   updateFleetList();
   
-  const step = TUTORIAL_STEPS[tutStep];
-  if(step && step.action === 'clickTrain'){
-    document.getElementById('tutTitle').textContent = 'Excellent!';
-    document.getElementById('tutDesc').textContent = 'You can see all train details: mileage, PM schedule, speed, and next station. Continue to learn more!';
-    document.getElementById('tutArrow').innerHTML = '↓';
+  if(tutStep < TUTORIAL_STEPS.length && TUTORIAL_STEPS[tutStep].action === 'clickTrain'){
     tutStep++;
     renderTutorialStep();
+    applyHighlight();
   }
 }
 
@@ -2217,51 +2212,35 @@ function initHelp(){
 // TUTORIAL SYSTEM
 // ══════════════════════════════════════════════════════════
 const TUTORIAL_STEPS = [
-  {id:'intro', title:'Welcome!', desc:'This quick tour shows you how to use the dashboard. Click Next to begin.', target:'body', action:'next'},
-  {id:'total', title:'Fleet Stats', desc:'The top bar shows fleet status: total 59 trains, how many in service, in depot, and maintenance alerts.', target:'.hs', action:'next'},
-  {id:'map', title:'Map Overview', desc:'The main area shows the Sengkang-Punggol LRT map with all 4 loops and moving trains.', target:'#map', action:'next'},
-  {id:'station', title:'Find a Station', desc:'Look for the colored circles on the map - these are stations. Hover to see station name. 👇 Try hovering now!', target:'.sta-label', action:'hoverStation'},
-  {id:'stationok', title:'Great!', desc:'Those are stations. Click on any station to see train arrival times. 👇 Click one now!', target:'.leaflet-container', action:'clickStation'},
-  {id:'train', title:'Find a Train', desc:'Look for the train markers (small rectangles) moving on the tracks. Green=OK, Amber=PM due, Red=overdue. 👇 Click any train!', target:'.train-dot', action:'clickTrain'},
-  {id:'trainok', title:'Well Done!', desc:'You can see the train details: mileage, PM schedule, speed, and next station. This works for any train!', target:'#tc-detail', action:'next'},
-  {id:'fleet', title:'Fleet List', desc:'The side panel lists all 59 trains. You can search by ID or filter by status. 👇 Try typing "810" in search!', target:'#trainSearch', action:'search'},
-  {id:'filters', title:'Filter Trains', desc:'Use these buttons to filter: All, In Service, Depot, or PM Alert trains.', target:'.flt-filter', action:'next'},
-  {id:'alerts', title:'Alerts', desc:'The Alerts tab shows all trains needing maintenance. Click to see details.', target:'#tab-alerts', action:'next'},
-  {id:'done', title:'You\'re Ready!', desc:'You now know how to use the dashboard. The Help button has more info. Happy monitoring!', target:'body', action:'done'}
+  {id:'intro', title:'Welcome!', desc:'This interactive tutorial guides you through the dashboard. Click Next to start.', target:'body', action:'next'},
+  {id:'total', title:'Total Fleet (59)', desc:'The total number of trains in the Sengkang-Punggol LRT fleet.', target:'#h-total', action:'next'},
+  {id:'svc', title:'In Service', desc:'Shows how many trains are currently in revenue service (green indicator).', target:'#h-svc', action:'next'},
+  {id:'dep', title:'In Depot', desc:'Trains currently stabled at MMB Depot for maintenance or standby.', target:'#h-dep', action:'next'},
+  {id:'pmover', title:'PM Overdue', desc:'Trains that have exceeded their maintenance threshold - requires immediate attention (red).', target:'#h-over', action:'next'},
+  {id:'pmsoon', title:'PM Due Soon', desc:'Trains approaching their next maintenance check (amber).', target:'#h-soon', action:'next'},
+  {id:'map', title:'Interactive Map', desc:'The map shows all 4 LRT loops with moving trains. Click stations for timings.', target:'.leaflet-container', action:'next'},
+  {id:'station', title:'Click a Station', desc:'Click any station to see approaching trains and arrival times. Try it now!', target:'.leaflet-container', action:'clickStation'},
+  {id:'train', title:'Click a Train', desc:'Click any train marker to view its details. Colors show PM status.', target:'.leaflet-container', action:'clickTrain'},
+  {id:'detail', title:'Train Details', desc:'View mileage, PM schedule, speed, and current route. Click any train!', target:'#tc-detail', action:'next'},
+  {id:'fleet', title:'Fleet List', desc:'Browse all 59 trains here. Use search and filters to find specific trains.', target:'#tc-fleet', action:'next'},
+  {id:'search', title:'Search', desc:'Type a train ID (like 810-001) to find it quickly.', target:'#trainSearch', action:'next'},
+  {id:'alerts', title:'Alerts Tab', desc:'See all trains requiring maintenance attention.', target:'#tab-alerts', action:'next'},
+  {id:'done', title:'You\'re Ready!', desc:'You now know how to use the dashboard. Happy monitoring!', target:'body', action:'done'}
 ];
 
 let tutStep = 0;
-let tutPointerEl = null;
-let tutLastAction = '';
-let tutStationHovered = false;
+let tutHighlightEl = null;
 
 function startTutorial(){
   tutStep = 0;
-  tutLastAction = '';
-  tutStationHovered = false;
   document.getElementById('tutPanel').style.display = 'block';
   renderTutorialStep();
-  drawPointer();
-  
-  setTimeout(() => {
-    const labels = document.querySelectorAll('.sta-label');
-    labels.forEach(label => {
-      label.addEventListener('mouseenter', onTutStationHover);
-    });
-  }, 500);
-}
-
-function onTutStationHover(){
-  const step = TUTORIAL_STEPS[tutStep];
-  if(step && step.action === 'hoverStation' && !tutStationHovered){
-    tutStationHovered = true;
-    handleTutorialAction();
-  }
+  applyHighlight();
 }
 
 function closeTutorial(){
   document.getElementById('tutPanel').style.display = 'none';
-  removePointer();
+  clearHighlight();
 }
 
 function renderTutorialStep(){
@@ -2273,13 +2252,13 @@ function renderTutorialStep(){
   const arrow = document.getElementById('tutArrow');
   const btn = document.getElementById('tutActionBtn');
   
-  if(step.action === 'clickStation' || step.action === 'clickTrain' || step.action === 'hoverStation'){
-    arrow.innerHTML = '👆 Your turn!';
+  if(step.action === 'clickStation'){
+    arrow.innerHTML = '👆 Click a station!';
     arrow.style.color = 'var(--amber)';
     btn.textContent = 'Skip';
     btn.className = 'tut-float-btn skip';
-  } else if(step.action === 'search'){
-    arrow.innerHTML = '👆 Try typing!';
+  } else if(step.action === 'clickTrain'){
+    arrow.innerHTML = '👆 Click a train!';
     arrow.style.color = 'var(--amber)';
     btn.textContent = 'Skip';
     btn.className = 'tut-float-btn skip';
@@ -2298,76 +2277,33 @@ function renderTutorialStep(){
 
 function handleTutorialAction(){
   const step = TUTORIAL_STEPS[tutStep];
-  if(step.action === 'done'){
+  
+  if(step.action === 'next'){
+    tutStep++;
+    renderTutorialStep();
+    applyHighlight();
+  } else if(step.action === 'done'){
     closeTutorial();
-    return;
-  }
-  if(step.action === 'hoverStation'){
-    document.getElementById('tutTitle').textContent = 'Nice!';
-    document.getElementById('tutDesc').textContent = 'Those labels show station names. Now click a station to see arrival times. 👇';
-    document.getElementById('tutArrow').innerHTML = '👆 Click a station!';
-    tutStep++;
-    renderTutorialStep();
-    return;
-  }
-  if(step.action === 'search'){
-    document.getElementById('trainSearch').focus();
-    document.getElementById('trainSearch').value = '810';
-    document.getElementById('tutTitle').textContent = 'See!';
-    document.getElementById('tutDesc').textContent = 'The list filters to show matching trains. Continue to explore more features!';
-    document.getElementById('tutArrow').innerHTML = '↓';
-    setTimeout(() => { document.getElementById('trainSearch').value = ''; }, 1500);
-    tutStep++;
-    renderTutorialStep();
-    return;
-  }
-  if(step.action === 'next'){
-    tutStep++;
-    renderTutorialStep();
-    drawPointer();
-  }
-}
-  if(step.action === 'next'){
-    tutStep++;
-    renderTutorialStep();
-    drawPointer();
   }
 }
 
-function drawPointer(){
-  removePointer();
+function applyHighlight(){
+  clearHighlight();
   const step = TUTORIAL_STEPS[tutStep];
   if(!step || step.action === 'done') return;
   
   let target = document.querySelector(step.target);
-  if(!target) return;
   
-  const rect = target.getBoundingClientRect();
-  const panel = document.getElementById('tutPanel');
-  const panelRect = panel.getBoundingClientRect();
-  
-  const pointer = document.createElement('div');
-  pointer.className = 'tut-float-pointer';
-  pointer.style.left = (panelRect.right + 10) + 'px';
-  pointer.style.top = (panelRect.top + 60) + 'px';
-  pointer.innerHTML = `
-    <svg width="50" height="50" viewBox="0 0 50 50">
-      <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#00d4e8"/>
-        </marker>
-      </defs>
-      <line x1="45" y1="25" x2="5" y2="25" stroke="#00d4e8" stroke-width="3" marker-end="url(#arrowhead)"/>
-    </svg>
-  `;
-  document.body.appendChild(pointer);
-  tutPointerEl = pointer;
+  if(target){
+    target.classList.add('tut-highlight');
+    tutHighlightEl = target;
+  }
 }
 
-function removePointer(){
-  if(tutPointerEl){
-    tutPointerEl.remove();
-    tutPointerEl = null;
+function clearHighlight(){
+  if(tutHighlightEl){
+    tutHighlightEl.classList.remove('tut-highlight');
+    tutHighlightEl = null;
   }
 }
 

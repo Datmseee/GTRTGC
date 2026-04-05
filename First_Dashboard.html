@@ -611,9 +611,9 @@ header::before{
    TUTORIAL MODE - Floating overlay style
    ══════════════════════════════════════════════════════════ */
 .tut-float{
-  position:fixed;top:70px;left:16px;z-index:1800;
+  position:fixed;z-index:1800;
   background:var(--bg1);border:1px solid var(--cyan);
-  border-radius:12px;width:260px;
+  border-radius:12px;width:240px;
   box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 25px rgba(0,212,232,0.2);
   overflow:hidden;animation:tutSlideIn 0.3s ease-out
 }
@@ -2299,19 +2299,27 @@ function positionPanel(step){
   if(target){
     const rect = target.getBoundingClientRect();
     const panelWidth = 240;
+    const panelHeight = 200;
+    const gap = 15;
     
-    // Position based on target location
-    if(rect.left > 400){
-      panel.style.left = '16px';
-    } else {
-      panel.style.left = '16px';
+    // Position based on target location - place panel near target
+    let left = rect.left - panelWidth - gap;
+    let top = rect.top;
+    
+    // If panel would go off screen left, put it on the right
+    if(left < 10){
+      left = rect.right + gap;
     }
     
-    if(rect.top > 200){
-      panel.style.top = '70px';
-    } else {
-      panel.style.top = '200px';
+    // If panel would go off screen top, adjust
+    if(top + panelHeight > window.innerHeight - 10){
+      top = window.innerHeight - panelHeight - 10;
     }
+    
+    panel.style.left = left + 'px';
+    panel.style.top = top + 'px';
+  }
+}
   } else {
     panel.style.left = '16px';
     panel.style.top = '70px';

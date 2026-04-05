@@ -142,37 +142,21 @@ header::before{
 
 /* Station labels */
 .sta-label{
-  background:rgba(5,8,15,0.95) !important;
+  background:rgba(5,8,15,0.92) !important;
   border:1px solid rgba(36,62,88,0.95) !important;
-  box-shadow:0 4px 16px rgba(0,0,0,0.6),0 0 20px rgba(0,212,232,0.15) !important;
-  padding:8px 12px !important;border-radius:6px !important;
-  font-family:var(--sans) !important;font-size:15px !important;
-  line-height:1.3 !important;color:#e8f4fc !important;
+  box-shadow:0 3px 12px rgba(0,0,0,0.5) !important;
+  padding:5px 8px !important;border-radius:4px !important;
+  font-family:var(--sans) !important;font-size:14px !important;
+  line-height:1.25 !important;color:#d9edf8 !important;
   font-weight:700 !important;white-space:normal !important;
-  text-align:center !important;letter-spacing:0.04em;
-  z-index:600;cursor:pointer !important;pointer-events:auto !important;
-  transition:all 0.2s !important;
-}
-.sta-label:hover{
-  border-color:var(--cyan) !important;
-  box-shadow:0 6px 24px rgba(0,0,0,0.7),0 0 35px rgba(0,212,232,0.35) !important;
-  transform:scale(1.05);
-  background:rgba(0,212,232,0.15) !important;
+  text-align:center !important;letter-spacing:0.03em;
 }
 .sta-label.hub-label{
-  color:#ffffff !important;font-size:16px !important;
-  border-color:rgba(0,212,232,0.7) !important;
-  background:rgba(0,212,232,0.2) !important;
-  box-shadow:0 6px 24px rgba(0,0,0,0.6), 0 0 30px rgba(0,212,232,0.2) !important;
+  color:#ffffff !important;font-size:15px !important;
+  border-color:rgba(0,212,232,0.55) !important;
+  background:rgba(0,212,232,0.14) !important;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,212,232,0.12) !important;
   white-space:nowrap !important;text-align:left !important;
-  z-index:601;cursor:pointer !important;pointer-events:auto !important;
-  transition:all 0.2s !important;
-}
-.sta-label.hub-label:hover{
-  border-color:#fff !important;
-  box-shadow:0 8px 32px rgba(0,0,0,0.7), 0 0 45px rgba(0,212,232,0.45) !important;
-  transform:scale(1.08);
-  background:rgba(0,212,232,0.3) !important;
 }
 .sta-name-small{font-size:10px;font-weight:600;opacity:0.85;display:block}
 .leaflet-tooltip::before{display:none !important}
@@ -187,15 +171,10 @@ header::before{
 
 /* Depot icon */
 .depot-icon{
-  background:rgba(24,46,69,0.85);border:1px solid var(--txt2);
-  padding:5px 10px;font-family:var(--sans);font-size:10px;font-weight:600;
+  background:rgba(24,46,69,0.7);border:1px solid var(--txt2);
+  padding:3px 7px;font-family:var(--sans);font-size:8px;font-weight:600;
   color:var(--txt2);letter-spacing:0.1em;white-space:nowrap;
   transform:translate(-50%,-50%);position:absolute;
-  cursor:pointer;transition:all 0.2s;
-}
-.depot-icon:hover{
-  background:rgba(0,212,232,0.15);border-color:var(--cyan);color:var(--cyan);
-  box-shadow:0 0 20px rgba(0,212,232,0.25);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -217,7 +196,7 @@ header::before{
   content:'';position:absolute;left:2px;right:2px;top:4px;height:3px;
   border-radius:2px;background:rgba(15,24,36,0.65);
 }
-.train-dot:hover{transform:translate(-50%,-50%) scale(1.25);z-index:999 !important;box-shadow:0 0 20px currentColor, 0 0 35px currentColor !important}
+.train-dot:hover{transform:translate(-50%,-50%) scale(1.2);z-index:999 !important}
 .train-dot.selected{
   border:2px solid #fff !important;
   box-shadow:0 0 30px currentColor, 0 0 8px rgba(255,255,255,0.4) !important;
@@ -330,7 +309,7 @@ header::before{
   cursor:pointer;border-left:3px solid transparent;transition:all 0.12s;
   margin:2px 8px;border-radius:6px;
 }
-.fi:hover{background:var(--bg3);border-left-color:var(--cyan);box-shadow:0 0 15px rgba(0,212,232,0.15)}
+.fi:hover{background:var(--bg3)}
 .fi.selected{
   background:rgba(0,212,232,0.08);border-left-color:var(--cyan);
   box-shadow:0 0 15px rgba(0,212,232,0.08);
@@ -513,8 +492,8 @@ header::before{
   .train-dot{width:12px;height:20px}
   .train-dot::after{top:3px;height:2px;left:1px;right:1px}
   .train-arrow{top:-6px;border-left-width:3px;border-right-width:3px;border-bottom-width:6px}
-  .sta-label{font-size:12px !important;padding:5px 8px !important}
-  .sta-label.hub-label{font-size:14px !important;padding:6px 10px !important}
+  .sta-label{font-size:11px !important;padding:3px 6px !important}
+  .sta-label.hub-label{font-size:13px !important;padding:4px 8px !important}
   .sys-label{font-size:9px;letter-spacing:0.12em}
   #lbl-sk{left:12px}
   #lbl-pg{right:12px}
@@ -1303,124 +1282,35 @@ function drawStations(){
       if(sta.hub){
         if(drawnHubs.has(sta.name)) return;
         drawnHubs.add(sta.name);
+        // Collect which loops this hub serves
         const hubLoops = Object.keys(STATIONS).filter(lid =>
           STATIONS[lid].some(s => s.name === sta.name && s.hub));
         const hubInfo = hubLoops.map(l => l.replace('-',' ')).join(', ');
-        
-        // All station layers for this hub
-        const layers = [];
-        
-        // Outer glow
-        const outer = L.circleMarker([sta.lat, sta.lng], {
-          radius:32, fillColor:color, color:color,
-          weight:1, fillOpacity: 0.1
-        });
-        layers.push(outer);
-        outer.addTo(map);
-        
-        // Middle ring
-        const middle = L.circleMarker([sta.lat, sta.lng], {
-          radius:22, fillColor:color, color:color,
-          weight:2, fillOpacity:0.3
-        });
-        layers.push(middle);
-        middle.addTo(map);
-        
-        // Core station
         const hubMarker = L.circleMarker([sta.lat, sta.lng], {
-          radius:16, fillColor:color, color:'#ffffff',
-          weight:2.5, fillOpacity:1
-        });
-        layers.push(hubMarker);
-        hubMarker.addTo(map);
-        
-        // Bind tooltip after adding to map
-        hubMarker.bindTooltip(getStationLabel(sta), {
-          permanent:true, direction:'top', offset:[0,-32],
-          className:'sta-label hub-label',
-          interactive: true
-        });
-        
-        // Highlight all layers on hover of any
-        const highlight = () => {
-          layers.forEach(l => {
-            if(l === outer) l.setStyle({fillOpacity: 0.25, weight: 2});
-            else if(l === middle) l.setStyle({fillOpacity: 0.5, weight: 3});
-            else l.setStyle({fillOpacity: 1, weight: 3.5});
-          });
-        };
-        const unhighlight = () => {
-          layers.forEach(l => {
-            if(l === outer) l.setStyle({fillOpacity: 0.1, weight: 1});
-            else if(l === middle) l.setStyle({fillOpacity: 0.3, weight: 2});
-            else l.setStyle({fillOpacity: 1, weight: 2.5});
-          });
-        };
-        
-        layers.forEach(l => {
-          l.on('mouseover', highlight);
-          l.on('mouseout', unhighlight);
-          l.on('click', (e) => {
-            L.DomEvent.stopPropagation(e);
-            selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
-          });
-        });
-        
-        hubMarker.on('tooltipclick', (e) => {
+          radius:13, fillColor:color, color:color,
+          weight:3, fillOpacity:1
+        })
+        .bindTooltip(getStationLabel(sta), {
+          permanent:true, direction:'top', offset:[0,-14],
+          className:'sta-label hub-label'
+        })
+        .addTo(map);
+        hubMarker.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
         });
       } else {
-        // Regular stations
-        const layers = [];
-        
-        // Outer glow
-        const outer = L.circleMarker([sta.lat, sta.lng], {
-          radius:22, fillColor:color, color:color,
-          weight:1, fillOpacity:0.08
-        });
-        layers.push(outer);
-        outer.addTo(map);
-        
-        // Core station
         const staMarker = L.circleMarker([sta.lat, sta.lng], {
-          radius:12, fillColor:'#0a1422', color:color,
+          radius:8, fillColor:'#111d2e', color:color,
           weight:2.5, fillOpacity:1
-        });
-        layers.push(staMarker);
-        staMarker.addTo(map);
-        
-        // Bind tooltip
-        staMarker.bindTooltip(`<span>${STATION_CODES[sta.name]||sta.name}</span><span class="sta-name-small">${sta.name}</span>`, {
-          permanent:true, direction:'top', offset:[0,-20],
-          className:'sta-label',
-          interactive: true
-        });
-        
-        // Highlight all layers on hover
-        const highlight = () => {
-          layers.forEach(l => {
-            if(l === outer) l.setStyle({fillOpacity: 0.2, weight: 2});
-            else l.setStyle({fillOpacity: 1, weight: 3.5});
-          });
-        };
-        const unhighlight = () => {
-          layers.forEach(l => {
-            if(l === outer) l.setStyle({fillOpacity: 0.08, weight: 1});
-            else l.setStyle({fillOpacity: 1, weight: 2.5});
-          });
-        };
-        
-        layers.forEach(l => {
-          l.on('mouseover', highlight);
-          l.on('mouseout', unhighlight);
-          l.on('click', (e) => {
-            L.DomEvent.stopPropagation(e);
-            selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
-          });
-        });
-        
-        staMarker.on('tooltipclick', (e) => {
+        })
+        .bindTooltip(`<span>${STATION_CODES[sta.name]||sta.name}</span><span class="sta-name-small">${sta.name}</span>`, {
+          permanent:true, direction:'top', offset:[0,-8],
+          className:'sta-label'
+        })
+        .addTo(map);
+        staMarker.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
         });
       }
@@ -1428,9 +1318,9 @@ function drawStations(){
   }
 }
 
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // DRAW DEPOT
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function drawDepot(){
   L.marker([DEPOT.lat, DEPOT.lng], {
     icon: L.divIcon({
@@ -1447,6 +1337,657 @@ function drawDepot(){
     }).addTo(map);
   });
 }
+
+// ═══════════════════════════════════════════════════════
+// ROUTE DIRECTION ARROWS
+// ═══════════════════════════════════════════════════════
+let _routeArrows = [];
+
+function clearRouteArrows(){
+  _routeArrows.forEach(({marker}) => map.removeLayer(marker));
+  _routeArrows = [];
+}
+
+function initRouteArrows(train){
+  clearRouteArrows();
+  if(!train.loop || train.dist == null) return;
+  const count = Math.floor(1000 / 90);
+  const animDur = 2.8;
+  for(let i = 0; i < count; i++){
+    const outer = document.createElement('div');
+    outer.className = 'route-arrow-icon';
+    outer.style.cssText = `animation:arrowMove ${animDur}s ease-in-out infinite;animation-delay:${(i/count)*animDur}s;opacity:0`;
+    const inner = document.createElement('span');
+    inner.className = 'route-arrow-inner';
+    inner.textContent = '❯';
+    outer.appendChild(inner);
+    const pt = getTrainPt(train) || {lat:0, lng:0};
+    const marker = L.marker([pt.lat, pt.lng], {
+      icon: L.divIcon({html:outer, className:'', iconSize:[16,16], iconAnchor:[8,8]}),
+      interactive: false, zIndexOffset: 100
+    }).addTo(map);
+    _routeArrows.push({marker, inner});
+  }
+  updateRouteArrowPositions(train);
+}
+
+function updateRouteArrowPositions(train){
+  if(!_routeArrows.length || !train.loop || train.dist == null) return;
+  const metrics = getTrackMetrics(train.loop, train.dir);
+  if(!metrics) return;
+  const loopLen = metrics.length;
+  const step = 90, lookM = 30;
+  const cw = train.dir >= 0;
+  _routeArrows.forEach(({marker, inner}, i) => {
+    const df = i * step;
+    const d    = cw ? (train.dist + df)          % loopLen
+                    : ((train.dist - df)          % loopLen + loopLen) % loopLen;
+    const dAhd = cw ? (train.dist + df + lookM)  % loopLen
+                    : ((train.dist - df - lookM)  % loopLen + loopLen) % loopLen;
+    const info      = getPointAlongLoop(train.loop, d    / loopLen, train.dir);
+    const infoAhead = getPointAlongLoop(train.loop, dAhd / loopLen, train.dir);
+    if(!info || !infoAhead) return;
+    const angle = Math.atan2(infoAhead.pt.lng - info.pt.lng, infoAhead.pt.lat - info.pt.lat) * 180 / Math.PI - 90;
+    marker.setLatLng([info.pt.lat, info.pt.lng]);
+    inner.style.transform = `rotate(${angle}deg)`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// TRAIN MARKERS
+// ═══════════════════════════════════════════════════════
+let selectedTrain = null;
+let selectedStation = null; // {name, loopId, lat, lng, hub, color, lineName, loopSide}
+
+function getTrackMetrics(loopId, dir){
+  const tracks = TRACK_METRICS[loopId];
+  if(!tracks) return LOOP_METRICS[loopId];
+  return dir >= 0 ? tracks.cw : tracks.ccw;
+}
+
+function getPointAlongLoop(loopId, pos, dir){
+  const metrics = getTrackMetrics(loopId, dir);
+  if(!metrics || !metrics.pts.length) return null;
+  const loopLen = metrics.length;
+  if(loopLen <= 0){
+    return {pt: metrics.pts[0], next: metrics.pts[0]};
+  }
+  const dist = ((pos % 1) + 1) % 1 * loopLen;
+  const cum = metrics.cum;
+  const pts = metrics.pts;
+  let idx = 0;
+  while(idx < cum.length - 1 && cum[idx + 1] < dist){
+    idx++;
+  }
+  const nextIdx = Math.min(idx + 1, pts.length - 1);
+  const segLen = cum[nextIdx] - cum[idx];
+  if(segLen <= 0){
+    return {pt: pts[idx], next: pts[nextIdx] || pts[idx]};
+  }
+  const t = (dist - cum[idx]) / segLen;
+  const pt = {
+    lat: pts[idx].lat + (pts[nextIdx].lat - pts[idx].lat) * t,
+    lng: pts[idx].lng + (pts[nextIdx].lng - pts[idx].lng) * t
+  };
+  return {pt, next: pts[nextIdx]};
+}
+
+function getTrainPt(train){
+  if(!train.loop) return null;
+  const info = getPointAlongLoop(train.loop, train.pos, train.dir);
+  return info ? info.pt : null;
+}
+
+function initTrainMarkers(){
+  fleet.forEach(train => {
+    if(train.status !== 'in-service' || !train.loop) return;
+    const pt = getTrainPt(train);
+    if(!pt) return;
+
+    const el = document.createElement('div');
+    el.className = 'train-dot';
+    const color = getTrainColor(train);
+    el.style.cssText = `color:${color};box-shadow:0 0 10px ${color}`;
+    const arrow = document.createElement('div');
+    arrow.className = 'train-arrow';
+    arrow.style.borderBottomColor = color;
+    const label = document.createElement('div');
+    label.className = 'train-label';
+    label.textContent = train.serial;
+    el.appendChild(arrow);
+    el.appendChild(label);
+
+    train._el = el;
+    train._arrow = arrow;
+    train.marker = L.marker([pt.lat, pt.lng], {
+      icon: L.divIcon({html:el, className:'', iconSize:[0,0], iconAnchor:[0,0]}),
+      zIndexOffset: 300,
+      interactive: true
+    }).addTo(map);
+
+    train.marker.on('click', () => selectTrainById(train.id));
+    train.marker.on('mouseover', () => showTrainTooltip(train));
+    train.marker.on('mouseout', hideTrainTooltip);
+  });
+}
+
+const tooltip = document.getElementById('tooltip');
+const NO_SELECTION_HTML = document.getElementById('detailPanel').innerHTML;
+
+function renderNoSelection(){
+  document.getElementById('detailPanel').innerHTML = NO_SELECTION_HTML;
+}
+
+function selectStation(sta){
+  // Deselect any train
+  if(selectedTrain){
+    const prev = fleet.find(f => f.id === selectedTrain.id);
+    if(prev && prev._el) prev._el.classList.remove('selected');
+    selectedTrain = null;
+    clearRouteArrows();
+  }
+  selectedStation = sta;
+  updateStationDetailPanel();
+  switchTab('detail');
+  updateFleetList();
+}
+
+function getTrainsApproaching(stationName, loopId){
+  const results = [];
+  // Find all loops this station is on
+  const loops = loopId ? [loopId] : Object.keys(STATIONS);
+  const targetLoops = [];
+  for(const lid of loops){
+    const stas = STATIONS[lid];
+    if(stas && stas.some(s => s.name === stationName)) targetLoops.push(lid);
+  }
+  // For hub stations, check all loops they serve
+  if(!loopId){
+    for(const lid of Object.keys(STATIONS)){
+      if(!targetLoops.includes(lid) && STATIONS[lid].some(s => s.name === stationName)){
+        targetLoops.push(lid);
+      }
+    }
+  }
+
+  for(const lid of targetLoops){
+    const moving = fleet.filter(t => t.status === 'in-service' && t.loop === lid && t.dist != null);
+    for(const t of moving){
+      const dir = t.dir;
+      const stops = getStops(lid, dir);
+      if(!stops) continue;
+      const staDist = stops.find(s => s.name === stationName);
+      if(!staDist) continue;
+      const loopLen = t._loopLen || (LOOP_LENGTHS[lid] || 0);
+      if(loopLen <= 0) continue;
+      const dist = distanceToStop(t.dist, staDist.dist, loopLen, dir);
+      const speed = t.cruiseMps || SIM.speedMinMps;
+      // Rough ETA: distance / speed + estimated dwell stops in between
+      const stopsInBetween = countStopsBetween(t.dist, staDist.dist, stops, dir, loopLen);
+      const etaSec = (dist / speed) + (stopsInBetween * SIM.dwellSec);
+      results.push({train:t, dist, etaSec, loop:lid, dir});
+    }
+  }
+  results.sort((a,b) => a.etaSec - b.etaSec);
+  return results;
+}
+
+function countStopsBetween(trainDist, staDist, stops, dir, loopLen){
+  let count = 0;
+  for(const s of stops){
+    const d = distanceToStop(trainDist, s.dist, loopLen, dir);
+    const dSta = distanceToStop(trainDist, staDist, loopLen, dir);
+    if(d > 0 && d < dSta) count++;
+  }
+  return count;
+}
+
+function formatETA(sec){
+  if(sec < 60) return '<1 min';
+  const m = Math.floor(sec / 60);
+  return m === 1 ? '1 min' : `${m} min`;
+}
+
+function updateStationDetailPanel(){
+  const sta = selectedStation;
+  if(!sta) return;
+  const code = STATION_CODES[sta.name] || '';
+  const loopNames = {
+    'SK-West':'Sengkang West Loop','SK-East':'Sengkang East Loop',
+    'PG-West':'Punggol West Loop','PG-East':'Punggol East Loop'
+  };
+
+  // For hub stations, get trains from all loops they serve
+  const allLoops = Object.keys(STATIONS).filter(lid =>
+    STATIONS[lid].some(s => s.name === sta.name));
+  const approaching = [];
+  for(const lid of allLoops){
+    approaching.push(...getTrainsApproaching(sta.name, lid));
+  }
+  // Deduplicate (a train only appears once)
+  const seen = new Set();
+  const unique = approaching.filter(a => {
+    if(seen.has(a.train.id)) return false;
+    seen.add(a.train.id);
+    return true;
+  });
+  unique.sort((a,b) => a.etaSec - b.etaSec);
+
+  const nextTrain = unique.length > 0 ? unique[0] : null;
+  const dirLabel = d => d >= 0 ? 'CW' : 'CCW';
+
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="det">
+      <div class="det-header">
+        <div class="det-badge" style="border-color:${sta.color}">
+          <div class="det-badge-id" style="color:${sta.color}">${code || sta.name.slice(0,3).toUpperCase()}</div>
+          <div class="det-badge-type">STATION</div>
+        </div>
+        <div class="det-info">
+          <div style="font-size:15px;font-weight:600;color:var(--txt0);margin-bottom:6px">${sta.name}</div>
+          <div class="drow"><span class="dlbl">Line</span><span class="dval" style="font-size:11px">${sta.hub ? 'Hub / Interchange' : sta.lineName + ' LRT'}</span></div>
+          <div class="drow"><span class="dlbl">Loop</span><span class="dval" style="font-size:11px">${sta.hub ? allLoops.map(l=>loopNames[l]||l).join(', ') : (loopNames[sta.loopId]||sta.loopId)}</span></div>
+        </div>
+      </div>
+    </div>
+    ${nextTrain ? `
+    <div class="nxt-sta-box">
+      <div class="nxt-sta-lbl">Next Train Arriving</div>
+      <div class="nxt-sta-row">
+        <div style="text-align:center">
+          <div class="nxt-sta-name" style="color:var(--cyan)">${nextTrain.train.id}</div>
+          <span class="nxt-sta-code">${nextTrain.train.type}</span>
+        </div>
+        <div class="nxt-sta-sep">
+          <span class="nxt-arr">›</span>
+          <span class="nxt-arr">›</span>
+          <span class="nxt-arr">›</span>
+        </div>
+        <div style="text-align:center">
+          <div class="nxt-sta-name" style="color:var(--green);font-size:18px">${formatETA(nextTrain.etaSec)}</div>
+          <span class="nxt-sta-code">${loopNames[nextTrain.loop]||nextTrain.loop} · ${dirLabel(nextTrain.dir)}</span>
+        </div>
+      </div>
+    </div>` : `
+    <div class="nxt-sta-box">
+      <div class="nxt-sta-lbl">No Trains Approaching</div>
+    </div>`}
+    <div class="sec-title">Train Timings</div>
+    <div style="padding:0 12px 8px">
+      ${unique.length === 0 ? '<div style="color:var(--txt2);font-size:11px;padding:8px 0">No active trains on this line</div>' :
+        unique.slice(0,10).map((a,i) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;${i>0?'border-top:1px solid var(--border);':''}">
+            <div>
+              <span style="color:${i===0?'var(--cyan)':'var(--txt0)'};font-size:13px;font-weight:${i===0?'600':'400'}">${a.train.id}</span>
+              <span style="color:var(--txt2);font-size:10px;margin-left:6px">${a.train.type}</span>
+            </div>
+            <div style="text-align:right">
+              <span style="color:${i===0?'var(--green)':a.etaSec<120?'var(--cyan)':'var(--txt0)'};font-size:13px;font-weight:600">${formatETA(a.etaSec)}</span>
+              <div style="color:var(--txt2);font-size:9px">${loopNames[a.loop]||a.loop} · ${dirLabel(a.dir)} · ${Math.round(a.dist)}m</div>
+            </div>
+          </div>
+        `).join('')}
+    </div>`;
+}
+
+function showTrainTooltip(train){
+  const pt = getTrainPt(train);
+  if(!pt) return;
+  const pm = getPMStatus(train.mileage);
+  document.getElementById('tt-id').textContent = train.id;
+  document.getElementById('tt-type').textContent = train.type;
+  document.getElementById('tt-mi').textContent = `${formatKm(train.mileage)} km`;
+  const speedMps = getDisplaySpeedMps(train);
+  document.getElementById('tt-speed').textContent = `Speed ${formatKmh(speedMps * 3.6)} km/h`;
+  document.getElementById('tt-loop').textContent = train.loop +
+    (pm.status !== 'ok' ? ` · ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}` : '');
+  const cp = map.latLngToContainerPoint([pt.lat, pt.lng]);
+  tooltip.style.display = 'block';
+  tooltip.style.left = (cp.x + 14) + 'px';
+  tooltip.style.top  = (cp.y - 10) + 'px';
+}
+
+function hideTrainTooltip(){
+  tooltip.style.display = 'none';
+}
+
+// Deselect on bare map click
+map.on('click', () => {
+  if(selectedTrain){
+    const prev = fleet.find(f => f.id === selectedTrain.id);
+    if(prev && prev._el){
+      prev._el.classList.remove('selected');
+      const c = getTrainColor(prev);
+      prev._el.style.boxShadow = `0 0 10px ${c}`;
+    }
+    selectedTrain = null;
+    clearRouteArrows();
+    renderNoSelection();
+    updateFleetList();
+  }
+  if(selectedStation){
+    selectedStation = null;
+    renderNoSelection();
+  }
+});
+
+map.on('mousemove', e => {
+  document.getElementById('mapcoords').textContent =
+    `${e.latlng.lat.toFixed(4)}°N  ${e.latlng.lng.toFixed(4)}°E`;
+});
+
+// ═══════════════════════════════════════════════════════
+// ANIMATION LOOP
+// ═══════════════════════════════════════════════════════
+let lastFrame = null;
+
+function animate(now){
+  if(lastFrame === null) lastFrame = now;
+  const dt = Math.min(0.05, (now - lastFrame) / 1000);
+  lastFrame = now;
+  const moving = fleet.filter(t => t.status === 'in-service' && t.loop);
+  const groups = {};
+  moving.forEach(t => {
+    const metrics = getTrackMetrics(t.loop, t.dir);
+    const loopLen = metrics ? metrics.length : (LOOP_LENGTHS[t.loop] || 0);
+    if(t.dist == null) t.dist = (t.pos || 0) * loopLen;
+    const key = t.loop + (t.dir >= 0 ? '|cw' : '|ccw');
+    if(!groups[key]) groups[key] = [];
+    t._loopLen = loopLen;
+    groups[key].push(t);
+  });
+  Object.values(groups).forEach(list => {
+    if(!list.length) return;
+    const loopLen = list[0]._loopLen || (LOOP_LENGTHS[list[0].loop] || 0);
+    const targetGap = loopLen && list.length ? loopLen / list.length : loopLen;
+    list.sort((a,b) => a.dist - b.dist);
+    if(list.length === 1){
+      list[0]._maxMove = Infinity;
+      list[0]._gapAhead = loopLen;
+      list[0]._targetGap = loopLen;
+      return;
+    }
+    for(let i=0;i<list.length;i++){
+      const t = list[i];
+      const ahead = list[(i + 1) % list.length];
+      const gap = (ahead.dist - t.dist + loopLen) % loopLen;
+      t._gapAhead = gap;
+      t._targetGap = targetGap;
+      t._maxMove = Math.max(0, gap - SIM.minHeadwayM);
+    }
+  });
+  fleet.forEach(train => {
+    if(train.status !== 'in-service' || !train.loop) return;
+    const loopLen = train._loopLen || (LOOP_LENGTHS[train.loop] || (train.loop.includes('West') ? 4800 : 5300));
+    if(train.dist == null) train.dist = (train.pos || 0) * loopLen;
+    const gapAhead = train._gapAhead == null ? loopLen : train._gapAhead;
+    const targetGap = train._targetGap == null ? loopLen : train._targetGap;
+    let moved = 0;
+    const stop = getNextStop(train.loop, train.dir, train.dist);
+    const toStop = stop ? distanceToStop(train.dist, stop.dist, loopLen, train.dir) : Infinity;
+    if(train.dwell > 0){
+      train.dwell = Math.max(0, train.dwell - dt);
+    } else if(train.atStop && gapAhead < targetGap * SIM.gapReleaseRatio){
+      train.dwell = 1;
+    } else if(stop && toStop <= SIM.stopEpsilonM){
+      train.dist = stop.dist;
+      train.atStop = true;
+      train.dwell = gapAhead > targetGap * SIM.gapCatchUpRatio ? SIM.dwellMinSec : SIM.dwellSec;
+    } else {
+      train.atStop = false;
+      let speed = train.cruiseMps || SIM.speedMinMps;
+      const ratio = targetGap > 0 ? gapAhead / targetGap : 1;
+      if(ratio < 0.85){
+        speed *= Math.max(0.3, ratio / 0.85);
+      } else if(ratio > 1.2){
+        speed *= Math.min(1.35, ratio / 1.2);
+      }
+      speed = Math.max(SIM.speedMinMps, Math.min(speed, SIM.speedMaxMps));
+      const desiredMove = speed * dt;
+      const maxMove = Math.min(desiredMove, train._maxMove == null ? desiredMove : train._maxMove);
+      if(stop){
+        if(toStop <= maxMove + SIM.stopEpsilonM){
+          train.dist = stop.dist;
+          train.atStop = true;
+          train.dwell = gapAhead > targetGap * SIM.gapCatchUpRatio ? SIM.dwellMinSec : SIM.dwellSec;
+          moved = toStop;
+        } else {
+          train.dist = (train.dist + (train.dir >= 0 ? 1 : -1) * maxMove + loopLen) % loopLen;
+          moved = maxMove;
+        }
+      } else {
+        train.dist = (train.dist + (train.dir >= 0 ? 1 : -1) * maxMove + loopLen) % loopLen;
+        moved = maxMove;
+      }
+    }
+    train.pos = loopLen ? train.dist / loopLen : train.pos;
+    train.mileage += moved / 1000;
+    train.currentSpeedMps = dt > 0 ? moved / dt : 0;
+
+    if(train.marker){
+      const posInfo = getPointAlongLoop(train.loop, train.pos, train.dir);
+      if(!posInfo) return;
+      const pt = posInfo.pt;
+      train.marker.setLatLng([pt.lat, pt.lng]);
+
+      if(train._el){
+        const color = getTrainColor(train);
+        train._el.style.color = color;
+        const isSel = selectedTrain && selectedTrain.id === train.id;
+        train._el.style.boxShadow = `0 0 ${isSel ? 20 : color==='#00e888' ? 7 : 5}px ${color}`;
+
+        // Rotate marker to face direction of travel
+        const aheadDist = 25;
+        const step = loopLen ? (aheadDist / loopLen) : 0.002;
+        const aheadPos = ((train.pos + (train.dir > 0 ? step : -step)) % 1 + 1) % 1;
+        const aheadInfo = getPointAlongLoop(train.loop, aheadPos, train.dir);
+        const nxt = aheadInfo ? aheadInfo.pt : posInfo.next;
+        const angle = Math.atan2(nxt.lng - pt.lng, nxt.lat - pt.lat) * 180 / Math.PI;
+        train._el.style.transform = `translate(-50%,-50%) rotate(${angle}deg)`;
+
+        if(train._arrow) train._arrow.style.borderBottomColor = color;
+      }
+    }
+  });
+
+  updateHeaderStats();
+  if(selectedTrain){
+    const t = fleet.find(f => f.id === selectedTrain.id);
+    if(t){
+      updateRouteArrowPositions(t);
+      updateDetailPanel(t);
+    }
+  }
+  if(selectedStation){
+    updateStationDetailPanel();
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDE PANEL
+// ═══════════════════════════════════════════════════════
+let currentFilter = 'all';
+
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.flt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateFleetList();
+}
+
+function updateFleetList(){
+  const list = document.getElementById('fleetList');
+  const loopShort = {'SK-West':'SKW','SK-East':'SKE','PG-West':'PGW','PG-East':'PGE'};
+  let trains = fleet;
+  if(currentFilter==='in-service') trains = fleet.filter(t => t.status==='in-service');
+  else if(currentFilter==='depot')  trains = fleet.filter(t => t.status!=='in-service');
+  else if(currentFilter==='pm-alert') trains = fleet.filter(t => {
+    const pm = getPMStatus(t.mileage);
+    return pm.status==='over'||pm.status==='soon';
+  });
+
+  list.innerHTML = trains.map(t => {
+    const color = getTrainColor(t);
+    const isSel = selectedTrain && selectedTrain.id === t.id;
+    const loopLabel = t.loop ? loopShort[t.loop]||t.loop : 'Depot';
+    return `<div class="fi ${isSel?'selected':''}" onclick="selectTrainById('${t.id}')">
+      <div class="fi-dot" style="background:${color};${color==='#00e888'?'box-shadow:0 0 5px '+color:''}"></div>
+      <div class="fi-id">${t.id}</div>
+      <div class="fi-type">${t.type}</div>
+      <div class="fi-loop" style="color:${t.loop?'#4a7a90':'#3a5570'}">${loopLabel}</div>
+      <div class="fi-mi">${formatKm(t.mileage)}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectTrainById(id){
+  // Deselect previous
+  if(selectedTrain){
+    const prev = fleet.find(f => f.id === selectedTrain.id);
+    if(prev && prev._el) prev._el.classList.remove('selected');
+  }
+  selectedStation = null;
+  const t = fleet.find(f => f.id === id);
+  if(!t) return;
+  selectedTrain = t;
+  if(t._el) t._el.classList.add('selected');
+
+  // Pan map to train
+  const pt = getTrainPt(t);
+  if(pt) map.panTo([pt.lat, pt.lng], {animate:true, duration:0.5});
+
+  initRouteArrows(t);
+  updateDetailPanel(t);
+  switchTab('detail');
+  updateFleetList();
+}
+
+function updateDetailPanel(t){
+  const pm = getPMStatus(t.mileage);
+  const loopNames = {
+    'SK-West':'Sengkang West Loop','SK-East':'Sengkang East Loop',
+    'PG-West':'Punggol West Loop','PG-East':'Punggol East Loop'
+  };
+  const statusClass = {'in-service':'sb-svc','depot':'sb-dep','maintenance':'sb-mnt','withdrawn':'sb-wth'};
+  const statusLabel = {'in-service':'In Service','depot':'In Depot','maintenance':'Maintenance','withdrawn':'Withdrawn'};
+  const speedKmh = t.status === 'in-service'
+    ? `${formatKmh(getDisplaySpeedMps(t) * 3.6)} km/h`
+    : '—';
+
+  // Previous and next station using track-based position
+  let prevStation = '—', prevCode = '', nextStation = '—', nextCode = '';
+  if(t.loop && t.status==='in-service' && t.dist != null){
+    const prevStop = getPrevStop(t.loop, t.dir, t.dist);
+    const nextStop = getNextStop(t.loop, t.dir, t.dist);
+    if(prevStop){ prevStation = prevStop.name; prevCode = STATION_CODES[prevStop.name] || ''; }
+    if(nextStop){ nextStation = nextStop.name; nextCode = STATION_CODES[nextStop.name] || ''; }
+  }
+
+  const pmData = PM_CYCLES.map((c,i) => {
+    const info = getCycleStatus(t.mileage, c);
+    const s = info.status;
+    const remTxt = s === 'over'
+      ? (info.pos === 0 ? 'DUE NOW' : `OVERDUE +${formatKm(info.pos)} km`)
+      : `${formatKm(info.rem)} km`;
+    return{label:PM_LABELS[i], interval:c.toLocaleString()+' km', pct:info.pct, s, remTxt};
+  });
+
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="det">
+      <div class="det-header">
+        <div class="det-badge">
+          <div class="det-badge-id">${t.id}</div>
+          <div class="det-badge-type">${t.type}</div>
+        </div>
+        <div class="det-info">
+          <div class="drow"><span class="dlbl">Status</span><span class="sbadge ${statusClass[t.status]||'sb-dep'}">${statusLabel[t.status]||t.status}</span></div>
+          <div class="drow"><span class="dlbl">Speed</span><span class="dval">${speedKmh}</span></div>
+          <div class="drow"><span class="dlbl">Serial</span><span class="dval">${t.serial}</span></div>
+          <div class="drow"><span class="dlbl">Year</span><span class="dval">${t.year}</span></div>
+          <div class="drow"><span class="dlbl">Deploy</span><span class="dval" style="font-size:11px">${t.loop?loopNames[t.loop]:'In Depot'}</span></div>
+        </div>
+      </div>
+    </div>
+    ${t.status==='in-service' && t.loop ? `
+    <div class="nxt-sta-box">
+      <div class="nxt-sta-lbl">${t.atStop && t.dwell > 0 ? 'At Station' : 'In Transit'}</div>
+      <div class="nxt-sta-row">
+        <div style="text-align:center">
+          <div class="nxt-sta-name">${prevStation}</div>
+          <span class="nxt-sta-code">${prevCode}</span>
+        </div>
+        <div class="nxt-sta-sep">
+          <span class="nxt-arr">›</span>
+          <span class="nxt-arr">›</span>
+          <span class="nxt-arr">›</span>
+        </div>
+        <div style="text-align:center">
+          <div class="nxt-sta-name" style="color:var(--cyan)">${nextStation}</div>
+          <span class="nxt-sta-code">${nextCode}</span>
+        </div>
+      </div>
+    </div>` : ''}
+    <div class="sec-title">Mileage</div>
+    <div class="mi-display">
+      <div><span class="mi-big">${formatKm(t.mileage)}</span><span class="mi-unit">km</span></div>
+      <div class="mi-sub">Next PM: ${pm.name} — ${pm.status==='over'?'<span style="color:var(--red)">OVERDUE</span>':pm.status==='soon'?'<span style="color:var(--amber)">Due soon</span>':'<span style="color:var(--green)">OK</span>'}</div>
+    </div>
+    <div class="sec-title">PM Schedule</div>
+    <div class="pm-wrap">
+      ${pmData.map(p=>`
+        <div class="pm-item">
+          <div class="pm-hdr">
+            <span class="pm-name">${p.label} cycle (${p.interval})</span>
+            <span class="pm-rem ${p.s}">${p.remTxt}</span>
+          </div>
+          <div class="pm-track"><div class="pm-fill ${p.s}" style="width:${p.pct}%"></div></div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function updateAlertsPanel(){
+  const alerts = [];
+  fleet.forEach(t => {
+    const pm = getPMStatus(t.mileage);
+    if(pm.status==='over') alerts.push({type:'crit',title:`${t.id} — ${pm.name} OVERDUE`,body:`${t.type} · ${formatKm(t.mileage)} km · ${t.loop||'Depot'}`,time:'Trigger now'});
+    else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${formatKm(pm.remaining)} km remaining · ${t.loop||'Depot'}`,time:'Schedule PM'});
+  });
+  alerts.push({type:'info',title:'Check-in 1 reminder',body:'Online session scheduled 8–12 Jun 2026. Prepare progress slides.',time:'Upcoming'});
+  alerts.push({type:'info',title:'Stock change protocol active',body:'Automated PV re-assignment on train withdrawal is live.',time:'System'});
+
+  document.getElementById('alertsPanel').innerHTML = `<div style="padding:8px 0">` +
+    alerts.map(a=>`<div class="alert-card ${a.type}"><div class="ac-title">${a.title}</div><div class="ac-body">${a.body}</div><div class="ac-time">${a.time}</div></div>`).join('') +
+    `</div>`;
+  document.getElementById('tab-alerts').textContent = `Alerts (${alerts.filter(a=>a.type!=='info').length})`;
+}
+
+function updateHeaderStats(){
+  const inSvc  = fleet.filter(t=>t.status==='in-service').length;
+  const inDep  = fleet.filter(t=>t.status!=='in-service').length;
+  const over   = fleet.filter(t=>getPMStatus(t.mileage).status==='over').length;
+  const soon   = fleet.filter(t=>getPMStatus(t.mileage).status==='soon').length;
+  document.getElementById('h-svc').textContent  = inSvc;
+  document.getElementById('h-dep').textContent  = inDep;
+  document.getElementById('h-over').textContent = over;
+  document.getElementById('h-soon').textContent = soon;
+}
+
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+function switchTab(id){
+  ['fleet','alerts','detail'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===id);
+    document.getElementById('tc-'+t).classList.toggle('active', t===id);
+  });
+  if(id==='alerts') updateAlertsPanel();
+}
+
+// ══════════════════════════════════════════════════════════
+// SEARCH & HELP
 // ══════════════════════════════════════════════════════════
 function filterTrains(){
   const query = document.getElementById('trainSearch').value.toLowerCase();

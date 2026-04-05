@@ -603,16 +603,19 @@ header::before{
   font-family:var(--sans);font-weight:600;cursor:pointer;transition:all 0.2s;
 }
 .tut-btn:hover{background:var(--bg3);color:var(--cyan);border-color:var(--cyan)}
+.tmodal{
+  display:none;
+}
 
 /* ══════════════════════════════════════════════════════════
-   TUTORIAL FLOATING PANEL
+   TUTORIAL MODE - Floating overlay style
    ══════════════════════════════════════════════════════════ */
 .tut-float{
-  position:fixed;bottom:50px;left:50%;transform:translateX(-50%);z-index:1800;
+  position:fixed;top:70px;left:16px;z-index:1800;
   background:var(--bg1);border:1px solid var(--cyan);
-  border-radius:12px;width:320px;
+  border-radius:12px;width:260px;
   box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 25px rgba(0,212,232,0.2);
-  overflow:hidden
+  overflow:hidden;animation:tutSlideIn 0.3s ease-out
 }
 @keyframes tutSlideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .tut-float-header{
@@ -826,10 +829,13 @@ header.tut-highlight::after{border-radius:4px}
       <button class="tut-float-close" onclick="closeTutorial()">×</button>
     </div>
     <div class="tut-float-body">
-      <div class="tut-float-step" id="tutStepNum">Step 1 of 8</div>
-      <p class="tut-float-p" id="tutDesc">Welcome!</p>
-      <div class="tut-float-nav" style="justify-content:center">
-        <button class="tut-float-btn primary" id="tutActionBtn" onclick="nextTutorial()">Start</button>
+      <div class="tut-float-step" id="tutStepNum">STEP 1 OF 14</div>
+      <h3 class="tut-float-h3" id="tutTitle">Welcome</h3>
+      <p class="tut-float-p" id="tutDesc">Let's learn how to use the dashboard.</p>
+      <div class="tut-float-arrow" id="tutArrow">↓</div>
+      <div class="tut-float-nav">
+        <button class="tut-float-btn skip" onclick="closeTutorial()">Exit</button>
+        <button class="tut-float-btn primary" id="tutActionBtn" onclick="handleTutorialAction()">Next</button>
       </div>
     </div>
   </div>
@@ -2211,49 +2217,94 @@ function initHelp(){
 }
 
 // ══════════════════════════════════════════════════════════
-// SIMPLE WORKING TUTORIAL
+// TUTORIAL SYSTEM - Interactive with tasks
 // ══════════════════════════════════════════════════════════
-const TUTORIAL = [
-  {msg: 'Welcome! Click START to begin the tour.'},
-  {msg: 'Click any STAT in the header to see fleet stats.'},
-  {msg: 'Click any STATION on the map to see arrivals.'},
-  {msg: 'Click any TRAIN to see its details.'},
-  {msg: 'Click the FLEET tab to see all trains.'},
-  {msg: 'Type in SEARCH to find trains.'},
-  {msg: 'Click ALERTS tab for maintenance info.'},
-  {msg: 'Done! You know the dashboard now.'}
+const TUTORIAL_STEPS = [
+  {id:'intro', title:'Welcome!', desc:'Quick tour of the dashboard. Click Start to begin!', action:'button'},
+  {id:'header', title:'Fleet Stats', desc:'Click on any stat box: Total, In Service, In Depot, PM Overdue, or PM Due Soon.', action:'clickStat'},
+  {id:'map', title:'Interactive Map', desc:'The map shows all 4 LRT loops with moving trains.', action:'button'},
+  {id:'station', title:'Your Turn!', desc:'Click any STATION on the map to see train arrivals.', action:'clickStation', hint:'Look for the colored circles - these are stations!'},
+  {id:'train', title:'Trains', desc:'Click any TRAIN marker on the map to view its details.', action:'clickTrain', hint:'Look for the small rectangles moving on the tracks!'},
+  {id:'fleet', title:'Fleet List', desc:'Click the "Fleet" tab in the side panel.', action:'clickTab', target:'tab-fleet'},
+  {id:'search', title:'Search', desc:'Click on the search input box.', action:'clickSearch', hint:'It\'s at the top of the Fleet list'},
+  {id:'alerts', title:'Alerts', desc:'Click the "Alerts" tab to see maintenance needs.', action:'clickTab', target:'tab-alerts'},
+  {id:'done', title:'🎉 All Done!', desc:'You now know how to use the dashboard! Enjoy monitoring your fleet!', action:'finish'}
 ];
 
-let tutIndex = 0;
+let tutStep = 0;
+let tutCompleted = false;
 
 function startTutorial(){
-  tutIndex = 0;
-  showTutorial();
+  tutStep = 0;
+  tutCompleted = false;
+  document.getElementById('tutPanel').style.display = 'block';
+  renderTutorialStep();
 }
 
 function closeTutorial(){
   document.getElementById('tutPanel').style.display = 'none';
 }
 
-function showTutorial(){
-  const p = document.getElementById('tutPanel');
-  p.style.display = 'block';
-  document.getElementById('tutDesc').textContent = TUTORIAL[tutIndex].msg;
-  document.getElementById('tutStepNum').textContent = `Step ${tutIndex + 1} of ${TUTORIAL.length}`;
+function renderTutorialStep(){
+  const step = TUTORIAL_STEPS[tutStep];
+  document.getElementById('tutStepNum').textContent = `STEP ${tutStep + 1} OF ${TUTORIAL_STEPS.length}`;
+  document.getElementById('tutTitle').textContent = step.title;
+  document.getElementById('tutDesc').textContent = step.desc;
   
+  const arrow = document.getElementById('tutArrow');
   const btn = document.getElementById('tutActionBtn');
-  if(tutIndex >= TUTORIAL.length - 1){
+  
+  if(step.action === 'clickStation' || step.action === 'clickTrain' || step.action === 'clickStat' || step.action === 'clickSearch' || step.action === 'clickTab'){
+    arrow.innerHTML = step.hint || '👆 Your turn!';
+    arrow.style.color = 'var(--amber)';
+    btn.textContent = 'Skip';
+    btn.className = 'tut-float-btn skip';
+  } else if(step.action === 'finish'){
+    arrow.innerHTML = '🎉';
+    arrow.style.color = 'var(--green)';
     btn.textContent = 'Done';
-    btn.onclick = closeTutorial;
+    btn.className = 'tut-float-btn primary';
+  } else if(step.action === 'button'){
+    arrow.innerHTML = '↓';
+    arrow.style.color = 'var(--cyan)';
+    btn.textContent = 'Start';
+    btn.className = 'tut-float-btn primary';
   } else {
+    arrow.innerHTML = '↓';
+    arrow.style.color = 'var(--cyan)';
     btn.textContent = 'Next';
-    btn.onclick = nextTutorial;
+    btn.className = 'tut-float-btn primary';
   }
 }
 
-function nextTutorial(){
-  tutIndex++;
-  showTutorial();
+function handleTutorialAction(){
+  const step = TUTORIAL_STEPS[tutStep];
+  
+  if(step.action === 'finish'){
+    closeTutorial();
+    return;
+  }
+  
+  if(step.action === 'button' || step.action === 'button'){
+    tutStep++;
+    renderTutorialStep();
+  }
+}
+
+function onTutTaskComplete(msg){
+  if(tutStep < TUTORIAL_STEPS.length){
+    const step = TUTORIAL_STEPS[tutStep];
+    if(step.action === 'clickStation' || step.action === 'clickTrain' || step.action === 'clickStat' || step.action === 'clickSearch' || step.action === 'clickTab'){
+      document.getElementById('tutTitle').textContent = '✅ Great job!';
+      document.getElementById('tutDesc').textContent = msg || 'You completed the task!';
+      document.getElementById('tutArrow').innerHTML = '👍';
+      document.getElementById('tutArrow').style.color = 'var(--green)';
+      document.getElementById('tutActionBtn').textContent = 'Next';
+      document.getElementById('tutActionBtn').className = 'tut-float-btn primary';
+      tutStep++;
+      setTimeout(renderTutorialStep, 2000);
+    }
+  }
 }
 
 // Keyboard shortcuts

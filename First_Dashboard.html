@@ -1661,10 +1661,9 @@ function selectStation(sta){
   switchTab('detail');
   updateFleetList();
   
-  if(tutStep < TUTORIAL_STEPS.length && TUTORIAL_STEPS[tutStep].action === 'clickStation'){
+  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].id === 'station'){
     tutStep++;
     renderTutorialStep();
-    applyHighlight();
   }
 }
 
@@ -2049,10 +2048,9 @@ function selectTrainById(id){
   switchTab('detail');
   updateFleetList();
   
-  if(tutStep < TUTORIAL_STEPS.length && TUTORIAL_STEPS[tutStep].action === 'clickTrain'){
+  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].id === 'train'){
     tutStep++;
     renderTutorialStep();
-    applyHighlight();
   }
 }
 
@@ -2209,37 +2207,34 @@ function initHelp(){
 }
 
 // ══════════════════════════════════════════════════════════
-// TUTORIAL SYSTEM
+// TUTORIAL SYSTEM - Simple and clean
 // ══════════════════════════════════════════════════════════
 const TUTORIAL_STEPS = [
-  {id:'intro', title:'Welcome!', desc:'This interactive tutorial guides you through the dashboard. Click Next to start.', target:'body', action:'next'},
-  {id:'total', title:'Total Fleet (59)', desc:'The total number of trains in the Sengkang-Punggol LRT fleet.', target:'#h-total', action:'next'},
-  {id:'svc', title:'In Service', desc:'Shows how many trains are currently in revenue service (green indicator).', target:'#h-svc', action:'next'},
-  {id:'dep', title:'In Depot', desc:'Trains currently stabled at MMB Depot for maintenance or standby.', target:'#h-dep', action:'next'},
-  {id:'pmover', title:'PM Overdue', desc:'Trains that have exceeded their maintenance threshold - requires immediate attention (red).', target:'#h-over', action:'next'},
-  {id:'pmsoon', title:'PM Due Soon', desc:'Trains approaching their next maintenance check (amber).', target:'#h-soon', action:'next'},
-  {id:'map', title:'Interactive Map', desc:'The map shows all 4 LRT loops with moving trains. Click stations for timings.', target:'.leaflet-container', action:'next'},
-  {id:'station', title:'Click a Station', desc:'Click any station to see approaching trains and arrival times. Try it now!', target:'.leaflet-container', action:'clickStation'},
-  {id:'train', title:'Click a Train', desc:'Click any train marker to view its details. Colors show PM status.', target:'.leaflet-container', action:'clickTrain'},
-  {id:'detail', title:'Train Details', desc:'View mileage, PM schedule, speed, and current route. Click any train!', target:'#tc-detail', action:'next'},
-  {id:'fleet', title:'Fleet List', desc:'Browse all 59 trains here. Use search and filters to find specific trains.', target:'#tc-fleet', action:'next'},
-  {id:'search', title:'Search', desc:'Type a train ID (like 810-001) to find it quickly.', target:'#trainSearch', action:'next'},
-  {id:'alerts', title:'Alerts Tab', desc:'See all trains requiring maintenance attention.', target:'#tab-alerts', action:'next'},
-  {id:'done', title:'You\'re Ready!', desc:'You now know how to use the dashboard. Happy monitoring!', target:'body', action:'done'}
+  {id:'intro', title:'Welcome!', desc:'Quick tour of the dashboard. Click Next to start.'},
+  {id:'header', title:'Fleet Stats', desc:'Top bar shows: total trains, in service, in depot, PM alerts.'},
+  {id:'map', title:'Interactive Map', desc:'Shows all 4 LRT loops with moving trains. Click stations for timings.'},
+  {id:'station', title:'Your Turn!', desc:'Click any station on the map to see train arrivals. I\'ll wait!'},
+  {id:'train', title:'Trains', desc:'Now click any train marker to view its details.'},
+  {id:'fleet', title:'Fleet List', desc:'All 59 trains listed here. Use search and filters.'},
+  {id:'search', title:'Search', desc:'Type a train ID to find it quickly.'},
+  {id:'alerts', title:'Alerts', desc:'See all trains needing maintenance.'},
+  {id:'done', title:'All Done!', desc:'You now know how to use the dashboard!'}
 ];
 
 let tutStep = 0;
-let tutHighlightEl = null;
+let tutStationClicked = false;
+let tutTrainClicked = false;
 
 function startTutorial(){
   tutStep = 0;
+  tutStationClicked = false;
+  tutTrainClicked = false;
   document.getElementById('tutPanel').style.display = 'block';
   renderTutorialStep();
 }
 
 function closeTutorial(){
   document.getElementById('tutPanel').style.display = 'none';
-  clearHighlight();
 }
 
 function renderTutorialStep(){
@@ -2251,17 +2246,17 @@ function renderTutorialStep(){
   const arrow = document.getElementById('tutArrow');
   const btn = document.getElementById('tutActionBtn');
   
-  if(step.action === 'clickStation'){
+  if(step.id === 'station'){
     arrow.innerHTML = '👆 Click a station!';
     arrow.style.color = 'var(--amber)';
     btn.textContent = 'Skip';
     btn.className = 'tut-float-btn skip';
-  } else if(step.action === 'clickTrain'){
+  } else if(step.id === 'train'){
     arrow.innerHTML = '👆 Click a train!';
     arrow.style.color = 'var(--amber)';
     btn.textContent = 'Skip';
     btn.className = 'tut-float-btn skip';
-  } else if(step.action === 'done'){
+  } else if(step.id === 'done'){
     arrow.innerHTML = '🎉';
     arrow.style.color = 'var(--green)';
     btn.textContent = 'Done';
@@ -2277,32 +2272,14 @@ function renderTutorialStep(){
 function handleTutorialAction(){
   const step = TUTORIAL_STEPS[tutStep];
   
-  if(step.action === 'next'){
+  if(step.id === 'done'){
+    closeTutorial();
+    return;
+  }
+  
+  if(step.id !== 'station' && step.id !== 'train'){
     tutStep++;
     renderTutorialStep();
-    applyHighlight();
-  } else if(step.action === 'done'){
-    closeTutorial();
-  }
-}
-
-function applyHighlight(){
-  clearHighlight();
-  const step = TUTORIAL_STEPS[tutStep];
-  if(!step || step.action === 'done') return;
-  
-  let target = document.querySelector(step.target);
-  
-  if(target){
-    target.classList.add('tut-highlight');
-    tutHighlightEl = target;
-  }
-}
-
-function clearHighlight(){
-  if(tutHighlightEl){
-    tutHighlightEl.classList.remove('tut-highlight');
-    tutHighlightEl = null;
   }
 }
 

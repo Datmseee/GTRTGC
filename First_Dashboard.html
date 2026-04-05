@@ -158,6 +158,11 @@ header::before{
   box-shadow:0 6px 24px rgba(0,0,0,0.7),0 0 35px rgba(0,212,232,0.35) !important;
   transform:scale(1.05);
   background:rgba(0,212,232,0.15) !important;
+  animation:staGlow 1s ease-in-out infinite;
+}
+@keyframes staGlow{
+  0%,100%{box-shadow:0 6px 24px rgba(0,0,0,0.7),0 0 35px rgba(0,212,232,0.35);}
+  50%{box-shadow:0 6px 24px rgba(0,0,0,0.7),0 0 50px rgba(0,212,232,0.55),0 0 70px rgba(0,212,232,0.25);}
 }
 .sta-label.hub-label{
   color:#ffffff !important;font-size:16px !important;
@@ -173,6 +178,7 @@ header::before{
   box-shadow:0 8px 32px rgba(0,0,0,0.7), 0 0 45px rgba(0,212,232,0.45) !important;
   transform:scale(1.08);
   background:rgba(0,212,232,0.3) !important;
+  animation:staGlow 1s ease-in-out infinite;
 }
 .sta-name-small{font-size:10px;font-weight:600;opacity:0.85;display:block}
 .leaflet-tooltip::before{display:none !important}
@@ -1324,10 +1330,12 @@ function drawStations(){
         const highlight = function() {
           hoverArea.setStyle({fillOpacity: 0.25, weight: 2});
           hubMarker.setStyle({fillOpacity: 1, weight: 3.5});
+          hubMarker.setStyle({radius: 18});
         };
         const unhighlight = function() {
           hoverArea.setStyle({fillOpacity: 0.08, weight: 1});
           hubMarker.setStyle({fillOpacity: 1, weight: 2.5});
+          hubMarker.setStyle({radius: 16});
         };
         
         hoverArea.on('mouseover', highlight);
@@ -1370,10 +1378,12 @@ function drawStations(){
         const highlight = function() {
           hoverArea.setStyle({fillOpacity: 0.2, weight: 2});
           staMarker.setStyle({fillOpacity: 1, weight: 3.5});
+          staMarker.setStyle({radius: 14});
         };
         const unhighlight = function() {
           hoverArea.setStyle({fillOpacity: 0.08, weight: 1});
           staMarker.setStyle({fillOpacity: 1, weight: 2.5});
+          staMarker.setStyle({radius: 12});
         };
         
         hoverArea.on('mouseover', highlight);

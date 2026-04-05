@@ -2251,6 +2251,9 @@ function renderTutorialStep(){
   document.getElementById('tutTitle').textContent = step.title;
   document.getElementById('tutDesc').textContent = step.desc;
   
+  // Position panel near the target
+  positionPanel(step);
+  
   const arrow = document.getElementById('tutArrow');
   const btn = document.getElementById('tutActionBtn');
   
@@ -2274,6 +2277,44 @@ function renderTutorialStep(){
     arrow.style.color = 'var(--cyan)';
     btn.textContent = 'Next';
     btn.className = 'tut-float-btn primary';
+  }
+}
+
+function positionPanel(step){
+  const panel = document.getElementById('tutPanel');
+  let target = null;
+  
+  if(step.action === 'clickStat'){
+    target = document.querySelector('.hs');
+  } else if(step.action === 'clickStation' || step.action === 'clickTrain'){
+    target = document.getElementById('map');
+  } else if(step.action === 'clickTab'){
+    target = document.getElementById(step.target);
+  } else if(step.action === 'clickSearch'){
+    target = document.getElementById('trainSearch');
+  } else {
+    target = document.querySelector('.side');
+  }
+  
+  if(target){
+    const rect = target.getBoundingClientRect();
+    const panelWidth = 240;
+    
+    // Position based on target location
+    if(rect.left > 400){
+      panel.style.left = '16px';
+    } else {
+      panel.style.left = '16px';
+    }
+    
+    if(rect.top > 200){
+      panel.style.top = '70px';
+    } else {
+      panel.style.top = '200px';
+    }
+  } else {
+    panel.style.left = '16px';
+    panel.style.top = '70px';
   }
 }
 

@@ -2248,6 +2248,9 @@ function renderTutorialStep(){
   document.getElementById('tutTitle').textContent = step.title;
   document.getElementById('tutDesc').textContent = step.desc;
   
+  // Position panel near the target area
+  movePanelToTarget(step);
+  
   const arrow = document.getElementById('tutArrow');
   const btn = document.getElementById('tutActionBtn');
   
@@ -2274,6 +2277,52 @@ function renderTutorialStep(){
   }
 }
 
+function movePanelToTarget(step){
+  const panel = document.getElementById('tutPanel');
+  const panelStyle = panel.style;
+  
+  // Default position
+  let newTop = '70px';
+  let newLeft = '16px';
+  
+  if(step.action === 'clickStat'){
+    // Near header stats - move to top center
+    newTop = '130px';
+    newLeft = '50%';
+    panelStyle.transform = 'translateX(-50%)';
+  } else if(step.action === 'clickStation' || step.action === 'clickTrain'){
+    // Near map - move to bottom left above alert strip
+    newTop = 'auto';
+    newLeft = '16px';
+    panelStyle.bottom = '50px';
+    panelStyle.transform = 'none';
+  } else if(step.action === 'clickTab'){
+    // Near side panel tabs - move to right side
+    newTop = '100px';
+    newLeft = 'auto';
+    panelStyle.right = '340px';
+    panelStyle.transform = 'none';
+  } else if(step.action === 'clickSearch'){
+    // Near search - move to side panel
+    newTop = '150px';
+    newLeft = 'auto';
+    panelStyle.right = '340px';
+    panelStyle.transform = 'none';
+  } else {
+    // Default: top left
+    newTop = '70px';
+    newLeft = '16px';
+    panelStyle.transform = 'none';
+  }
+  
+  if(newTop !== 'auto'){
+    panelStyle.top = newTop;
+  } else {
+    panelStyle.top = 'auto';
+  }
+  panelStyle.left = newLeft;
+}
+
 function handleTutorialAction(){
   const step = TUTORIAL_STEPS[tutStep];
   
@@ -2282,7 +2331,15 @@ function handleTutorialAction(){
     return;
   }
   
-  if(step.action === 'button' || step.action === 'button'){
+  // For all non-interactive steps, advance to next
+  if(step.action === 'button'){
+    tutStep++;
+    renderTutorialStep();
+    return;
+  }
+  
+  // Skip - advance past interactive tasks
+  if(step.action === 'clickStation' || step.action === 'clickTrain' || step.action === 'clickStat' || step.action === 'clickSearch' || step.action === 'clickTab'){
     tutStep++;
     renderTutorialStep();
   }

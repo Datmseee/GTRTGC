@@ -608,50 +608,35 @@ header::before{
 }
 
 /* ══════════════════════════════════════════════════════════
-   TUTORIAL MODE - Floating overlay style
+   TUTORIAL - Bottom center toast style
    ══════════════════════════════════════════════════════════ */
 .tut-float{
-  position:fixed;top:70px;left:16px;z-index:1800;
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:1800;
   background:var(--bg1);border:1px solid var(--cyan);
-  border-radius:12px;width:260px;
+  border-radius:12px;width:340px;
   box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 25px rgba(0,212,232,0.2);
-  overflow:hidden;animation:tutSlideIn 0.3s ease-out
+  overflow:hidden
 }
-@keyframes tutSlideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .tut-float-header{
   background:linear-gradient(90deg,var(--cyan),rgba(0,232,136,0.6));
   padding:8px 12px;display:flex;justify-content:space-between;align-items:center
 }
 .tut-float-title{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--bg0)}
 .tut-float-close{background:none;border:none;color:var(--bg0);cursor:pointer;font-size:18px;font-weight:700;padding:0}
-.tut-float-body{padding:12px}
-.tut-float-step{font-size:9px;color:var(--cyan);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px}
-.tut-float-h3{font-family:var(--sans);font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
-.tut-float-p{font-size:11px;color:var(--txt1);line-height:1.4;margin-bottom:10px}
-.tut-float-arrow{text-align:center;padding:6px 0;font-size:18px;animation:tutBounce 1s ease-in-out infinite}
-@keyframes tutBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-.tut-float-nav{display:flex;gap:6px;padding-top:8px;border-top:1px solid var(--border)}
-.tut-float-btn{padding:6px 10px;border-radius:5px;font-size:10px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all 0.2s}
+.tut-float-body{padding:14px}
+.tut-float-step{font-size:9px;color:var(--cyan);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px}
+.tut-float-p{font-size:13px;color:var(--txt1);line-height:1.5;margin:12px 0;text-align:center}
+.tut-float-nav{display:flex;justify-content:center;gap:10px;padding-top:10px;border-top:1px solid var(--border)}
+.tut-float-btn{padding:8px 20px;border-radius:6px;font-size:12px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all 0.2s}
 .tut-float-btn.primary{background:var(--cyan);border:none;color:var(--bg0)}
 .tut-float-btn.primary:hover{box-shadow:0 0 15px rgba(0,212,232,0.6)}
 .tut-float-btn.secondary{background:transparent;border:1px solid var(--border);color:var(--txt1)}
-.tut-float-btn.secondary:hover{background:var(--bg3);color:var(--txt0)}
-.tut-float-btn.skip{background:transparent;border-color:var(--txt2);color:var(--txt2)}
-.tut-float-btn.skip:hover{background:transparent;border-color:var(--red);color:var(--red)}
-.tut-highlight{position:relative;z-index:999}
-.tut-highlight::after{content:'';position:absolute;inset:-4px;border:4px solid #fff;border-radius:8px;box-shadow:0 0 0 4px var(--cyan),0 0 30px var(--cyan);pointer-events:none;animation:tutPulseGlow 0.8s ease-in-out infinite}
-header.tut-highlight::after{border-radius:4px}
-.leaflet-container.tut-highlight::after{border-radius:10px;border-width:5px}
-#h-total.tut-highlight::after,#h-svc.tut-highlight::after,#h-dep.tut-highlight::after,#h-over.tut-highlight::after,#h-soon.tut-highlight::after{border-radius:50%;inset:-2px}
-@keyframes tutPulseGlow{0%,100%{box-shadow:0 0 0 4px var(--cyan),0 0 30px var(--cyan)}50%{box-shadow:0 0 0 6px var(--cyan),0 0 50px var(--cyan),0 0 70px rgba(0,212,232,0.4)}}}
-.tut-tooltip{position:absolute;z-index:1001;background:var(--bg1);border:1px solid var(--cyan);border-radius:8px;padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,0.6);max-width:280px}
-.tut-tooltip::before{content:'';position:absolute;width:12px;height:12px;background:var(--bg1);border-left:1px solid var(--cyan);border-top:1px solid var(--cyan);transform:rotate(45deg)}
-.tut-tooltip.top::before{bottom:-7px;left:50%;margin-left:-6px}
-.tut-tooltip.bottom::before{top:-7px;left:50%;margin-left:-6px}
-.tt-title{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:4px}
-.tt-text{font-size:12px;color:var(--txt1);line-height:1.5}
-.tt-btn{background:var(--cyan);border:none;border-radius:4px;padding:6px 14px;font-size:11px;color:var(--bg0);cursor:pointer;margin-top:10px;font-family:var(--sans);font-weight:700}
-.tt-btn:hover{box-shadow:0 0 15px rgba(0,212,232,0.5)}
+.tut-float-btn.secondary:hover{background:var(--bg3)}
+.tut-menu-btn{width:100%;padding:10px 16px;margin-bottom:8px;border-radius:6px;background:var(--cyan);border:none;color:var(--bg0);font-size:13px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all 0.2s}
+.tut-menu-btn:hover{box-shadow:0 0 20px rgba(0,212,232,0.5)}
+.tut-menu-divider{text-align:center;padding:8px 0;font-size:10px;color:var(--txt2);letter-spacing:0.1em;text-transform:uppercase}
+.tut-topic-btn{width:48%;padding:8px 10px;margin:4px 1%;border-radius:6px;background:var(--bg2);border:1px solid var(--border);color:var(--txt1);font-size:11px;font-family:var(--sans);cursor:pointer;transition:all 0.2s}
+.tut-topic-btn:hover{background:var(--bg3);color:var(--cyan);border-color:var(--cyan)}
 
 /* ══════════════════════════════════════════════════════════
    SEARCH BAR
@@ -821,7 +806,31 @@ header.tut-highlight::after{border-radius:4px}
   </div>
 </div>
 
-<!-- TUTORIAL FLOATING PANEL -->
+<!-- TUTORIAL MENU -->
+<div id="tutMenu" style="display:none">
+  <div class="tut-float">
+    <div class="tut-float-header">
+      <span class="tut-float-title">Tutorial</span>
+      <button class="tut-float-close" onclick="closeTutorial()">×</button>
+    </div>
+    <div class="tut-float-body" style="padding:10px">
+      <button class="tut-menu-btn" onclick="playFullTour()">▶ Play Full Tour</button>
+      <div class="tut-menu-divider">Or learn a specific topic:</div>
+      <div style="display:flex;flex-wrap:wrap;margin:0 -4px">
+        <button class="tut-topic-btn" onclick="playTopic('header')">📊 Header</button>
+        <button class="tut-topic-btn" onclick="playTopic('map')">🗺️ Map</button>
+        <button class="tut-topic-btn" onclick="playTopic('stations')">🏠 Stations</button>
+        <button class="tut-topic-btn" onclick="playTopic('trains')">🚂 Trains</button>
+        <button class="tut-topic-btn" onclick="playTopic('fleet')">📋 Fleet</button>
+        <button class="tut-topic-btn" onclick="playTopic('search')">🔍 Search</button>
+        <button class="tut-topic-btn" onclick="playTopic('alerts')">⚠️ Alerts</button>
+        <button class="tut-topic-btn" onclick="playTopic('help')">❓ Help</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIAL PANEL -->
 <div id="tutPanel" style="display:none">
   <div class="tut-float">
     <div class="tut-float-header">
@@ -829,13 +838,11 @@ header.tut-highlight::after{border-radius:4px}
       <button class="tut-float-close" onclick="closeTutorial()">×</button>
     </div>
     <div class="tut-float-body">
-      <div class="tut-float-step" id="tutStepNum">STEP 1 OF 14</div>
-      <h3 class="tut-float-h3" id="tutTitle">Welcome</h3>
-      <p class="tut-float-p" id="tutDesc">Let's learn how to use the dashboard.</p>
-      <div class="tut-float-arrow" id="tutArrow">↓</div>
+      <div class="tut-float-step" id="tutStepNum">Step 1 of 9</div>
+      <p class="tut-float-p" id="tutDesc">Welcome!</p>
       <div class="tut-float-nav">
-        <button class="tut-float-btn skip" onclick="closeTutorial()">Exit</button>
-        <button class="tut-float-btn primary" id="tutActionBtn" onclick="handleTutorialAction()">Next</button>
+        <button class="tut-float-btn secondary" onclick="showTutorialMenu()">← Menu</button>
+        <button class="tut-float-btn primary" id="tutNextBtn" onclick="nextTutorial()">Next</button>
       </div>
     </div>
   </div>
@@ -1660,10 +1667,6 @@ function selectStation(sta){
   updateStationDetailPanel();
   switchTab('detail');
   updateFleetList();
-  
-  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickStation'){
-    onTutTaskComplete('You can see train arrivals for this station!');
-  }
 }
 
 function getTrainsApproaching(stationName, loopId){
@@ -2046,10 +2049,6 @@ function selectTrainById(id){
   updateDetailPanel(t);
   switchTab('detail');
   updateFleetList();
-  
-  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickTrain'){
-    onTutTaskComplete('You can see this train\'s mileage, PM schedule, and more!');
-  }
 }
 
 function updateDetailPanel(t){
@@ -2161,10 +2160,6 @@ function updateHeaderStats(){
   document.getElementById('h-dep').textContent  = inDep;
   document.getElementById('h-over').textContent = over;
   document.getElementById('h-soon').textContent = soon;
-  
-  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickStat'){
-    onTutTaskComplete('You can see fleet statistics at a glance!');
-  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2176,10 +2171,6 @@ function switchTab(id){
     document.getElementById('tc-'+t).classList.toggle('active', t===id);
   });
   if(id==='alerts') updateAlertsPanel();
-  
-  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickTab'){
-    onTutTaskComplete('You can see all trains in this category!');
-  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2193,10 +2184,6 @@ function filterTrains(){
     const id = item.querySelector('.fi-id').textContent.toLowerCase();
     item.style.display = id.includes(query) ? '' : 'none';
   });
-  
-  if(TUTORIAL_STEPS[tutStep] && TUTORIAL_STEPS[tutStep].action === 'clickSearch' && query.length > 0){
-    onTutTaskComplete('You found trains matching your search!');
-  }
 }
 
 function showHelp(){
@@ -2217,94 +2204,136 @@ function initHelp(){
 }
 
 // ══════════════════════════════════════════════════════════
-// TUTORIAL SYSTEM - Interactive with tasks
 // ══════════════════════════════════════════════════════════
-const TUTORIAL_STEPS = [
-  {id:'intro', title:'Welcome!', desc:'Quick tour of the dashboard. Click Start to begin!', action:'button'},
-  {id:'header', title:'Fleet Stats', desc:'Click on any stat box: Total, In Service, In Depot, PM Overdue, or PM Due Soon.', action:'clickStat'},
-  {id:'map', title:'Interactive Map', desc:'The map shows all 4 LRT loops with moving trains.', action:'button'},
-  {id:'station', title:'Your Turn!', desc:'Click any STATION on the map to see train arrivals.', action:'clickStation', hint:'Look for the colored circles - these are stations!'},
-  {id:'train', title:'Trains', desc:'Click any TRAIN marker on the map to view its details.', action:'clickTrain', hint:'Look for the small rectangles moving on the tracks!'},
-  {id:'fleet', title:'Fleet List', desc:'Click the "Fleet" tab in the side panel.', action:'clickTab', target:'tab-fleet'},
-  {id:'search', title:'Search', desc:'Click on the search input box.', action:'clickSearch', hint:'It\'s at the top of the Fleet list'},
-  {id:'alerts', title:'Alerts', desc:'Click the "Alerts" tab to see maintenance needs.', action:'clickTab', target:'tab-alerts'},
-  {id:'done', title:'🎉 All Done!', desc:'You now know how to use the dashboard! Enjoy monitoring your fleet!', action:'finish'}
+// TUTORIAL SYSTEM - Simple menu-based
+// ══════════════════════════════════════════════════════════
+const TUTORIAL_FULL = [
+  '👋 Welcome! Click Next to start the tour.',
+  '📊 HEADER shows fleet stats: Total 59 trains, In Service, In Depot, PM alerts.',
+  '🗺️ MAP shows all 4 LRT loops with moving trains.',
+  '🏠 Click any STATION to see arriving trains.',
+  '🚂 Click any TRAIN to see its details (mileage, PM schedule).',
+  '📋 FLEET tab lists all trains. Use filters below.',
+  '🔍 Search box finds trains by ID.',
+  '⚠️ ALERTS tab shows trains needing maintenance.',
+  '❓ Press ? anytime for Help. Done! 🎉'
 ];
 
-let tutStep = 0;
-let tutCompleted = false;
+const TUTORIAL_TOPICS = {
+  header: [
+    '📊 HEADER STATS',
+    'Total: 59 trains in the Sengkang-Punggol LRT fleet.',
+    'In Service: Trains currently running (green indicator).',
+    'In Depot: Trains at MMB Depot for standby/maintenance.',
+    'PM Overdue: Trains needing immediate attention (red).',
+    'PM Due Soon: Trains approaching maintenance (amber).'
+  ],
+  map: [
+    '🗺️ INTERACTIVE MAP',
+    'Shows all 4 LRT loops: SK West/East, PG West/East.',
+    'Trains move automatically along the tracks.',
+    'Colored tracks: Cyan for Sengkang, Green for Punggol.',
+    'Stations appear as colored circles on the map.'
+  ],
+  stations: [
+    '🏠 STATIONS',
+    'Click any station to see arriving trains.',
+    'Hover over stations to see their names.',
+    'Shows arrival times and which platform.',
+    'Hub stations (loops connect) show multiple lines.'
+  ],
+  trains: [
+    '🚂 TRAINS',
+    'Click any train to see vehicle details.',
+    'Green = OK (no maintenance needed).',
+    'Amber = PM Due Soon.',
+    'Red = PM Overdue - schedule maintenance!',
+    'Shows mileage, speed, next station, route.'
+  ],
+  fleet: [
+    '📋 FLEET LIST',
+    'Lists all 59 trains in the side panel.',
+    'Shows train ID, type, loop, mileage.',
+    'Click any train to see full details.',
+    'Use FILTERS: All, In Service, Depot, PM Alert.'
+  ],
+  search: [
+    '🔍 SEARCH',
+    'Type a train ID like "810-001" to find it.',
+    'The list filters as you type.',
+    'Press / to focus search anytime.',
+    'Clear to show all trains again.'
+  ],
+  alerts: [
+    '⚠️ ALERTS',
+    'Shows all trains needing maintenance.',
+    'Red = PM Overdue (immediate action needed).',
+    'Amber = PM Due Soon (plan maintenance).',
+    'Click train for details and schedule info.'
+  ],
+  help: [
+    '❓ HELP',
+    'Press ? anytime to open Help menu.',
+    'Shows PM threshold explanations.',
+    'Keyboard shortcuts listed.',
+    'Tutorial button in header to replay.'
+  ]
+};
+
+let tutArr = [];
+let tutIndex = 0;
 
 function startTutorial(){
-  tutStep = 0;
-  tutCompleted = false;
+  showTutorialMenu();
+}
+
+function showTutorialMenu(){
+  document.getElementById('tutMenu').style.display = 'block';
+  document.getElementById('tutPanel').style.display = 'none';
+}
+
+function playFullTour(){
+  document.getElementById('tutMenu').style.display = 'none';
   document.getElementById('tutPanel').style.display = 'block';
-  renderTutorialStep();
+  tutArr = TUTORIAL_FULL;
+  tutIndex = 0;
+  showTutorialStep();
+}
+
+function playTopic(topic){
+  document.getElementById('tutMenu').style.display = 'none';
+  document.getElementById('tutPanel').style.display = 'block';
+  tutArr = TUTORIAL_TOPICS[topic] || TUTORIAL_FULL;
+  tutIndex = 0;
+  showTutorialStep();
+}
+
+function showTutorialStep(){
+  document.getElementById('tutStepNum').textContent = `Step ${tutIndex + 1} of ${tutArr.length}`;
+  document.getElementById('tutDesc').textContent = tutArr[tutIndex];
+  
+  const btn = document.getElementById('tutNextBtn');
+  if(tutIndex >= tutArr.length - 1){
+    btn.textContent = 'Done';
+    btn.onclick = closeTutorial;
+  } else {
+    btn.textContent = 'Next';
+    btn.onclick = nextTutorial;
+  }
+}
+
+function nextTutorial(){
+  tutIndex++;
+  showTutorialStep();
+}
+
+function closeTutorial(){
+  document.getElementById('tutMenu').style.display = 'none';
+  document.getElementById('tutPanel').style.display = 'none';
 }
 
 function closeTutorial(){
   document.getElementById('tutPanel').style.display = 'none';
-}
-
-function renderTutorialStep(){
-  const step = TUTORIAL_STEPS[tutStep];
-  document.getElementById('tutStepNum').textContent = `STEP ${tutStep + 1} OF ${TUTORIAL_STEPS.length}`;
-  document.getElementById('tutTitle').textContent = step.title;
-  document.getElementById('tutDesc').textContent = step.desc;
-  
-  const arrow = document.getElementById('tutArrow');
-  const btn = document.getElementById('tutActionBtn');
-  
-  if(step.action === 'clickStation' || step.action === 'clickTrain' || step.action === 'clickStat' || step.action === 'clickSearch' || step.action === 'clickTab'){
-    arrow.innerHTML = step.hint || '👆 Your turn!';
-    arrow.style.color = 'var(--amber)';
-    btn.textContent = 'Skip';
-    btn.className = 'tut-float-btn skip';
-  } else if(step.action === 'finish'){
-    arrow.innerHTML = '🎉';
-    arrow.style.color = 'var(--green)';
-    btn.textContent = 'Done';
-    btn.className = 'tut-float-btn primary';
-  } else if(step.action === 'button'){
-    arrow.innerHTML = '↓';
-    arrow.style.color = 'var(--cyan)';
-    btn.textContent = 'Start';
-    btn.className = 'tut-float-btn primary';
-  } else {
-    arrow.innerHTML = '↓';
-    arrow.style.color = 'var(--cyan)';
-    btn.textContent = 'Next';
-    btn.className = 'tut-float-btn primary';
-  }
-}
-
-function handleTutorialAction(){
-  const step = TUTORIAL_STEPS[tutStep];
-  
-  if(step.action === 'finish'){
-    closeTutorial();
-    return;
-  }
-  
-  if(step.action === 'button' || step.action === 'button'){
-    tutStep++;
-    renderTutorialStep();
-  }
-}
-
-function onTutTaskComplete(msg){
-  if(tutStep < TUTORIAL_STEPS.length){
-    const step = TUTORIAL_STEPS[tutStep];
-    if(step.action === 'clickStation' || step.action === 'clickTrain' || step.action === 'clickStat' || step.action === 'clickSearch' || step.action === 'clickTab'){
-      document.getElementById('tutTitle').textContent = '✅ Great job!';
-      document.getElementById('tutDesc').textContent = msg || 'You completed the task!';
-      document.getElementById('tutArrow').innerHTML = '👍';
-      document.getElementById('tutArrow').style.color = 'var(--green)';
-      document.getElementById('tutActionBtn').textContent = 'Next';
-      document.getElementById('tutActionBtn').className = 'tut-float-btn primary';
-      tutStep++;
-      setTimeout(renderTutorialStep, 2000);
-    }
-  }
 }
 
 // Keyboard shortcuts

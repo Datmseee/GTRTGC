@@ -1431,7 +1431,22 @@ function drawStations(){
 // ══════════════════════════════════════════════════════════
 // DRAW DEPOT
 // ══════════════════════════════════════════════════════════
-// SEARCH & HELP
+function drawDepot(){
+  L.marker([DEPOT.lat, DEPOT.lng], {
+    icon: L.divIcon({
+      html: '<div class="depot-icon">MMB DEPOT</div>',
+      className:'', iconSize:[0,0], iconAnchor:[0,0]
+    }),
+    interactive: false
+  }).addTo(map);
+
+  DEPOT_TRACKS.forEach(track => {
+    const latlngs = track.map(p => [p.lat, p.lng]);
+    L.polyline(latlngs, {
+      color:'#2a4055', weight:2, opacity:0.75
+    }).addTo(map);
+  });
+}
 // ══════════════════════════════════════════════════════════
 function filterTrains(){
   const query = document.getElementById('trainSearch').value.toLowerCase();

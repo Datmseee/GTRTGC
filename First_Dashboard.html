@@ -611,38 +611,39 @@ header::before{
    TUTORIAL MODE - Floating overlay style
    ══════════════════════════════════════════════════════════ */
 .tut-float{
-  position:fixed;top:60px;right:16px;z-index:1800;
+  position:fixed;top:70px;left:16px;z-index:1800;
   background:var(--bg1);border:1px solid var(--cyan);
-  border-radius:12px;width:280px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 20px rgba(0,212,232,0.15);
+  border-radius:12px;width:260px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 25px rgba(0,212,232,0.2);
   overflow:hidden;animation:tutSlideIn 0.3s ease-out
 }
-@keyframes tutSlideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes tutSlideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .tut-float-header{
-  background:linear-gradient(90deg,var(--cyan),rgba(0,212,232,0.5));
-  padding:10px 14px;display:flex;justify-content:space-between;align-items:center
+  background:linear-gradient(90deg,var(--cyan),rgba(0,232,136,0.6));
+  padding:8px 12px;display:flex;justify-content:space-between;align-items:center
 }
-.tut-float-title{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--bg0)}
+.tut-float-title{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--bg0)}
 .tut-float-close{background:none;border:none;color:var(--bg0);cursor:pointer;font-size:18px;font-weight:700;padding:0}
-.tut-float-body{padding:14px}
-.tut-float-step{font-size:10px;color:var(--cyan);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
-.tut-float-h3{font-family:var(--sans);font-size:15px;font-weight:700;color:#fff;margin-bottom:8px}
-.tut-float-p{font-size:12px;color:var(--txt1);line-height:1.5;margin-bottom:12px}
-.tut-float-arrow{text-align:center;padding:8px 0;color:var(--cyan);font-size:20px;animation:tutBounce 1s ease-in-out infinite}
-@keyframes tutBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.tut-float-nav{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
-.tut-float-btn{flex:1;padding:8px 12px;border-radius:6px;font-size:11px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all 0.2s}
+.tut-float-body{padding:12px}
+.tut-float-step{font-size:9px;color:var(--cyan);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px}
+.tut-float-h3{font-family:var(--sans);font-size:14px;font-weight:700;color:#fff;margin-bottom:6px}
+.tut-float-p{font-size:11px;color:var(--txt1);line-height:1.4;margin-bottom:10px}
+.tut-float-arrow{text-align:center;padding:6px 0;font-size:18px;animation:tutBounce 1s ease-in-out infinite}
+@keyframes tutBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.tut-float-nav{display:flex;gap:6px;padding-top:8px;border-top:1px solid var(--border)}
+.tut-float-btn{padding:6px 10px;border-radius:5px;font-size:10px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all 0.2s}
 .tut-float-btn.primary{background:var(--cyan);border:none;color:var(--bg0)}
-.tut-float-btn.primary:hover{box-shadow:0 0 15px rgba(0,212,232,0.5)}
+.tut-float-btn.primary:hover{box-shadow:0 0 15px rgba(0,212,232,0.6)}
 .tut-float-btn.secondary{background:transparent;border:1px solid var(--border);color:var(--txt1)}
 .tut-float-btn.secondary:hover{background:var(--bg3);color:var(--txt0)}
 .tut-float-btn.skip{background:transparent;border-color:var(--txt2);color:var(--txt2)}
 .tut-float-btn.skip:hover{background:transparent;border-color:var(--red);color:var(--red)}
-.tut-highlight{position:relative;z-index:1000}
-.tut-highlight::after{content:'';position:absolute;inset:-5px;border:3px solid var(--cyan);border-radius:6px;box-shadow:0 0 25px var(--cyan),inset 0 0 20px rgba(0,212,232,0.15);pointer-events:none;animation:tutPulse 1.2s ease-in-out infinite}
-.leaflet-container.tut-highlight::after{border-radius:10px}
+.tut-highlight{position:relative;z-index:999}
+.tut-highlight::after{content:'';position:absolute;inset:-4px;border:4px solid #fff;border-radius:8px;box-shadow:0 0 0 4px var(--cyan),0 0 30px var(--cyan);pointer-events:none;animation:tutPulseGlow 0.8s ease-in-out infinite}
 header.tut-highlight::after{border-radius:4px}
-@keyframes tutPulse{0%,100%{box-shadow:0 0 25px var(--cyan),inset 0 0 20px rgba(0,212,232,0.15)}50%{box-shadow:0 0 40px var(--cyan),inset 0 0 30px rgba(0,212,232,0.25)}}}
+.leaflet-container.tut-highlight::after{border-radius:10px;border-width:5px}
+#h-total.tut-highlight::after,#h-svc.tut-highlight::after,#h-dep.tut-highlight::after,#h-over.tut-highlight::after,#h-soon.tut-highlight::after{border-radius:50%;inset:-2px}
+@keyframes tutPulseGlow{0%,100%{box-shadow:0 0 0 4px var(--cyan),0 0 30px var(--cyan)}50%{box-shadow:0 0 0 6px var(--cyan),0 0 50px var(--cyan),0 0 70px rgba(0,212,232,0.4)}}}
 .tut-tooltip{position:absolute;z-index:1001;background:var(--bg1);border:1px solid var(--cyan);border-radius:8px;padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,0.6);max-width:280px}
 .tut-tooltip::before{content:'';position:absolute;width:12px;height:12px;background:var(--bg1);border-left:1px solid var(--cyan);border-top:1px solid var(--cyan);transform:rotate(45deg)}
 .tut-tooltip.top::before{bottom:-7px;left:50%;margin-left:-6px}
@@ -828,7 +829,7 @@ header.tut-highlight::after{border-radius:4px}
       <button class="tut-float-close" onclick="closeTutorial()">×</button>
     </div>
     <div class="tut-float-body">
-      <div class="tut-float-step" id="tutStepNum">STEP 1 OF 10</div>
+      <div class="tut-float-step" id="tutStepNum">STEP 1 OF 14</div>
       <h3 class="tut-float-h3" id="tutTitle">Welcome</h3>
       <p class="tut-float-p" id="tutDesc">Let's learn how to use the dashboard.</p>
       <div class="tut-float-arrow" id="tutArrow">↓</div>
@@ -2211,16 +2212,20 @@ function initHelp(){
 // TUTORIAL SYSTEM
 // ══════════════════════════════════════════════════════════
 const TUTORIAL_STEPS = [
-  {id:'intro', title:'Welcome!', desc:'This interactive tutorial will guide you through the dashboard. Click Next to start.', target:'body', action:'next'},
-  {id:'header', title:'Fleet Overview', desc:'The header shows real-time stats: total trains, in service, in depot, and PM alerts.', target:'header', action:'next'},
-  {id:'map', title:'Interactive Map', desc:'The map shows 4 LRT loops with moving trains. Click any station to see arrivals.', target:'.leaflet-container', action:'next'},
-  {id:'station', title:'Click a Station', desc:'Look at the map and click on any station to see train timings. I\'ll wait for you!', target:'.leaflet-container', action:'clickStation'},
-  {id:'train', title:'Click a Train', desc:'Now click on any train marker on the map to view its details.', target:'.leaflet-container', action:'clickTrain'},
-  {id:'detail', title:'Train Details', desc:'You can see mileage, PM schedule, and next station. This works for any train!', target:'#tc-detail', action:'next'},
-  {id:'fleet', title:'Fleet List', desc:'Browse all 59 trains in the side panel. Use filters to find specific trains.', target:'#tc-fleet', action:'next'},
-  {id:'search', title:'Search', desc:'Type a train ID (like 810-001) to find it quickly. Press / to focus search.', target:'#trainSearch', action:'next'},
-  {id:'alerts', title:'Alerts', desc:'Check the Alerts tab to see trains needing maintenance.', target:'#tab-alerts', action:'next'},
-  {id:'done', title:'You\'re Ready!', desc:'You now know how to use the dashboard. Have fun monitoring your fleet!', target:'body', action:'done'}
+  {id:'intro', title:'Welcome!', desc:'This interactive tutorial guides you through the dashboard. Click Next to start.', target:'body', action:'next'},
+  {id:'total', title:'Total Fleet (59)', desc:'The total number of trains in the Sengkang-Punggol LRT fleet.', target:'#h-total', action:'next'},
+  {id:'svc', title:'In Service', desc:'Shows how many trains are currently in revenue service (green indicator).', target:'#h-svc', action:'next'},
+  {id:'dep', title:'In Depot', desc:'Trains currently stabled at MMB Depot for maintenance or standby.', target:'#h-dep', action:'next'},
+  {id:'pmover', title:'PM Overdue', desc:'Trains that have exceeded their maintenance threshold - requires immediate attention (red).', target:'#h-over', action:'next'},
+  {id:'pmsoon', title:'PM Due Soon', desc:'Trains approaching their next maintenance check (amber).', target:'#h-soon', action:'next'},
+  {id:'map', title:'Interactive Map', desc:'The map shows all 4 LRT loops with moving trains. Click stations for timings.', target:'.leaflet-container', action:'next'},
+  {id:'station', title:'Click a Station', desc:'Click any station to see approaching trains and arrival times. Try it now!', target:'.leaflet-container', action:'clickStation'},
+  {id:'train', title:'Click a Train', desc:'Click any train marker to view its details. Colors show PM status.', target:'.leaflet-container', action:'clickTrain'},
+  {id:'detail', title:'Train Details', desc:'View mileage, PM schedule, speed, and current route. Click any train!', target:'#tc-detail', action:'next'},
+  {id:'fleet', title:'Fleet List', desc:'Browse all 59 trains here. Use search and filters to find specific trains.', target:'#tc-fleet', action:'next'},
+  {id:'search', title:'Search', desc:'Type a train ID (like 810-001) to find it quickly.', target:'#trainSearch', action:'next'},
+  {id:'alerts', title:'Alerts Tab', desc:'See all trains requiring maintenance attention.', target:'#tab-alerts', action:'next'},
+  {id:'done', title:'You\'re Ready!', desc:'You now know how to use the dashboard. Happy monitoring!', target:'body', action:'done'}
 ];
 
 let tutStep = 0;
@@ -2287,14 +2292,7 @@ function applyHighlight(){
   const step = TUTORIAL_STEPS[tutStep];
   if(!step || step.action === 'done') return;
   
-  let target = null;
-  if(step.target === 'body'){
-    target = document.body;
-  } else if(step.target === 'header'){
-    target = document.querySelector('header');
-  } else {
-    target = document.querySelector(step.target);
-  }
+  let target = document.querySelector(step.target);
   
   if(target){
     target.classList.add('tut-highlight');

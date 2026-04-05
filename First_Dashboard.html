@@ -1084,7 +1084,7 @@ function makeFleet(){
 const SIM = {
   dwellSec: 22,
   dwellMinSec: 12,
-  minHeadwayM: 120,
+  minHeadwayM: 180,
   speedMinMps: 11.0,
   speedMaxMps: 15.5,
   stopEpsilonM: 8,
@@ -1799,10 +1799,17 @@ function animate(now){
     for(let i=0;i<list.length;i++){
       const t = list[i];
       const ahead = list[(i + 1) % list.length];
-      const gap = (ahead.dist - t.dist + loopLen) % loopLen;
+      let gap = (ahead.dist - t.dist + loopLen) % loopLen;
       t._gapAhead = gap;
       t._targetGap = targetGap;
-      t._maxMove = Math.max(0, gap - SIM.minHeadwayM);
+      
+      if(gap < SIM.minHeadwayM){
+        t._maxMove = 0;
+        t._collision = true;
+      } else {
+        t._maxMove = Math.max(0, gap - SIM.minHeadwayM);
+        t._collision = false;
+      }
     }
   });
   fleet.forEach(train => {
@@ -1860,10 +1867,13 @@ function animate(now){
       train.marker.setLatLng([pt.lat, pt.lng]);
 
       if(train._el){
-        const color = getTrainColor(train);
-        train._el.style.color = color;
+        const baseColor = getTrainColor(train);
+        const isCollision = train._collision;
+        const color = isCollision ? '#ff3a5c' : baseColor;
         const isSel = selectedTrain && selectedTrain.id === train.id;
-        train._el.style.boxShadow = `0 0 ${isSel ? 20 : color==='#00e888' ? 7 : 5}px ${color}`;
+        const glowSize = isSel ? 20 : isCollision ? 12 : (baseColor === '#00e888' ? 7 : 5);
+        train._el.style.color = color;
+        train._el.style.boxShadow = `0 0 ${glowSize}px ${color}`;
 
         // Rotate marker to face direction of travel
         const aheadDist = 25;

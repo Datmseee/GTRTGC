@@ -604,37 +604,45 @@ header::before{
 }
 .tut-btn:hover{background:var(--bg3);color:var(--cyan);border-color:var(--cyan)}
 .tmodal{
-  position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
-  background:rgba(5,8,15,0.92);backdrop-filter:blur(4px)
+  display:none;
 }
-.tmodal.show{display:flex}
-.tmodal-inner{
-  background:var(--bg1);border:1px solid var(--border);border-radius:12px;
-  max-width:420px;width:90%;max-height:60vh;overflow-y:auto;
-  box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 40px rgba(0,212,232,0.1);
-  padding:20px;
+
+/* ══════════════════════════════════════════════════════════
+   TUTORIAL MODE - Floating overlay style
+   ══════════════════════════════════════════════════════════ */
+.tut-float{
+  position:fixed;top:60px;right:16px;z-index:1800;
+  background:var(--bg1);border:1px solid var(--cyan);
+  border-radius:12px;width:280px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 20px rgba(0,212,232,0.15);
+  overflow:hidden;animation:tutSlideIn 0.3s ease-out
 }
-.tm-title{font-family:var(--sans);font-size:20px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:0.02em}
-.tm-sub{font-size:12px;color:var(--txt2);margin-bottom:20px}
-.tm-step{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
-.tm-step-num{width:28px;height:28px;background:var(--cyan);color:var(--bg0);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:var(--sans)}
-.tm-step.active{border-color:var(--cyan);box-shadow:0 0 15px rgba(0,212,232,0.2)}
-.tm-step.active .tm-step-num{background:var(--green);box-shadow:0 0 10px rgba(0,232,136,0.5)}
-.tm-step.done .tm-step-num{background:var(--txt2)}
-.tm-step-title{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--txt0)}
-.tm-step-desc{font-size:12px;color:var(--txt1);margin-top:4px}
-.tm-nav{display:flex;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
-.tm-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;
-  padding:10px 20px;font-size:12px;color:var(--txt1);cursor:pointer;transition:all 0.2s;font-family:var(--sans);font-weight:600}
-.tm-btn:hover{background:var(--bg4);color:var(--cyan);border-color:var(--cyan)}
-.tm-btn:disabled{opacity:0.4;cursor:not-allowed}
-.tm-btn.skip{background:transparent;border-color:var(--txt2);color:var(--txt2)}
-.tm-btn.skip:hover{background:transparent;border-color:var(--red);color:var(--red)}
-.tut-highlight{position:relative;z-index:1000;pointer-events:none}
-.tut-highlight::after{content:'';position:absolute;inset:-5px;border:3px solid var(--cyan);border-radius:8px;box-shadow:0 0 25px var(--cyan),inset 0 0 25px rgba(0,212,232,0.15);pointer-events:auto;cursor:pointer;animation:tutPulse 1.2s ease-in-out infinite}
+@keyframes tutSlideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.tut-float-header{
+  background:linear-gradient(90deg,var(--cyan),rgba(0,212,232,0.5));
+  padding:10px 14px;display:flex;justify-content:space-between;align-items:center
+}
+.tut-float-title{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--bg0)}
+.tut-float-close{background:none;border:none;color:var(--bg0);cursor:pointer;font-size:18px;font-weight:700;padding:0}
+.tut-float-body{padding:14px}
+.tut-float-step{font-size:10px;color:var(--cyan);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.tut-float-h3{font-family:var(--sans);font-size:15px;font-weight:700;color:#fff;margin-bottom:8px}
+.tut-float-p{font-size:12px;color:var(--txt1);line-height:1.5;margin-bottom:12px}
+.tut-float-arrow{text-align:center;padding:8px 0;color:var(--cyan);font-size:20px;animation:tutBounce 1s ease-in-out infinite}
+@keyframes tutBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.tut-float-nav{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border)}
+.tut-float-btn{flex:1;padding:8px 12px;border-radius:6px;font-size:11px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all 0.2s}
+.tut-float-btn.primary{background:var(--cyan);border:none;color:var(--bg0)}
+.tut-float-btn.primary:hover{box-shadow:0 0 15px rgba(0,212,232,0.5)}
+.tut-float-btn.secondary{background:transparent;border:1px solid var(--border);color:var(--txt1)}
+.tut-float-btn.secondary:hover{background:var(--bg3);color:var(--txt0)}
+.tut-float-btn.skip{background:transparent;border-color:var(--txt2);color:var(--txt2)}
+.tut-float-btn.skip:hover{background:transparent;border-color:var(--red);color:var(--red)}
+.tut-highlight{position:relative;z-index:1000}
+.tut-highlight::after{content:'';position:absolute;inset:-5px;border:3px solid var(--cyan);border-radius:6px;box-shadow:0 0 25px var(--cyan),inset 0 0 20px rgba(0,212,232,0.15);pointer-events:none;animation:tutPulse 1.2s ease-in-out infinite}
+.leaflet-container.tut-highlight::after{border-radius:10px}
 header.tut-highlight::after{border-radius:4px}
-.leaflet-container.tut-highlight::after{border-radius:12px}
-@keyframes tutPulse{0%,100%{box-shadow:0 0 25px var(--cyan),inset 0 0 25px rgba(0,212,232,0.15)}50%{box-shadow:0 0 40px var(--cyan),inset 0 0 35px rgba(0,212,232,0.25)}}
+@keyframes tutPulse{0%,100%{box-shadow:0 0 25px var(--cyan),inset 0 0 20px rgba(0,212,232,0.15)}50%{box-shadow:0 0 40px var(--cyan),inset 0 0 30px rgba(0,212,232,0.25)}}}
 .tut-tooltip{position:absolute;z-index:1001;background:var(--bg1);border:1px solid var(--cyan);border-radius:8px;padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,0.6);max-width:280px}
 .tut-tooltip::before{content:'';position:absolute;width:12px;height:12px;background:var(--bg1);border-left:1px solid var(--cyan);border-top:1px solid var(--cyan);transform:rotate(45deg)}
 .tut-tooltip.top::before{bottom:-7px;left:50%;margin-left:-6px}
@@ -812,19 +820,21 @@ header.tut-highlight::after{border-radius:4px}
   </div>
 </div>
 
-<!-- TUTORIAL MODAL -->
-<div class="tmodal" id="tutModal" onclick="if(event.target===this)closeTutorial()">
-  <div class="tmodal-inner">
-    <div class="tm-title">Interactive Tutorial</div>
-    <div class="tm-sub">Learn how to use the SPLRT Fleet Dashboard step by step</div>
-    
-    <div id="tutSteps"></div>
-    
-    <div class="tm-nav">
-      <button class="tm-btn skip" onclick="skipTutorial()">Skip Tutorial</button>
-      <div>
-        <button class="tm-btn" id="tutPrev" onclick="prevTutorialStep()" disabled>← Previous</button>
-        <button class="tm-btn" id="tutNext" onclick="nextTutorialStep()">Next →</button>
+<!-- TUTORIAL FLOATING PANEL -->
+<div id="tutPanel" style="display:none">
+  <div class="tut-float">
+    <div class="tut-float-header">
+      <span class="tut-float-title">Tutorial</span>
+      <button class="tut-float-close" onclick="closeTutorial()">×</button>
+    </div>
+    <div class="tut-float-body">
+      <div class="tut-float-step" id="tutStepNum">STEP 1 OF 10</div>
+      <h3 class="tut-float-h3" id="tutTitle">Welcome</h3>
+      <p class="tut-float-p" id="tutDesc">Let's learn how to use the dashboard.</p>
+      <div class="tut-float-arrow" id="tutArrow">↓</div>
+      <div class="tut-float-nav">
+        <button class="tut-float-btn skip" onclick="closeTutorial()">Exit</button>
+        <button class="tut-float-btn primary" id="tutActionBtn" onclick="handleTutorialAction()">Next</button>
       </div>
     </div>
   </div>
@@ -1639,7 +1649,6 @@ function renderNoSelection(){
 }
 
 function selectStation(sta){
-  // Deselect any train
   if(selectedTrain){
     const prev = fleet.find(f => f.id === selectedTrain.id);
     if(prev && prev._el) prev._el.classList.remove('selected');
@@ -1650,7 +1659,12 @@ function selectStation(sta){
   updateStationDetailPanel();
   switchTab('detail');
   updateFleetList();
-  onTutorialStationClick();
+  
+  if(tutStep < TUTORIAL_STEPS.length && TUTORIAL_STEPS[tutStep].action === 'clickStation'){
+    tutStep++;
+    renderTutorialStep();
+    applyHighlight();
+  }
 }
 
 function getTrainsApproaching(stationName, loopId){
@@ -2033,7 +2047,12 @@ function selectTrainById(id){
   updateDetailPanel(t);
   switchTab('detail');
   updateFleetList();
-  onTutorialTrainClick();
+  
+  if(tutStep < TUTORIAL_STEPS.length && TUTORIAL_STEPS[tutStep].action === 'clickTrain'){
+    tutStep++;
+    renderTutorialStep();
+    applyHighlight();
+  }
 }
 
 function updateDetailPanel(t){
@@ -2192,110 +2211,101 @@ function initHelp(){
 // TUTORIAL SYSTEM
 // ══════════════════════════════════════════════════════════
 const TUTORIAL_STEPS = [
-  {id:'overview', title:'Welcome!', desc:'This tutorial will guide you through the dashboard. Click Next to start.', action:'intro'},
-  {id:'header', title:'Fleet Overview', desc:'The header shows real-time stats: total trains, in service, in depot, and PM alerts.', target:'header', highlight:'header'},
-  {id:'map', title:'Interactive Map', desc:'The map shows 4 LRT loops with moving trains. Click on any station to see arrivals.', target:'map', highlight:'.leaflet-container'},
-  {id:'station', title:'Click a Station', desc:'Click on any station marker to see train timings. Try clicking now!', target:'station', action:'waitStationClick'},
-  {id:'trainclick', title:'Click a Train', desc:'Click on any train marker to view its details. The color shows PM status.', target:'train', action:'waitTrainClick'},
-  {id:'detail', title:'Train Details', desc:'View mileage, PM schedule, and next station. Click a train first!', target:'detail', highlight:'#tc-detail'},
-  {id:'fleet', title:'Fleet List', desc:'Browse all 59 trains in the side panel. Use filters below.', target:'fleet', highlight:'#tc-fleet'},
-  {id:'filters', title:'Filter Trains', desc:'Filter by All, In Service, Depot, or PM Alert.', target:'filters', highlight:'.flt-filter'},
-  {id:'search', title:'Search', desc:'Type a train ID to find it quickly. Press / to focus.', target:'search', highlight:'#trainSearch'},
-  {id:'alerts', title:'Alerts Tab', desc:'See all trains requiring maintenance.', target:'alerts', highlight:'#tc-alerts'},
-  {id:'done', title:'You\'re Ready!', desc:'You now know the basics. Explore and monitor your fleet!', action:'done'}
+  {id:'intro', title:'Welcome!', desc:'This interactive tutorial will guide you through the dashboard. Click Next to start.', target:'body', action:'next'},
+  {id:'header', title:'Fleet Overview', desc:'The header shows real-time stats: total trains, in service, in depot, and PM alerts.', target:'header', action:'next'},
+  {id:'map', title:'Interactive Map', desc:'The map shows 4 LRT loops with moving trains. Click any station to see arrivals.', target:'.leaflet-container', action:'next'},
+  {id:'station', title:'Click a Station', desc:'Look at the map and click on any station to see train timings. I\'ll wait for you!', target:'.leaflet-container', action:'clickStation'},
+  {id:'train', title:'Click a Train', desc:'Now click on any train marker on the map to view its details.', target:'.leaflet-container', action:'clickTrain'},
+  {id:'detail', title:'Train Details', desc:'You can see mileage, PM schedule, and next station. This works for any train!', target:'#tc-detail', action:'next'},
+  {id:'fleet', title:'Fleet List', desc:'Browse all 59 trains in the side panel. Use filters to find specific trains.', target:'#tc-fleet', action:'next'},
+  {id:'search', title:'Search', desc:'Type a train ID (like 810-001) to find it quickly. Press / to focus search.', target:'#trainSearch', action:'next'},
+  {id:'alerts', title:'Alerts', desc:'Check the Alerts tab to see trains needing maintenance.', target:'#tab-alerts', action:'next'},
+  {id:'done', title:'You\'re Ready!', desc:'You now know how to use the dashboard. Have fun monitoring your fleet!', target:'body', action:'done'}
 ];
 
 let tutStep = 0;
 let tutHighlightEl = null;
-let tutTooltipEl = null;
-let tutWaitingForAction = false;
 
 function startTutorial(){
   tutStep = 0;
-  tutWaitingForAction = false;
-  document.getElementById('tutModal').classList.add('show');
-  renderTutorialSteps();
-  applyTutorialHighlight();
+  document.getElementById('tutPanel').style.display = 'block';
+  renderTutorialStep();
+  applyHighlight();
 }
 
 function closeTutorial(){
-  document.getElementById('tutModal').classList.remove('show');
-  clearTutorialHighlight();
-  tutWaitingForAction = false;
-  if(tutStep >= TUTORIAL_STEPS.length - 1){
-    localStorage.setItem('splrt_tutorial_done','1');
+  document.getElementById('tutPanel').style.display = 'none';
+  clearHighlight();
+}
+
+function renderTutorialStep(){
+  const step = TUTORIAL_STEPS[tutStep];
+  document.getElementById('tutStepNum').textContent = `STEP ${tutStep + 1} OF ${TUTORIAL_STEPS.length}`;
+  document.getElementById('tutTitle').textContent = step.title;
+  document.getElementById('tutDesc').textContent = step.desc;
+  
+  const arrow = document.getElementById('tutArrow');
+  const btn = document.getElementById('tutActionBtn');
+  
+  if(step.action === 'clickStation'){
+    arrow.innerHTML = '👆 Click a station!';
+    arrow.style.color = 'var(--amber)';
+    btn.textContent = 'Skip';
+    btn.className = 'tut-float-btn skip';
+  } else if(step.action === 'clickTrain'){
+    arrow.innerHTML = '👆 Click a train!';
+    arrow.style.color = 'var(--amber)';
+    btn.textContent = 'Skip';
+    btn.className = 'tut-float-btn skip';
+  } else if(step.action === 'done'){
+    arrow.innerHTML = '🎉';
+    arrow.style.color = 'var(--green)';
+    btn.textContent = 'Done';
+    btn.className = 'tut-float-btn primary';
+  } else {
+    arrow.innerHTML = '↓';
+    arrow.style.color = 'var(--cyan)';
+    btn.textContent = tutStep >= TUTORIAL_STEPS.length - 1 ? 'Finish' : 'Next';
+    btn.className = 'tut-float-btn primary';
   }
 }
 
-function skipTutorial(){
-  closeTutorial();
-}
-
-function prevTutorialStep(){
-  if(tutStep > 0){
-    tutStep--;
-    tutWaitingForAction = false;
-    renderTutorialSteps();
-    applyTutorialHighlight();
-  }
-}
-
-function nextTutorialStep(){
+function handleTutorialAction(){
   const step = TUTORIAL_STEPS[tutStep];
   
-  if(step.action === 'intro'){
-    // Just move to next
-  } else if(step.action === 'waitStationClick'){
-    tutWaitingForAction = true;
-    updateTutorialTooltip('Click on any station on the map...');
-    return;
-  } else if(step.action === 'waitTrainClick'){
-    tutWaitingForAction = true;
-    updateTutorialTooltip('Click on any train on the map...');
-    return;
+  if(step.action === 'next'){
+    tutStep++;
+    renderTutorialStep();
+    applyHighlight();
   } else if(step.action === 'done'){
     closeTutorial();
-    return;
+  }
+}
+
+function applyHighlight(){
+  clearHighlight();
+  const step = TUTORIAL_STEPS[tutStep];
+  if(!step || step.action === 'done') return;
+  
+  let target = null;
+  if(step.target === 'body'){
+    target = document.body;
+  } else if(step.target === 'header'){
+    target = document.querySelector('header');
+  } else {
+    target = document.querySelector(step.target);
   }
   
-  if(tutStep < TUTORIAL_STEPS.length - 1){
-    tutStep++;
-    tutWaitingForAction = false;
-    renderTutorialSteps();
-    applyTutorialHighlight();
-  } else {
-    closeTutorial();
+  if(target){
+    target.classList.add('tut-highlight');
+    tutHighlightEl = target;
   }
 }
 
-function updateTutorialTooltip(text){
-  if(tutTooltipEl){
-    const titleEl = tutTooltipEl.querySelector('.tt-title');
-    const textEl = tutTooltipEl.querySelector('.tt-text');
-    if(titleEl) titleEl.textContent = `Step ${tutStep + 1}: ${TUTORIAL_STEPS[tutStep].title}`;
-    if(textEl) textEl.textContent = text;
-  }
-}
-
-function onTutorialStationClick(){
-  if(tutWaitingForAction && TUTORIAL_STEPS[tutStep].action === 'waitStationClick'){
-    tutWaitingForAction = false;
-    setTimeout(() => {
-      tutStep++;
-      renderTutorialSteps();
-      applyTutorialHighlight();
-    }, 500);
-  }
-}
-
-function onTutorialTrainClick(){
-  if(tutWaitingForAction && TUTORIAL_STEPS[tutStep].action === 'waitTrainClick'){
-    tutWaitingForAction = false;
-    setTimeout(() => {
-      tutStep++;
-      renderTutorialSteps();
-      applyTutorialHighlight();
-    }, 500);
+function clearHighlight(){
+  if(tutHighlightEl){
+    tutHighlightEl.classList.remove('tut-highlight');
+    tutHighlightEl = null;
   }
 }
 

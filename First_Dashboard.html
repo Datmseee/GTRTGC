@@ -142,21 +142,23 @@ header::before{
 
 /* Station labels */
 .sta-label{
-  background:rgba(5,8,15,0.92) !important;
+  background:rgba(5,8,15,0.95) !important;
   border:1px solid rgba(36,62,88,0.95) !important;
-  box-shadow:0 3px 12px rgba(0,0,0,0.5) !important;
-  padding:5px 8px !important;border-radius:4px !important;
-  font-family:var(--sans) !important;font-size:14px !important;
-  line-height:1.25 !important;color:#d9edf8 !important;
+  box-shadow:0 4px 16px rgba(0,0,0,0.6),0 0 20px rgba(0,212,232,0.15) !important;
+  padding:8px 12px !important;border-radius:6px !important;
+  font-family:var(--sans) !important;font-size:15px !important;
+  line-height:1.3 !important;color:#e8f4fc !important;
   font-weight:700 !important;white-space:normal !important;
-  text-align:center !important;letter-spacing:0.03em;
+  text-align:center !important;letter-spacing:0.04em;
+  z-index:600;
 }
 .sta-label.hub-label{
-  color:#ffffff !important;font-size:15px !important;
-  border-color:rgba(0,212,232,0.55) !important;
-  background:rgba(0,212,232,0.14) !important;
-  box-shadow:0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(0,212,232,0.12) !important;
+  color:#ffffff !important;font-size:16px !important;
+  border-color:rgba(0,212,232,0.7) !important;
+  background:rgba(0,212,232,0.2) !important;
+  box-shadow:0 6px 24px rgba(0,0,0,0.6), 0 0 30px rgba(0,212,232,0.2) !important;
   white-space:nowrap !important;text-align:left !important;
+  z-index:601;
 }
 .sta-name-small{font-size:10px;font-weight:600;opacity:0.85;display:block}
 .leaflet-tooltip::before{display:none !important}
@@ -492,8 +494,8 @@ header::before{
   .train-dot{width:12px;height:20px}
   .train-dot::after{top:3px;height:2px;left:1px;right:1px}
   .train-arrow{top:-6px;border-left-width:3px;border-right-width:3px;border-bottom-width:6px}
-  .sta-label{font-size:11px !important;padding:3px 6px !important}
-  .sta-label.hub-label{font-size:13px !important;padding:4px 8px !important}
+  .sta-label{font-size:12px !important;padding:5px 8px !important}
+  .sta-label.hub-label{font-size:14px !important;padding:6px 10px !important}
   .sys-label{font-size:9px;letter-spacing:0.12em}
   #lbl-sk{left:12px}
   #lbl-pg{right:12px}
@@ -1282,16 +1284,28 @@ function drawStations(){
       if(sta.hub){
         if(drawnHubs.has(sta.name)) return;
         drawnHubs.add(sta.name);
-        // Collect which loops this hub serves
+        // Hub stations: larger multi-ring marker for interchange appearance
         const hubLoops = Object.keys(STATIONS).filter(lid =>
           STATIONS[lid].some(s => s.name === sta.name && s.hub));
         const hubInfo = hubLoops.map(l => l.replace('-',' ')).join(', ');
+        
+        // Outer glow
+        L.circleMarker([sta.lat, sta.lng], {
+          radius:28, fillColor:color, color:color,
+          weight:1, fillOpacity:0.15
+        }).addTo(map);
+        // Middle ring
+        L.circleMarker([sta.lat, sta.lng], {
+          radius:22, fillColor:color, color:color,
+          weight:2, fillOpacity:0.3
+        }).addTo(map);
+        // Core station
         const hubMarker = L.circleMarker([sta.lat, sta.lng], {
-          radius:13, fillColor:color, color:color,
-          weight:3, fillOpacity:1
+          radius:16, fillColor:color, color:'#ffffff',
+          weight:2.5, fillOpacity:1
         })
         .bindTooltip(getStationLabel(sta), {
-          permanent:true, direction:'top', offset:[0,-14],
+          permanent:true, direction:'top', offset:[0,-32],
           className:'sta-label hub-label'
         })
         .addTo(map);
@@ -1300,12 +1314,19 @@ function drawStations(){
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
         });
       } else {
+        // Regular stations: larger with shadow effect
+        // Outer glow
+        L.circleMarker([sta.lat, sta.lng], {
+          radius:18, fillColor:color, color:color,
+          weight:1, fillOpacity:0.12
+        }).addTo(map);
+        // Core station
         const staMarker = L.circleMarker([sta.lat, sta.lng], {
-          radius:8, fillColor:'#111d2e', color:color,
+          radius:12, fillColor:'#0a1422', color:color,
           weight:2.5, fillOpacity:1
         })
         .bindTooltip(`<span>${STATION_CODES[sta.name]||sta.name}</span><span class="sta-name-small">${sta.name}</span>`, {
-          permanent:true, direction:'top', offset:[0,-8],
+          permanent:true, direction:'top', offset:[0,-20],
           className:'sta-label'
         })
         .addTo(map);

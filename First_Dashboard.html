@@ -593,7 +593,7 @@ header::before{
 .hm-check input{cursor:pointer}
 
 /* ══════════════════════════════════════════════════════════
-   TUTORIAL FLOATING PANEL
+   TUTORIAL MODE
    ══════════════════════════════════════════════════════════ */
 .tut-btn{
   position:absolute;top:10px;left:50%;transform:translateX(-50%);
@@ -603,11 +603,18 @@ header::before{
   font-family:var(--sans);font-weight:600;cursor:pointer;transition:all 0.2s;
 }
 .tut-btn:hover{background:var(--bg3);color:var(--cyan);border-color:var(--cyan)}
+.tmodal{
+  display:none;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TUTORIAL MODE - Floating overlay style
+   ══════════════════════════════════════════════════════════ */
 .tut-float{
   position:fixed;top:70px;left:16px;z-index:1800;
   background:var(--bg1);border:1px solid var(--cyan);
-  border-radius:12px;width:240px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 20px rgba(0,212,232,0.15);
+  border-radius:12px;width:260px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5),0 0 25px rgba(0,212,232,0.2);
   overflow:hidden;animation:tutSlideIn 0.3s ease-out
 }
 @keyframes tutSlideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
@@ -627,8 +634,24 @@ header::before{
 .tut-float-btn{padding:6px 10px;border-radius:5px;font-size:10px;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all 0.2s}
 .tut-float-btn.primary{background:var(--cyan);border:none;color:var(--bg0)}
 .tut-float-btn.primary:hover{box-shadow:0 0 15px rgba(0,212,232,0.6)}
+.tut-float-btn.secondary{background:transparent;border:1px solid var(--border);color:var(--txt1)}
+.tut-float-btn.secondary:hover{background:var(--bg3);color:var(--txt0)}
 .tut-float-btn.skip{background:transparent;border-color:var(--txt2);color:var(--txt2)}
 .tut-float-btn.skip:hover{background:transparent;border-color:var(--red);color:var(--red)}
+.tut-highlight{position:relative;z-index:999}
+.tut-highlight::after{content:'';position:absolute;inset:-4px;border:4px solid #fff;border-radius:8px;box-shadow:0 0 0 4px var(--cyan),0 0 30px var(--cyan);pointer-events:none;animation:tutPulseGlow 0.8s ease-in-out infinite}
+header.tut-highlight::after{border-radius:4px}
+.leaflet-container.tut-highlight::after{border-radius:10px;border-width:5px}
+#h-total.tut-highlight::after,#h-svc.tut-highlight::after,#h-dep.tut-highlight::after,#h-over.tut-highlight::after,#h-soon.tut-highlight::after{border-radius:50%;inset:-2px}
+@keyframes tutPulseGlow{0%,100%{box-shadow:0 0 0 4px var(--cyan),0 0 30px var(--cyan)}50%{box-shadow:0 0 0 6px var(--cyan),0 0 50px var(--cyan),0 0 70px rgba(0,212,232,0.4)}}}
+.tut-tooltip{position:absolute;z-index:1001;background:var(--bg1);border:1px solid var(--cyan);border-radius:8px;padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,0.6);max-width:280px}
+.tut-tooltip::before{content:'';position:absolute;width:12px;height:12px;background:var(--bg1);border-left:1px solid var(--cyan);border-top:1px solid var(--cyan);transform:rotate(45deg)}
+.tut-tooltip.top::before{bottom:-7px;left:50%;margin-left:-6px}
+.tut-tooltip.bottom::before{top:-7px;left:50%;margin-left:-6px}
+.tt-title{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:4px}
+.tt-text{font-size:12px;color:var(--txt1);line-height:1.5}
+.tt-btn{background:var(--cyan);border:none;border-radius:4px;padding:6px 14px;font-size:11px;color:var(--bg0);cursor:pointer;margin-top:10px;font-family:var(--sans);font-weight:700}
+.tt-btn:hover{box-shadow:0 0 15px rgba(0,212,232,0.5)}
 
 /* ══════════════════════════════════════════════════════════
    SEARCH BAR
@@ -1641,6 +1664,7 @@ function selectStation(sta){
   if(tutStep < TUTORIAL_STEPS.length && TUTORIAL_STEPS[tutStep].action === 'clickStation'){
     tutStep++;
     renderTutorialStep();
+    applyHighlight();
   }
 }
 
@@ -2028,7 +2052,7 @@ function selectTrainById(id){
   if(tutStep < TUTORIAL_STEPS.length && TUTORIAL_STEPS[tutStep].action === 'clickTrain'){
     tutStep++;
     renderTutorialStep();
-  }
+    applyHighlight();
   }
 }
 
@@ -2188,17 +2212,20 @@ function initHelp(){
 // TUTORIAL SYSTEM
 // ══════════════════════════════════════════════════════════
 const TUTORIAL_STEPS = [
-  {id:'intro', title:'Welcome!', desc:'Quick tour of the dashboard. Click Next to start.', target:'body', action:'next'},
-  {id:'header', title:'Fleet Stats', desc:'Top bar shows: total 59 trains, in service, in depot, PM alerts.', target:'header', action:'next'},
-  {id:'map', title:'Interactive Map', desc:'Shows all 4 LRT loops with moving trains. Click any station for timings.', target:'#map', action:'next'},
-  {id:'station', title:'Try Clicking a Station', desc:'Click on any station on the map to see arrival times.', target:'.leaflet-container', action:'clickStation'},
-  {id:'stationdone', title:'Great!', desc:'You can see trains approaching that station. Now try clicking a train!', target:'.leaflet-container', action:'clickTrain'},
-  {id:'traindone', title:'Well Done!', desc:'Train details show mileage, PM schedule, speed, route. Continue exploring!', target:'#tc-detail', action:'next'},
-  {id:'fleet', title:'Fleet List', desc:'All 59 trains listed here. Use search and filters.', target:'#tc-fleet', action:'next'},
-  {id:'search', title:'Search', desc:'Type a train ID to find it quickly.', target:'#trainSearch', action:'next'},
-  {id:'filters', title:'Filters', desc:'Filter by: All, In Service, Depot, or PM Alert.', target:'.flt-filter', action:'next'},
-  {id:'alerts', title:'Alerts', desc:'See all trains needing maintenance.', target:'#tab-alerts', action:'next'},
-  {id:'done', title:'All Done!', desc:'You now know how to use the dashboard. Happy monitoring!', target:'body', action:'done'}
+  {id:'intro', title:'Welcome!', desc:'This interactive tutorial guides you through the dashboard. Click Next to start.', target:'body', action:'next'},
+  {id:'total', title:'Total Fleet (59)', desc:'The total number of trains in the Sengkang-Punggol LRT fleet.', target:'#h-total', action:'next'},
+  {id:'svc', title:'In Service', desc:'Shows how many trains are currently in revenue service (green indicator).', target:'#h-svc', action:'next'},
+  {id:'dep', title:'In Depot', desc:'Trains currently stabled at MMB Depot for maintenance or standby.', target:'#h-dep', action:'next'},
+  {id:'pmover', title:'PM Overdue', desc:'Trains that have exceeded their maintenance threshold - requires immediate attention (red).', target:'#h-over', action:'next'},
+  {id:'pmsoon', title:'PM Due Soon', desc:'Trains approaching their next maintenance check (amber).', target:'#h-soon', action:'next'},
+  {id:'map', title:'Interactive Map', desc:'The map shows all 4 LRT loops with moving trains. Click stations for timings.', target:'.leaflet-container', action:'next'},
+  {id:'station', title:'Click a Station', desc:'Click any station to see approaching trains and arrival times. Try it now!', target:'.leaflet-container', action:'clickStation'},
+  {id:'train', title:'Click a Train', desc:'Click any train marker to view its details. Colors show PM status.', target:'.leaflet-container', action:'clickTrain'},
+  {id:'detail', title:'Train Details', desc:'View mileage, PM schedule, speed, and current route. Click any train!', target:'#tc-detail', action:'next'},
+  {id:'fleet', title:'Fleet List', desc:'Browse all 59 trains here. Use search and filters to find specific trains.', target:'#tc-fleet', action:'next'},
+  {id:'search', title:'Search', desc:'Type a train ID (like 810-001) to find it quickly.', target:'#trainSearch', action:'next'},
+  {id:'alerts', title:'Alerts Tab', desc:'See all trains requiring maintenance attention.', target:'#tab-alerts', action:'next'},
+  {id:'done', title:'You\'re Ready!', desc:'You now know how to use the dashboard. Happy monitoring!', target:'body', action:'done'}
 ];
 
 let tutStep = 0;
@@ -2208,10 +2235,12 @@ function startTutorial(){
   tutStep = 0;
   document.getElementById('tutPanel').style.display = 'block';
   renderTutorialStep();
+  applyHighlight();
 }
 
 function closeTutorial(){
   document.getElementById('tutPanel').style.display = 'none';
+  clearHighlight();
 }
 
 function renderTutorialStep(){
@@ -2223,8 +2252,13 @@ function renderTutorialStep(){
   const arrow = document.getElementById('tutArrow');
   const btn = document.getElementById('tutActionBtn');
   
-  if(step.action === 'clickStation' || step.action === 'clickTrain'){
-    arrow.innerHTML = '👆 Try it!';
+  if(step.action === 'clickStation'){
+    arrow.innerHTML = '👆 Click a station!';
+    arrow.style.color = 'var(--amber)';
+    btn.textContent = 'Skip';
+    btn.className = 'tut-float-btn skip';
+  } else if(step.action === 'clickTrain'){
+    arrow.innerHTML = '👆 Click a train!';
     arrow.style.color = 'var(--amber)';
     btn.textContent = 'Skip';
     btn.className = 'tut-float-btn skip';
@@ -2243,13 +2277,33 @@ function renderTutorialStep(){
 
 function handleTutorialAction(){
   const step = TUTORIAL_STEPS[tutStep];
-  if(step.action === 'done'){
-    closeTutorial();
-    return;
-  }
+  
   if(step.action === 'next'){
     tutStep++;
     renderTutorialStep();
+    applyHighlight();
+  } else if(step.action === 'done'){
+    closeTutorial();
+  }
+}
+
+function applyHighlight(){
+  clearHighlight();
+  const step = TUTORIAL_STEPS[tutStep];
+  if(!step || step.action === 'done') return;
+  
+  let target = document.querySelector(step.target);
+  
+  if(target){
+    target.classList.add('tut-highlight');
+    tutHighlightEl = target;
+  }
+}
+
+function clearHighlight(){
+  if(tutHighlightEl){
+    tutHighlightEl.classList.remove('tut-highlight');
+    tutHighlightEl = null;
   }
 }
 

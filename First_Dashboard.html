@@ -593,6 +593,56 @@ header::before{
 .hm-check input{cursor:pointer}
 
 /* ══════════════════════════════════════════════════════════
+   TUTORIAL MODE
+   ══════════════════════════════════════════════════════════ */
+.tut-btn{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  z-index:900;padding:6px 14px;
+  background:rgba(9,14,26,0.85);border:1px solid var(--border);
+  border-radius:20px;color:var(--txt1);font-size:10px;letter-spacing:0.1em;
+  font-family:var(--sans);font-weight:600;cursor:pointer;transition:all 0.2s;
+}
+.tut-btn:hover{background:var(--bg3);color:var(--cyan);border-color:var(--cyan)}
+.tmodal{
+  position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
+  background:rgba(5,8,15,0.92);backdrop-filter:blur(4px)
+}
+.tmodal.show{display:flex}
+.tmodal-inner{
+  background:var(--bg1);border:1px solid var(--border);border-radius:12px;
+  max-width:480px;width:90%;max-height:85vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 40px rgba(0,212,232,0.1);
+  padding:24px;
+}
+.tm-title{font-family:var(--sans);font-size:20px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:0.02em}
+.tm-sub{font-size:12px;color:var(--txt2);margin-bottom:20px}
+.tm-step{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
+.tm-step-num{width:28px;height:28px;background:var(--cyan);color:var(--bg0);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:var(--sans)}
+.tm-step.active{border-color:var(--cyan);box-shadow:0 0 15px rgba(0,212,232,0.2)}
+.tm-step.active .tm-step-num{background:var(--green);box-shadow:0 0 10px rgba(0,232,136,0.5)}
+.tm-step.done .tm-step-num{background:var(--txt2)}
+.tm-step-title{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--txt0)}
+.tm-step-desc{font-size:12px;color:var(--txt1);margin-top:4px}
+.tm-nav{display:flex;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.tm-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+  padding:10px 20px;font-size:12px;color:var(--txt1);cursor:pointer;transition:all 0.2s;font-family:var(--sans);font-weight:600}
+.tm-btn:hover{background:var(--bg4);color:var(--cyan);border-color:var(--cyan)}
+.tm-btn:disabled{opacity:0.4;cursor:not-allowed}
+.tm-btn.skip{background:transparent;border-color:var(--txt2);color:var(--txt2)}
+.tm-btn.skip:hover{background:transparent;border-color:var(--red);color:var(--red)}
+.tut-highlight{position:relative;z-index:1000;pointer-events:none}
+.tut-highlight::after{content:'';position:absolute;inset:-8px;border:3px solid var(--cyan);border-radius:8px;box-shadow:0 0 20px var(--cyan),inset 0 0 20px rgba(0,212,232,0.2);pointer-events:auto;cursor:pointer;animation:tutPulse 1s ease-in-out infinite}
+@keyframes tutPulse{0%,100%{box-shadow:0 0 20px var(--cyan),inset 0 0 20px rgba(0,212,232,0.2)}50%{box-shadow:0 0 35px var(--cyan),inset 0 0 30px rgba(0,212,232,0.3)}}
+.tut-tooltip{position:absolute;z-index:1001;background:var(--bg1);border:1px solid var(--cyan);border-radius:8px;padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,0.6);max-width:280px}
+.tut-tooltip::before{content:'';position:absolute;width:12px;height:12px;background:var(--bg1);border-left:1px solid var(--cyan);border-top:1px solid var(--cyan);transform:rotate(45deg)}
+.tut-tooltip.top::before{bottom:-7px;left:50%;margin-left:-6px}
+.tut-tooltip.bottom::before{top:-7px;left:50%;margin-left:-6px}
+.tt-title{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:4px}
+.tt-text{font-size:12px;color:var(--txt1);line-height:1.5}
+.tt-btn{background:var(--cyan);border:none;border-radius:4px;padding:6px 14px;font-size:11px;color:var(--bg0);cursor:pointer;margin-top:10px;font-family:var(--sans);font-weight:700}
+.tt-btn:hover{box-shadow:0 0 15px rgba(0,212,232,0.5)}
+
+/* ══════════════════════════════════════════════════════════
    SEARCH BAR
    ══════════════════════════════════════════════════════════ */
 .search-bar{padding:10px 12px;border-bottom:1px solid var(--border)}
@@ -608,6 +658,7 @@ header::before{
 <!-- HEADER -->
 <header>
   <button class="help-btn" onclick="showHelp()">? HELP</button>
+  <button class="tut-btn" onclick="startTutorial()">▶ TUTORIAL</button>
   <div class="hdr-top">
     <div class="hlogo">
       <div class="hlogo-mark">LTA</div>
@@ -755,6 +806,24 @@ header::before{
     <div class="hm-close">
       <label class="hm-check"><input type="checkbox" id="dontShowAgain"> Don't show again</label>
       <button class="hm-btn" onclick="closeHelp()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIAL MODAL -->
+<div class="tmodal" id="tutModal" onclick="if(event.target===this)closeTutorial()">
+  <div class="tmodal-inner">
+    <div class="tm-title">Interactive Tutorial</div>
+    <div class="tm-sub">Learn how to use the SPLRT Fleet Dashboard step by step</div>
+    
+    <div id="tutSteps"></div>
+    
+    <div class="tm-nav">
+      <button class="tm-btn skip" onclick="skipTutorial()">Skip Tutorial</button>
+      <div>
+        <button class="tm-btn" id="tutPrev" onclick="prevTutorialStep()" disabled>← Previous</button>
+        <button class="tm-btn" id="tutNext" onclick="nextTutorialStep()">Next →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2115,6 +2184,147 @@ function initHelp(){
   }
 }
 
+// ══════════════════════════════════════════════════════════
+// TUTORIAL SYSTEM
+// ══════════════════════════════════════════════════════════
+const TUTORIAL_STEPS = [
+  {id:'header', title:'Header Stats', desc:'View fleet status at a glance: total trains, in service, in depot, and PM alerts', target:'#h-total'},
+  {id:'map', title:'Interactive Map', desc:'The map shows all 4 LRT loops with real-time train positions. Trains move automatically.', target:'.map-panel', action:'panMap'},
+  {id:'stations', title:'Clickable Stations', desc:'Click any station to see train timings and arrivals. Hover to see the station highlight.', target:'.sta-label', action:'highlightStations'},
+  {id:'trains', title:'Train Markers', desc:'Click any train to view its details. Color indicates PM status: Green=OK, Amber=Due Soon, Red=Overdue.', target:'.train-dot', action:'highlightTrain'},
+  {id:'fleet', title:'Fleet List', desc:'Browse all 59 trains in the side panel. Use filters to show In Service, Depot, or PM Alert trains.', target:'#tab-fleet'},
+  {id:'search', title:'Search', desc:'Type a train ID (e.g., 810-001) to quickly find a specific train.', target:'#trainSearch'},
+  {id:'filters', title:'Filters', desc:'Filter trains by status: All, In Service, Depot, or PM Alert.', target:'.flt-filter'},
+  {id:'detail', title:'Train Details', desc:'View mileage, PM schedule, and next station for any train.', target:'#tc-detail', action:'showDetail'},
+  {id:'alerts', title:'Alerts', desc:'See all trains requiring maintenance attention.', target:'#tab-alerts'},
+  {id:'help', title:'Help & Tutorial', desc:'Access help anytime via the ? button, or run this tutorial again.', target:'.help-btn'}
+];
+
+let tutStep = 0;
+let tutHighlightEl = null;
+let tutTooltipEl = null;
+
+function startTutorial(){
+  tutStep = 0;
+  document.getElementById('tutModal').classList.add('show');
+  renderTutorialSteps();
+  applyTutorialHighlight();
+}
+
+function closeTutorial(){
+  document.getElementById('tutModal').classList.remove('show');
+  clearTutorialHighlight();
+  if(tutStep >= TUTORIAL_STEPS.length){
+    localStorage.setItem('splrt_tutorial_done','1');
+  }
+}
+
+function skipTutorial(){
+  closeTutorial();
+}
+
+function prevTutorialStep(){
+  if(tutStep > 0){
+    tutStep--;
+    renderTutorialSteps();
+    applyTutorialHighlight();
+  }
+}
+
+function nextTutorialStep(){
+  const step = TUTORIAL_STEPS[tutStep];
+  if(step.action){
+    if(step.action === 'showDetail' && fleet.length > 0){
+      selectTrainById(fleet[0].id);
+      switchTab('detail');
+    } else if(step.action === 'highlightStations'){
+      // Already highlighted
+    }
+  }
+  if(tutStep < TUTORIAL_STEPS.length - 1){
+    tutStep++;
+    renderTutorialSteps();
+    applyTutorialHighlight();
+  } else {
+    closeTutorial();
+  }
+}
+
+function renderTutorialSteps(){
+  const container = document.getElementById('tutSteps');
+  container.innerHTML = TUTORIAL_STEPS.map((s, i) => `
+    <div class="tm-step ${i === tutStep ? 'active' : ''} ${i < tutStep ? 'done' : ''}" id="tut-step-${i}">
+      <div class="tm-step-num">${i < tutStep ? '✓' : i + 1}</div>
+      <div>
+        <div class="tm-step-title">${s.title}</div>
+        <div class="tm-step-desc">${s.desc}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('tutPrev').disabled = tutStep === 0;
+  document.getElementById('tutNext').textContent = tutStep >= TUTORIAL_STEPS.length - 1 ? 'Finish' : 'Next →';
+}
+
+function applyTutorialHighlight(){
+  clearTutorialHighlight();
+  const step = TUTORIAL_STEPS[tutStep];
+  if(!step) return;
+  
+  let target = null;
+  if(step.target === '.map-panel'){
+    target = document.querySelector('.map-panel');
+  } else if(step.target === '#h-total'){
+    target = document.getElementById('h-total');
+  } else if(step.target === '.sta-label'){
+    const labels = document.querySelectorAll('.sta-label');
+    if(labels.length > 0) target = labels[0];
+  } else if(step.target === '.train-dot'){
+    target = document.querySelector('.train-dot');
+  } else if(step.target === '#tab-fleet'){
+    target = document.getElementById('tab-fleet');
+  } else if(step.target === '#trainSearch'){
+    target = document.getElementById('trainSearch');
+  } else if(step.target === '.flt-filter'){
+    target = document.querySelector('.flt-filter');
+  } else if(step.target === '#tc-detail'){
+    target = document.getElementById('tc-detail');
+  } else if(step.target === '#tab-alerts'){
+    target = document.getElementById('tab-alerts');
+  } else if(step.target === '.help-btn'){
+    target = document.querySelector('.help-btn');
+  }
+  
+  if(target){
+    target.classList.add('tut-highlight');
+    tutHighlightEl = target;
+    
+    const rect = target.getBoundingClientRect();
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tut-tooltip top';
+    tooltip.innerHTML = `
+      <div class="tt-title">Step ${tutStep + 1}: ${step.title}</div>
+      <div class="tt-text">${step.desc}</div>
+      <button class="tt-btn" onclick="nextTutorialStep()">Continue →</button>
+    `;
+    tooltip.style.position = 'fixed';
+    tooltip.style.top = (rect.bottom + 10) + 'px';
+    tooltip.style.left = Math.max(10, rect.left + rect.width/2 - 140) + 'px';
+    document.body.appendChild(tooltip);
+    tutTooltipEl = tooltip;
+  }
+}
+
+function clearTutorialHighlight(){
+  if(tutHighlightEl){
+    tutHighlightEl.classList.remove('tut-highlight');
+    tutHighlightEl = null;
+  }
+  if(tutTooltipEl){
+    tutTooltipEl.remove();
+    tutTooltipEl = null;
+  }
+}
+
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
   if(e.key === '?' && !e.target.matches('input,textarea')){
@@ -2127,6 +2337,7 @@ document.addEventListener('keydown', e => {
   }
   if(e.key === 'Escape'){
     closeHelp();
+    closeTutorial();
     if(selectedTrain){
       const prev = fleet.find(f => f.id === selectedTrain.id);
       if(prev && prev._el) prev._el.classList.remove('selected');

@@ -150,7 +150,7 @@ header::before{
   line-height:1.3 !important;color:#e8f4fc !important;
   font-weight:700 !important;white-space:normal !important;
   text-align:center !important;letter-spacing:0.04em;
-  z-index:600;
+  z-index:600;cursor:pointer !important;pointer-events:auto !important;
 }
 .sta-label.hub-label{
   color:#ffffff !important;font-size:16px !important;
@@ -158,7 +158,7 @@ header::before{
   background:rgba(0,212,232,0.2) !important;
   box-shadow:0 6px 24px rgba(0,0,0,0.6), 0 0 30px rgba(0,212,232,0.2) !important;
   white-space:nowrap !important;text-align:left !important;
-  z-index:601;
+  z-index:601;cursor:pointer !important;pointer-events:auto !important;
 }
 .sta-name-small{font-size:10px;font-weight:600;opacity:0.85;display:block}
 .leaflet-tooltip::before{display:none !important}
@@ -1306,9 +1306,14 @@ function drawStations(){
         })
         .bindTooltip(getStationLabel(sta), {
           permanent:true, direction:'top', offset:[0,-32],
-          className:'sta-label hub-label'
+          className:'sta-label hub-label',
+          interactive: true
         })
         .addTo(map);
+        hubMarker.on('tooltipclick', (e) => {
+          L.DomEvent.stopPropagation(e);
+          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
+        });
         hubMarker.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
@@ -1327,7 +1332,10 @@ function drawStations(){
         })
         .bindTooltip(`<span>${STATION_CODES[sta.name]||sta.name}</span><span class="sta-name-small">${sta.name}</span>`, {
           permanent:true, direction:'top', offset:[0,-20],
-          className:'sta-label'
+          className:'sta-label',
+          interactive: true
+        }).on('tooltipclick', (e) => {
+          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
         })
         .addTo(map);
         staMarker.on('click', (e) => {

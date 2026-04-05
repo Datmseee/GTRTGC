@@ -530,12 +530,62 @@ header::before{
   .hdr-live{padding:3px 8px}
   .hdr-live-txt{font-size:8px}
 }
+
+/* ══════════════════════════════════════════════════════════
+   HELP MODAL
+   ══════════════════════════════════════════════════════════ */
+.help-btn{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  z-index:900;padding:6px 14px;
+  background:rgba(9,14,26,0.85);border:1px solid var(--border);
+  border-radius:20px;color:var(--txt1);font-size:10px;letter-spacing:0.1em;
+  font-family:var(--sans);font-weight:600;cursor:pointer;transition:all 0.2s;
+}
+.help-btn:hover{background:var(--bg3);color:var(--cyan);border-color:var(--cyan)}
+.hmodal{
+  position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
+  background:rgba(5,8,15,0.92);backdrop-filter:blur(4px)
+}
+.hmodal.show{display:flex}
+.hmodal-inner{
+  background:var(--bg1);border:1px solid var(--border);border-radius:12px;
+  max-width:520px;width:90%;max-height:85vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 40px rgba(0,212,232,0.1);
+  padding:24px;
+}
+.hm-title{font-family:var(--sans);font-size:20px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:0.02em}
+.hm-sub{font-size:12px;color:var(--txt2);margin-bottom:20px}
+.hm-section{margin-bottom:18px}
+.hm-h3{font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;font-family:var(--sans)}
+.hm-p{font-size:13px;color:var(--txt1);line-height:1.6;margin-bottom:8px}
+.hm-ul{padding-left:18px;margin:8px 0}
+.hm-li{font-size:12px;color:var(--txt1);margin-bottom:6px;line-height:1.5}
+.hm-li b{color:var(--txt0)}
+.hm-kbd{background:var(--bg3);border:1px solid var(--border);border-radius:4px;
+  padding:2px 6px;font-size:10px;color:var(--cyan);font-family:var(--mono)}
+.hm-close{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.hm-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+  padding:8px 16px;font-size:12px;color:var(--txt1);cursor:pointer;transition:all 0.2s;font-family:var(--sans);font-weight:600}
+.hm-btn:hover{background:var(--bg4);color:var(--cyan);border-color:var(--cyan)}
+.hm-check{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt2);cursor:pointer}
+.hm-check input{cursor:pointer}
+
+/* ══════════════════════════════════════════════════════════
+   SEARCH BAR
+   ══════════════════════════════════════════════════════════ */
+.search-bar{padding:10px 12px;border-bottom:1px solid var(--border)}
+.search-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  padding:8px 12px;font-size:12px;color:var(--txt0);font-family:var(--mono);
+  outline:none;transition:border-color 0.2s}
+.search-input::placeholder{color:var(--txt2)}
+.search-input:focus{border-color:var(--cyan);box-shadow:0 0 8px rgba(0,212,232,0.15)}
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <header>
+  <button class="help-btn" onclick="showHelp()">? HELP</button>
   <div class="hdr-top">
     <div class="hlogo">
       <div class="hlogo-mark">LTA</div>
@@ -612,6 +662,9 @@ header::before{
 
     <!-- Fleet Tab -->
     <div class="tcontent active" id="tc-fleet">
+      <div class="search-bar">
+        <input type="text" class="search-input" id="trainSearch" placeholder="Search train ID... (e.g. 810-001)" oninput="filterTrains()">
+      </div>
       <div class="flt-filter">
         <button class="flt-btn active" onclick="setFilter('all',this)">All</button>
         <button class="flt-btn" onclick="setFilter('in-service',this)">In Svc</button>
@@ -639,6 +692,49 @@ header::before{
 <div class="alert-strip">
   <div class="as-lbl">⬡ SYS</div>
   <div class="as-ticker"><div class="as-inner" id="tickerInner"></div></div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="hmodal" id="helpModal" onclick="if(event.target===this)closeHelp()">
+  <div class="hmodal-inner">
+    <div class="hm-title">SPLRT Fleet Operations</div>
+    <div class="hm-sub">Sengkang–Punggol LRT — Mileage & PM Tracking</div>
+    
+    <div class="hm-section">
+      <div class="hm-h3">Quick Start</div>
+      <p class="hm-p">This dashboard tracks <b>59 trains</b> across 4 loops. Click any train on the map or in the fleet list to view details.</p>
+      <p class="hm-p"><b>Green</b> trains are OK. <b>Amber</b> means PM due soon. <b>Red</b> means PM overdue — schedule maintenance immediately.</p>
+    </div>
+    
+    <div class="hm-section">
+      <div class="hm-h3">PM Thresholds</div>
+      <ul class="hm-ul">
+        <li class="hm-li"><b>2K</b> — 2,000 km: Visual inspection</li>
+        <li class="hm-li"><b>13K</b> — 13,000 km: Function checks (doors)</li>
+        <li class="hm-li"><b>40K</b> — 40,000 km: Extended checks (air-con, brakes)</li>
+        <li class="hm-li"><b>120K</b> — 120,000 km: Detail checks (greasing)</li>
+        <li class="hm-li"><b>360K</b> — 360,000 km: Full overhaul</li>
+      </ul>
+    </div>
+    
+    <div class="hm-section">
+      <div class="hm-h3">Controls</div>
+      <p class="hm-p"><span class="hm-kbd">?</span> — Show this help</p>
+      <p class="hm-p"><span class="hm-kbd">/</span> — Focus search</p>
+      <p class="hm-p"><span class="hm-kbd">Esc</span> — Close modal / deselect</p>
+      <p class="hm-p"><span class="hm-kbd">↑↓</span> — Navigate train list</p>
+    </div>
+    
+    <div class="hm-section">
+      <div class="hm-h3">Filters</div>
+      <p class="hm-p">Use the filter buttons (All / In Svc / Depot / PM Alert) to narrow down the fleet list. Combine with search for quick access.</p>
+    </div>
+    
+    <div class="hm-close">
+      <label class="hm-check"><input type="checkbox" id="dontShowAgain"> Don't show again</label>
+      <button class="hm-btn" onclick="closeHelp()">Got it</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1890,6 +1986,59 @@ function switchTab(id){
   if(id==='alerts') updateAlertsPanel();
 }
 
+// ══════════════════════════════════════════════════════════
+// SEARCH & HELP
+// ══════════════════════════════════════════════════════════
+function filterTrains(){
+  const query = document.getElementById('trainSearch').value.toLowerCase();
+  const list = document.getElementById('fleetList');
+  const items = list.querySelectorAll('.fi');
+  items.forEach(item => {
+    const id = item.querySelector('.fi-id').textContent.toLowerCase();
+    item.style.display = id.includes(query) ? '' : 'none';
+  });
+}
+
+function showHelp(){
+  document.getElementById('helpModal').classList.add('show');
+}
+
+function closeHelp(){
+  document.getElementById('helpModal').classList.remove('show');
+  if(document.getElementById('dontShowAgain').checked){
+    localStorage.setItem('splrt_help_dismissed','1');
+  }
+}
+
+function initHelp(){
+  if(!localStorage.getItem('splrt_help_dismissed')){
+    setTimeout(showHelp, 800);
+  }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if(e.key === '?' && !e.target.matches('input,textarea')){
+    e.preventDefault();
+    showHelp();
+  }
+  if(e.key === '/' && !e.target.matches('input,textarea')){
+    e.preventDefault();
+    document.getElementById('trainSearch').focus();
+  }
+  if(e.key === 'Escape'){
+    closeHelp();
+    if(selectedTrain){
+      const prev = fleet.find(f => f.id === selectedTrain.id);
+      if(prev && prev._el) prev._el.classList.remove('selected');
+      selectedTrain = null;
+      clearRouteArrows();
+      renderNoSelection();
+      updateFleetList();
+    }
+  }
+});
+
 // ═══════════════════════════════════════════════════════
 // TICKER
 // ═══════════════════════════════════════════════════════
@@ -1921,6 +2070,7 @@ updateFleetList();
 updateHeaderStats();
 buildTicker();
 updateDisplaySpeeds();
+initHelp();
 setInterval(buildTicker, 15000);
 setInterval(updateDisplaySpeeds, 1000);
 requestAnimationFrame(animate);

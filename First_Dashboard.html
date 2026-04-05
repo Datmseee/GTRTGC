@@ -1303,107 +1303,130 @@ function drawStations(){
       if(sta.hub){
         if(drawnHubs.has(sta.name)) return;
         drawnHubs.add(sta.name);
-        // Hub stations: larger multi-ring marker for interchange appearance
         const hubLoops = Object.keys(STATIONS).filter(lid =>
           STATIONS[lid].some(s => s.name === sta.name && s.hub));
         const hubInfo = hubLoops.map(l => l.replace('-',' ')).join(', ');
         
-        // Outer glow - interactive
-        const hubOuter = L.circleMarker([sta.lat, sta.lng], {
+        // All station layers for this hub
+        const layers = [];
+        
+        // Outer glow
+        const outer = L.circleMarker([sta.lat, sta.lng], {
           radius:32, fillColor:color, color:color,
           weight:1, fillOpacity: 0.1
-        }).addTo(map);
-        hubOuter.on('mouseover', function() {
-          this.setStyle({fillOpacity: 0.25, weight: 2});
         });
-        hubOuter.on('mouseout', function() {
-          this.setStyle({fillOpacity: 0.1, weight: 1});
-        });
-        hubOuter.on('click', (e) => {
-          L.DomEvent.stopPropagation(e);
-          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
-        });
+        layers.push(outer);
+        outer.addTo(map);
+        
         // Middle ring
-        const hubMiddle = L.circleMarker([sta.lat, sta.lng], {
+        const middle = L.circleMarker([sta.lat, sta.lng], {
           radius:22, fillColor:color, color:color,
           weight:2, fillOpacity:0.3
-        }).addTo(map);
-        hubMiddle.on('mouseover', function() {
-          this.setStyle({fillOpacity: 0.5, weight: 3});
         });
-        hubMiddle.on('mouseout', function() {
-          this.setStyle({fillOpacity: 0.3, weight: 2});
-        });
-        hubMiddle.on('click', (e) => {
-          L.DomEvent.stopPropagation(e);
-          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
-        });
+        layers.push(middle);
+        middle.addTo(map);
+        
         // Core station
         const hubMarker = L.circleMarker([sta.lat, sta.lng], {
           radius:16, fillColor:color, color:'#ffffff',
           weight:2.5, fillOpacity:1
-        })
-        .bindTooltip(getStationLabel(sta), {
+        });
+        layers.push(hubMarker);
+        hubMarker.addTo(map);
+        
+        // Bind tooltip after adding to map
+        hubMarker.bindTooltip(getStationLabel(sta), {
           permanent:true, direction:'top', offset:[0,-32],
           className:'sta-label hub-label',
           interactive: true
-        })
-        .addTo(map);
-        hubMarker.on('mouseover', function() {
-          this.setStyle({fillOpacity: 1, weight: 3.5});
         });
-        hubMarker.on('mouseout', function() {
-          this.setStyle({fillOpacity: 1, weight: 2.5});
+        
+        // Highlight all layers on hover of any
+        const highlight = () => {
+          layers.forEach(l => {
+            if(l === outer) l.setStyle({fillOpacity: 0.25, weight: 2});
+            else if(l === middle) l.setStyle({fillOpacity: 0.5, weight: 3});
+            else l.setStyle({fillOpacity: 1, weight: 3.5});
+          });
+        };
+        const unhighlight = () => {
+          layers.forEach(l => {
+            if(l === outer) l.setStyle({fillOpacity: 0.1, weight: 1});
+            else if(l === middle) l.setStyle({fillOpacity: 0.3, weight: 2});
+            else l.setStyle({fillOpacity: 1, weight: 2.5});
+          });
+        };
+        
+        layers.forEach(l => {
+          l.on('mouseover', highlight);
+          l.on('mouseout', unhighlight);
+          l.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
+            selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
+          });
         });
+        
         hubMarker.on('tooltipclick', (e) => {
           L.DomEvent.stopPropagation(e);
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
         });
-        hubMarker.on('click', (e) => {
-          L.DomEvent.stopPropagation(e);
-          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
-        });
       } else {
-        // Regular stations: larger with shadow effect
-        // Outer glow - interactive
-        const staOuter = L.circleMarker([sta.lat, sta.lng], {
+        // Regular stations
+        const layers = [];
+        
+        // Outer glow
+        const outer = L.circleMarker([sta.lat, sta.lng], {
           radius:22, fillColor:color, color:color,
           weight:1, fillOpacity:0.08
-        }).addTo(map);
-        staOuter.on('mouseover', function() {
-          this.setStyle({fillOpacity: 0.2, weight: 2});
         });
-        staOuter.on('mouseout', function() {
-          this.setStyle({fillOpacity: 0.08, weight: 1});
-        });
-        staOuter.on('click', (e) => {
-          L.DomEvent.stopPropagation(e);
-          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
-        });
+        layers.push(outer);
+        outer.addTo(map);
+        
         // Core station
         const staMarker = L.circleMarker([sta.lat, sta.lng], {
           radius:12, fillColor:'#0a1422', color:color,
           weight:2.5, fillOpacity:1
-        })
-        .bindTooltip(`<span>${STATION_CODES[sta.name]||sta.name}</span><span class="sta-name-small">${sta.name}</span>`, {
+        });
+        layers.push(staMarker);
+        staMarker.addTo(map);
+        
+        // Bind tooltip
+        staMarker.bindTooltip(`<span>${STATION_CODES[sta.name]||sta.name}</span><span class="sta-name-small">${sta.name}</span>`, {
           permanent:true, direction:'top', offset:[0,-20],
           className:'sta-label',
           interactive: true
-        }).on('tooltipclick', (e) => {
-          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
-        })
-        .addTo(map);
-        staMarker.on('mouseover', function() {
-          this.setStyle({fillOpacity: 1, weight: 3.5});
         });
-        staMarker.on('mouseout', function() {
-          this.setStyle({fillOpacity: 1, weight: 2.5});
+        
+        // Highlight all layers on hover
+        const highlight = () => {
+          layers.forEach(l => {
+            if(l === outer) l.setStyle({fillOpacity: 0.2, weight: 2});
+            else l.setStyle({fillOpacity: 1, weight: 3.5});
+          });
+        };
+        const unhighlight = () => {
+          layers.forEach(l => {
+            if(l === outer) l.setStyle({fillOpacity: 0.08, weight: 1});
+            else l.setStyle({fillOpacity: 1, weight: 2.5});
+          });
+        };
+        
+        layers.forEach(l => {
+          l.on('mouseover', highlight);
+          l.on('mouseout', unhighlight);
+          l.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
+            selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
+          });
         });
-        staMarker.on('click', (e) => {
-          L.DomEvent.stopPropagation(e);
+        
+        staMarker.on('tooltipclick', (e) => {
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
         });
       }
+    });
+  }
+}
     });
   }
 }

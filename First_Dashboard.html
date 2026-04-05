@@ -1309,25 +1309,35 @@ function drawStations(){
         const hubInfo = hubLoops.map(l => l.replace('-',' ')).join(', ');
         
         // Outer glow - interactive
-        const outerGlow = L.circleMarker([sta.lat, sta.lng], {
+        const hubOuter = L.circleMarker([sta.lat, sta.lng], {
           radius:32, fillColor:color, color:color,
           weight:1, fillOpacity: 0.1
         }).addTo(map);
-        outerGlow.on('mouseover', function() {
+        hubOuter.on('mouseover', function() {
           this.setStyle({fillOpacity: 0.25, weight: 2});
         });
-        outerGlow.on('mouseout', function() {
+        hubOuter.on('mouseout', function() {
           this.setStyle({fillOpacity: 0.1, weight: 1});
         });
-        outerGlow.on('click', (e) => {
+        hubOuter.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
         });
         // Middle ring
-        L.circleMarker([sta.lat, sta.lng], {
+        const hubMiddle = L.circleMarker([sta.lat, sta.lng], {
           radius:22, fillColor:color, color:color,
           weight:2, fillOpacity:0.3
         }).addTo(map);
+        hubMiddle.on('mouseover', function() {
+          this.setStyle({fillOpacity: 0.5, weight: 3});
+        });
+        hubMiddle.on('mouseout', function() {
+          this.setStyle({fillOpacity: 0.3, weight: 2});
+        });
+        hubMiddle.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
+        });
         // Core station
         const hubMarker = L.circleMarker([sta.lat, sta.lng], {
           radius:16, fillColor:color, color:'#ffffff',
@@ -1339,6 +1349,12 @@ function drawStations(){
           interactive: true
         })
         .addTo(map);
+        hubMarker.on('mouseover', function() {
+          this.setStyle({fillOpacity: 1, weight: 3.5});
+        });
+        hubMarker.on('mouseout', function() {
+          this.setStyle({fillOpacity: 1, weight: 2.5});
+        });
         hubMarker.on('tooltipclick', (e) => {
           L.DomEvent.stopPropagation(e);
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:true, color, lineName, loopSide, hubInfo});
@@ -1349,18 +1365,18 @@ function drawStations(){
         });
       } else {
         // Regular stations: larger with shadow effect
-        // Outer glow - larger hover area
-        const outerGlow = L.circleMarker([sta.lat, sta.lng], {
+        // Outer glow - interactive
+        const staOuter = L.circleMarker([sta.lat, sta.lng], {
           radius:22, fillColor:color, color:color,
           weight:1, fillOpacity:0.08
         }).addTo(map);
-        outerGlow.on('mouseover', function() {
+        staOuter.on('mouseover', function() {
           this.setStyle({fillOpacity: 0.2, weight: 2});
         });
-        outerGlow.on('mouseout', function() {
+        staOuter.on('mouseout', function() {
           this.setStyle({fillOpacity: 0.08, weight: 1});
         });
-        outerGlow.on('click', (e) => {
+        staOuter.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
         });
@@ -1377,6 +1393,12 @@ function drawStations(){
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});
         })
         .addTo(map);
+        staMarker.on('mouseover', function() {
+          this.setStyle({fillOpacity: 1, weight: 3.5});
+        });
+        staMarker.on('mouseout', function() {
+          this.setStyle({fillOpacity: 1, weight: 2.5});
+        });
         staMarker.on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           selectStation({name:sta.name, loopId, lat:sta.lat, lng:sta.lng, hub:false, color, lineName, loopSide});

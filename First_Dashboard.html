@@ -2235,7 +2235,6 @@ function startTutorial(){
   tutStep = 0;
   document.getElementById('tutPanel').style.display = 'block';
   renderTutorialStep();
-  applyHighlight();
 }
 
 function closeTutorial(){
@@ -2304,98 +2303,6 @@ function clearHighlight(){
   if(tutHighlightEl){
     tutHighlightEl.classList.remove('tut-highlight');
     tutHighlightEl = null;
-  }
-}
-
-function renderTutorialSteps(){
-  const container = document.getElementById('tutSteps');
-  const step = TUTORIAL_STEPS[tutStep];
-  
-  container.innerHTML = `
-    <div class="tm-step active">
-      <div class="tm-step-num">${tutStep + 1}</div>
-      <div>
-        <div class="tm-step-title">${step.title}</div>
-        <div class="tm-step-desc">${step.desc}</div>
-      </div>
-    </div>
-  `;
-  document.getElementById('tutPrev').disabled = tutStep === 0;
-  const nextBtn = document.getElementById('tutNext');
-  if(step.action === 'waitStationClick' || step.action === 'waitTrainClick'){
-    nextBtn.textContent = 'Skip';
-  } else if(tutStep >= TUTORIAL_STEPS.length - 1){
-    nextBtn.textContent = 'Finish';
-  } else {
-    nextBtn.textContent = 'Next →';
-  }
-}
-
-function applyTutorialHighlight(){
-  clearTutorialHighlight();
-  const step = TUTORIAL_STEPS[tutStep];
-  if(!step || step.action === 'intro' || step.action === 'done') return;
-  
-  let target = null;
-  const targetId = step.target;
-  const highlightId = step.highlight;
-  
-  if(targetId === 'header'){
-    target = document.querySelector('header');
-  } else if(targetId === 'map'){
-    target = document.querySelector('.leaflet-container');
-  } else if(targetId === 'station'){
-    target = document.querySelector('.leaflet-container');
-  } else if(targetId === 'train'){
-    target = document.querySelector('.leaflet-container');
-  } else if(targetId === 'detail'){
-    target = document.getElementById('tc-detail');
-  } else if(targetId === 'fleet'){
-    target = document.getElementById('tc-fleet');
-  } else if(targetId === 'filters'){
-    target = document.querySelector('.flt-filter');
-  } else if(targetId === 'search'){
-    target = document.getElementById('trainSearch');
-  } else if(targetId === 'alerts'){
-    target = document.getElementById('tc-alerts');
-  } else if(highlightId){
-    target = document.querySelector(highlightId);
-  }
-  
-  if(target){
-    target.classList.add('tut-highlight');
-    tutHighlightEl = target;
-    
-    const rect = target.getBoundingClientRect();
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tut-tooltip top';
-    let btnText = 'Next →';
-    if(step.action === 'waitStationClick' || step.action === 'waitTrainClick'){
-      btnText = 'Skip';
-    } else if(tutStep >= TUTORIAL_STEPS.length - 2){
-      btnText = 'Finish';
-    }
-    tooltip.innerHTML = `
-      <div class="tt-title">Step ${tutStep + 1}: ${step.title}</div>
-      <div class="tt-text">${step.desc}</div>
-      <button class="tt-btn" onclick="nextTutorialStep()">${btnText}</button>
-    `;
-    tooltip.style.position = 'fixed';
-    tooltip.style.top = (rect.bottom + 15) + 'px';
-    tooltip.style.left = Math.max(10, Math.min(rect.left + rect.width/2 - 140, window.innerWidth - 300)) + 'px';
-    document.body.appendChild(tooltip);
-    tutTooltipEl = tooltip;
-  }
-}
-
-function clearTutorialHighlight(){
-  if(tutHighlightEl){
-    tutHighlightEl.classList.remove('tut-highlight');
-    tutHighlightEl = null;
-  }
-  if(tutTooltipEl){
-    tutTooltipEl.remove();
-    tutTooltipEl = null;
   }
 }
 

@@ -158,6 +158,17 @@ def get_train(train_id: str):
     return _wrap(service.train, train_id)
 
 
+class AdjustIn(BaseModel):
+    mileage: Optional[float] = None
+    location: Optional[str] = Field(None, examples=["ST1"])
+
+
+@app.patch("/api/trains/{train_id}")
+def patch_train(train_id: str, body: AdjustIn):
+    """Manual correction (dashboard double-click): set mileage and/or current station."""
+    return _wrap(service.adjust_train, train_id, body.mileage, body.location)
+
+
 @app.get("/api/alerts")
 def get_alerts():
     return service.alerts()

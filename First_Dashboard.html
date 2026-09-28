@@ -113,6 +113,17 @@ header::before{
 .dt-dim{color:var(--txt2);font-weight:400}
 .dt-moving{font-family:var(--sans);font-size:9px;letter-spacing:0.15em;color:var(--green);border:1px solid var(--green);border-radius:10px;padding:1px 6px;margin-left:4px}
 .dt-empty{font-family:var(--mono);font-size:11px;color:var(--txt2)}
+/* Double-click editing */
+.dt-len{font-family:var(--mono);font-size:14px;fill:var(--txt1);cursor:text}
+.dt-len:hover{fill:var(--cyan);text-decoration:underline dotted}
+.dt-editable{cursor:text;border-bottom:1px dotted transparent}
+.dt-editable:hover{border-bottom-color:var(--cyan)}
+.dt-edit{position:fixed;z-index:2300;display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:220px;background:var(--bg1);border:1px solid var(--cyan);border-radius:8px;padding:6px 8px;box-shadow:0 8px 30px var(--bg0)}
+.dt-edit input,.dt-edit select{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--border2);border-radius:5px;padding:5px 7px;color:var(--txt0);font-family:var(--mono);font-size:13px}
+.dt-edit input:focus,.dt-edit select:focus{outline:none;border-color:var(--cyan)}
+.dt-edit span{font-family:var(--mono);font-size:11px;color:var(--txt1)}
+.dt-edit-hint{width:100%;font-family:var(--mono);font-size:9px;color:var(--txt2)}
+.dt-edit-err{position:absolute;left:18px;bottom:14px;z-index:5;background:var(--bg1);border:1px solid var(--red);color:var(--red);border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:11px}
 /* Demo settings */
 .ds-open{display:none;float:right;margin-left:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.15em;color:var(--txt1);cursor:pointer}
 .ds-open.show{display:block}
@@ -793,13 +804,16 @@ header::before{
       <div class="dt-head">
         <button class="ds-open" id="dsOpen" onclick="openDemoSettings()" title="Demo settings: trains, station distances, wheel, simulator">⚙ DEMO SETTINGS</button>
         <div class="dt-title">DEMO TRACK</div>
-        <div class="dt-sub">Live positions from RFID station reads + axle-encoder distance. Nothing on this view is simulated.</div>
+        <div class="dt-sub">Live positions from RFID station reads + axle-encoder distance (hardware and simulator page). Double-click a mileage, location or distance to edit it.</div>
       </div>
       <svg class="dt-svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-label="Demo track">
         <path id="dtPath-top" class="dt-rail" d="M150,230 A120,120 0 0 1 270,110 L730,110 A120,120 0 0 1 850,230"/>
         <path id="dtPath-bottom" class="dt-rail" d="M850,230 A120,120 0 0 1 730,350 L270,350 A120,120 0 0 1 150,230"/>
         <path id="dtPath-depot_out" class="dt-rail branch" d="M500,500 L400,350 L270,350 A120,120 0 0 1 150,230"/>
         <path class="dt-rail branch" d="M600,350 L500,500"/>
+        <text class="dt-len" id="dtLen-ST1" x="500" y="146" text-anchor="middle" ondblclick="editSegment(event,'ST1')">ST1 → ST2 · 1.2 m</text>
+        <text class="dt-len" id="dtLen-ST2" x="500" y="330" text-anchor="middle" ondblclick="editSegment(event,'ST2')">ST2 → ST1 · 1.2 m</text>
+        <text class="dt-len" id="dtLen-DEPOT" x="428" y="440" text-anchor="end" ondblclick="editSegment(event,'DEPOT')">Depot → ST1 · 0.8 m</text>
         <g class="dt-sta"><circle cx="150" cy="230" r="20"/><text x="96" y="238" text-anchor="end">ST1</text><text class="sm" x="96" y="258" text-anchor="end">Station 1</text></g>
         <g class="dt-sta"><circle cx="850" cy="230" r="20"/><text x="904" y="238">ST2</text><text class="sm" x="904" y="258">Station 2</text></g>
         <g class="dt-sta"><circle cx="500" cy="500" r="20"/><text x="540" y="508">DEPOT</text><text class="sm" x="540" y="528">RFID reader</text></g>
@@ -2493,6 +2507,7 @@ document.addEventListener('keydown', e => {
     document.getElementById('trainSearch').focus();
   }
   if(e.key === 'Escape'){
+    closeInlineEditor();
     closeHelp();
     closeDemoSettings();
     closeTutorial();
@@ -2890,6 +2905,7 @@ const DT = {
   points: {ST1:{x:150,y:230}, ST2:{x:850,y:230}, DEPOT:{x:500,y:500}},
   names: {ST1:'Station 1', ST2:'Station 2', DEPOT:'Depot'},
   markers: {},        // train id -> {g, x, y, tx, ty}
+  editing: false,
   loaded: false,
   animating: false
 };
@@ -2984,7 +3000,14 @@ function renderDemoTrack(){
     t._dtMoving = moving;
   });
 
-  // info cards
+  // distance labels on the track
+  Object.entries(DT.segFrom).forEach(([from, seg]) => {
+    const el = document.getElementById('dtLen-' + from);
+    if(el) el.textContent = `${from === 'DEPOT' ? 'Depot' : from} → ${seg.to} · ${(+seg.length_m).toFixed(2)} m`;
+  });
+
+  // info cards (not while a value is being edited)
+  if(DT.editing) return;
   const fmtM = m => m < 10 ? m.toFixed(2) + ' m' : m.toFixed(1) + ' m';
   document.getElementById('dtCards').innerHTML = trains.length ? trains.map(t => {
     const tg = t._dtTarget || demoTrainTarget(t);
@@ -2999,8 +3022,8 @@ function renderDemoTrack(){
         <span class="dt-card-id">${t.id}</span>
         <span class="dt-card-dev"><span class="dt-dot" style="background:${dev.online ? 'var(--green)' : 'var(--txt2)'}"></span>${dev.id || ''} ${dev.online ? 'online' : 'offline'}</span>
       </div>
-      <div class="dt-card-where">${where}${t._dtMoving ? ' <span class="dt-moving">MOVING</span>' : ''}</div>
-      <div class="dt-card-km">${formatKm(t.mileage)}<span class="dt-dim"> km</span></div>
+      <div class="dt-card-where"><span class="dt-editable" title="Double-click to set the station" ondblclick="editLocation(event,'${t.id}')">${where}</span>${t._dtMoving ? ' <span class="dt-moving">MOVING</span>' : ''}</div>
+      <div class="dt-card-km"><span class="dt-editable" title="Double-click to edit the mileage" ondblclick="editMileage(event,'${t.id}')">${formatKm(t.mileage)}</span><span class="dt-dim"> km</span></div>
       <div class="dt-card-row"><span>Since last station</span><span>${fmtM(tg.toyM)} · ${(t.liveSince || 0).toFixed(3)} km</span></div>
       <div class="dt-card-row"><span>Next PM</span><span style="color:${pmColor}">${pm.name} · ${pm.status === 'over' ? 'OVERDUE' : pm.status === 'soon' ? 'due soon' : 'OK'}</span></div>
     </div>`;
@@ -3113,7 +3136,7 @@ async function dsLoad(){
       <div class="hm-h3">Data sources</div>
       <label class="ds-switch"><input type="checkbox" id="dsSim" ${cfg.accept_simulator ? 'checked' : ''} onchange="dsSaveSim(this.checked)">
         <span>Accept data from the simulator page (/simulator)</span></label>
-      <div class="ds-note">Turn this <b>off</b> when the real ESP32s are running, so simulator clicks can't mix with real data. Real hardware (MQTT) is always accepted.</div>`;
+      <div class="ds-note">The simulator page and the real ESP32s can run at the same time: each keeps its own wheel counter and both add distance to the train. Turn this <b>off</b> for a hardware-only demo. Real hardware (MQTT) is always accepted.</div>`;
   }catch(e){
     body.innerHTML = `<div class="ds-note" style="color:var(--red)">Could not load settings: ${dsEsc(e.message)}</div>`;
   }
@@ -3177,6 +3200,98 @@ async function dsSaveSim(on){
     await liveSend('PUT', '/api/config', {accept_simulator: on});
     dsMsg(on ? 'Simulator input ON' : 'Simulator input OFF - only real hardware is accepted', true);
   }catch(e){ dsMsg(e.message, false); }
+}
+
+// ═══════════════════════════════════════════════════════
+// DOUBLE-CLICK EDITING (Demo mode)
+//   mileage + location on the train cards, distances on the track
+// ═══════════════════════════════════════════════════════
+function openInlineEditor(anchor, opts){
+  closeInlineEditor();
+  const r = anchor.getBoundingClientRect();
+  const wrap = document.createElement('div');
+  wrap.className = 'dt-edit';
+  wrap.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 230)) + 'px';
+  wrap.style.top = Math.max(8, r.top - 4) + 'px';
+  let input;
+  if(opts.options){
+    input = document.createElement('select');
+    opts.options.forEach(([v, label]) => {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = label; if(v === opts.value) o.selected = true;
+      input.appendChild(o);
+    });
+  } else {
+    input = document.createElement('input');
+    input.type = 'number'; input.step = opts.step || 'any'; input.min = opts.min != null ? opts.min : 0;
+    input.value = opts.value;
+  }
+  const unit = document.createElement('span');
+  unit.textContent = opts.unit || '';
+  const hint = document.createElement('div');
+  hint.className = 'dt-edit-hint';
+  hint.textContent = opts.options ? 'Enter = save · Esc = cancel' : 'Enter = save · Esc = cancel';
+  wrap.append(input, unit, hint);
+  document.body.appendChild(wrap);
+  DT.editing = true;
+  input.focus(); if(input.select) input.select();
+
+  let done = false;
+  const finish = async save => {
+    if(done) return; done = true;
+    const val = input.value;
+    closeInlineEditor();
+    if(!save) return;
+    try{ await opts.onSave(opts.options ? val : Number(val)); }
+    catch(e){ showEditError(e.message); }
+  };
+  input.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); finish(true); }
+    if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); finish(false); }
+  });
+  input.addEventListener('blur', () => finish(!!opts.options));   // select: save on change/blur
+  if(opts.options) input.addEventListener('change', () => finish(true));
+}
+
+function closeInlineEditor(){
+  document.querySelectorAll('.dt-edit').forEach(el => el.remove());
+  DT.editing = false;
+}
+
+function showEditError(msg){
+  const el = document.createElement('div');
+  el.className = 'dt-edit-err';
+  el.textContent = msg;
+  document.getElementById('demoTrack').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function editMileage(ev, id){
+  ev.stopPropagation();
+  const t = fleet.find(f => f.id === id);
+  if(!t || !LIVE.api) return;
+  openInlineEditor(ev.currentTarget, {value: (+t.mileage).toFixed(1), unit: 'km', step: '0.1',
+    onSave: v => liveSend('PATCH', '/api/trains/' + encodeURIComponent(id), {mileage: v})});
+}
+
+function editLocation(ev, id){
+  ev.stopPropagation();
+  const t = fleet.find(f => f.id === id);
+  if(!t || !LIVE.api) return;
+  openInlineEditor(ev.currentTarget, {value: t.liveLocation || 'DEPOT',
+    options: Object.keys(DT.points).map(k => [k, `${k} · ${DT.names[k] || k}`]),
+    onSave: v => liveSend('PATCH', '/api/trains/' + encodeURIComponent(id), {location: v})});
+}
+
+function editSegment(ev, from){
+  ev.stopPropagation();
+  const seg = DT.segFrom[from];
+  if(!seg || !LIVE.api) return;
+  openInlineEditor(ev.currentTarget, {value: seg.length_m, unit: 'm', step: '0.01', min: 0.01,
+    onSave: async v => {
+      await liveSend('PUT', '/api/track', {segments: [{from, to: seg.to, length_m: v}]});
+      DT.loaded = false; await loadDemoTrack();
+    }});
 }
 
 // ═══════════════════════════════════════════════════════

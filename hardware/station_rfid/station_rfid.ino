@@ -26,6 +26,7 @@ const uint32_t REPEAT_MS = 5000;             // ignore the same tag on the same 
 const int N = sizeof(READERS) / sizeof(READERS[0]);
 MFRC522 rfid[3];
 String lastTag[3];
+
 uint32_t lastTagMs[3] = {0};
 
 WiFiClient net;

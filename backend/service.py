@@ -35,25 +35,45 @@ def normalise_tag(tag):
 
 # ---------------------------------------------------------------- ingestion
 
+SIM_SUFFIX = "~SIM"
+
+
 def ingest_odometer(device_id, pulses, source="mqtt"):
     """Handle a cumulative pulse count from an LRV's axle encoder.
 
     The device sends the running total since boot. The server keeps the previous value,
     so a lost message loses no distance. If the total goes down, the MCU rebooted and the
     new total is counted from zero.
+
+    The simulator page keeps its own counter ("<device>~SIM") for the same train, so the
+    real ESP32 and the simulator can both drive a train at the same time: each one's
+    distance is added, and neither corrupts the other's running total.
     """
     pulses = int(pulses)
     if pulses < 0:
         raise ValueError("pulses must be >= 0")
     ts = db.now_iso()
+    sim = source == "simulator"
     with db.connect() as conn:
         s = db.get_settings(conn)
-        dev = conn.execute("SELECT * FROM devices WHERE id=?", (device_id,)).fetchone()
+        if sim:
+            base = conn.execute("SELECT train_id FROM devices WHERE id=? AND kind='lrv'", (device_id,)).fetchone()
+            if base is None or not base["train_id"]:
+                raise NotFound(f"device {device_id} is not linked to a train (add it in Demo settings)")
+            train_id = base["train_id"]
+            key = device_id + SIM_SUFFIX
+            dev = conn.execute("SELECT * FROM devices WHERE id=?", (key,)).fetchone()
+            if dev is None:
+                conn.execute("INSERT INTO devices (id,kind) VALUES (?,'sim')", (key,))
+                dev = conn.execute("SELECT * FROM devices WHERE id=?", (key,)).fetchone()
+        else:
+            key = device_id
+            dev = conn.execute("SELECT * FROM devices WHERE id=?", (key,)).fetchone()
+            train_id = dev["train_id"] if dev else None
         if dev is None:
             conn.execute("INSERT INTO devices (id,kind,last_pulses,online,last_seen) VALUES (?,?,?,1,?)",
                          (device_id, "lrv", pulses, ts))
-            log.warning("New LRV device %s registered - assign it to a train via PUT /api/devices/%s",
-                        device_id, device_id)
+            log.warning("New LRV device %s registered - assign it to a train in Demo settings", device_id)
             result = {"device_id": device_id, "train_id": None, "delta_pulses": 0, "delta_km": 0.0,
                       "note": "unassigned device - baseline stored"}
             event = {"type": "device", "device_id": device_id, "online": True}
@@ -65,25 +85,64 @@ def ingest_odometer(device_id, pulses, source="mqtt"):
                 delta = pulses - prev
             else:
                 delta = pulses                  # counter reset (MCU reboot)
-                log.info("%s counter reset (%s -> %s)", device_id, prev, pulses)
+                log.info("%s counter reset (%s -> %s)", key, prev, pulses)
             conn.execute("UPDATE devices SET last_pulses=?, online=1, last_seen=? WHERE id=?",
-                         (pulses, ts, device_id))
+                         (pulses, ts, key))
             delta_km = delta / s["pulses_per_rev"] * s["wheel_circumference_m"] * s["demo_scale"] / 1000.0
-            result = {"device_id": device_id, "train_id": dev["train_id"], "delta_pulses": delta,
-                      "delta_km": round(delta_km, 4)}
+            result = {"device_id": device_id, "train_id": train_id, "delta_pulses": delta,
+                      "delta_km": round(delta_km, 4), "source": source}
             event = None
-            if dev["train_id"] and delta > 0:
+            if train_id and delta > 0:
                 conn.execute("UPDATE trains SET current_km=current_km+?, session_km=session_km+?,"
-                             " last_updated=? WHERE id=?", (delta_km, delta_km, ts, dev["train_id"]))
-                km = conn.execute("SELECT current_km FROM trains WHERE id=?",
-                                  (dev["train_id"],)).fetchone()[0]
+                             " last_updated=? WHERE id=?", (delta_km, delta_km, ts, train_id))
+                km = conn.execute("SELECT current_km FROM trains WHERE id=?", (train_id,)).fetchone()[0]
                 conn.execute("INSERT INTO mileage_log (train_id,km_reading,delta_km,source,recorded_at)"
-                             " VALUES (?,?,?,?,?)", (dev["train_id"], km, delta_km, source, ts))
+                             " VALUES (?,?,?,?,?)", (train_id, km, delta_km, source, ts))
                 result["km"] = round(km, 3)
-                event = {"type": "train", "train": _train_dict(conn, dev["train_id"])}
+                event = {"type": "train", "train": _train_dict(conn, train_id)}
     if event:
         emit(event)
     return result
+
+
+def _drop_future_pm(conn, train_id, km):
+    """After a manual mileage change, PM records above the new mileage can't be right - remove them."""
+    conn.execute("DELETE FROM pm_history WHERE train_id=? AND mileage_at_pm > ?", (train_id, km))
+
+
+def adjust_train(train_id, mileage=None, location=None):
+    """Manual correction from the dashboard (double-click). Logged as 'manual'."""
+    if mileage is None and location is None:
+        raise ValueError("nothing to change")
+    if mileage is not None and (isinstance(mileage, bool) or not isinstance(mileage, (int, float))
+                                or not 0 <= mileage <= 5_000_000):
+        raise ValueError("mileage must be between 0 and 5,000,000 km")
+    if location is not None and location not in config.STATIONS:
+        raise ValueError(f"location must be one of {list(config.STATIONS)}")
+    ts = db.now_iso()
+    with db.connect() as conn:
+        r = conn.execute("SELECT * FROM trains WHERE id=?", (train_id,)).fetchone()
+        if r is None:
+            raise NotFound(f"train {train_id} not found")
+        if mileage is not None:
+            # keep the distance since the last station, so the LRV stays where it is on the track
+            since = 0.0 if r["km_at_location"] is None else max(0.0, r["current_km"] - r["km_at_location"])
+            conn.execute("UPDATE trains SET current_km=?, km_at_location=?, last_updated=? WHERE id=?",
+                         (float(mileage), float(mileage) - since, ts, train_id))
+            conn.execute("INSERT INTO mileage_log (train_id,km_reading,delta_km,source,recorded_at)"
+                         " VALUES (?,?,NULL,'manual',?)", (train_id, float(mileage), ts))
+            _drop_future_pm(conn, train_id, float(mileage))
+        if location is not None:
+            km = conn.execute("SELECT current_km FROM trains WHERE id=?", (train_id,)).fetchone()[0]
+            status = "depot" if location == config.DEPOT_ID else "in-service"
+            conn.execute("UPDATE trains SET location=?, location_at=?, km_at_location=current_km,"
+                         " status=CASE WHEN status='maintenance' THEN status ELSE ? END, last_updated=?"
+                         " WHERE id=?", (location, ts, status, ts, train_id))
+            conn.execute("INSERT INTO rfid_events (station_id,tag,train_id,km_reading,segment_km,recorded_at)"
+                         " VALUES (?,'MANUAL',?,?,NULL,?)", (location, train_id, km, ts))
+        t = _train_dict(conn, train_id)
+    emit({"type": "train", "train": t})
+    return t
 
 
 def ingest_rfid(station_id, tag, source="mqtt"):
@@ -223,7 +282,7 @@ def recent_events(limit=50):
 
 def devices():
     with db.connect() as conn:
-        rows = conn.execute("SELECT * FROM devices ORDER BY kind, id").fetchall()
+        rows = conn.execute("SELECT * FROM devices WHERE kind <> 'sim' ORDER BY kind, id").fetchall()
         return [{"id": r["id"], "kind": r["kind"], "train_id": r["train_id"], "last_pulses": r["last_pulses"],
                  "online": _is_online(conn, r), "last_seen": r["last_seen"]} for r in rows]
 
@@ -382,6 +441,7 @@ def save_demo_train(train_id, device_id, tag, mileage=None, ttype=None):
                              (float(mileage), float(mileage), ts, train_id))
                 conn.execute("INSERT INTO mileage_log (train_id,km_reading,delta_km,source,recorded_at)"
                              " VALUES (?,?,NULL,'manual',?)", (train_id, float(mileage), ts))
+                _drop_future_pm(conn, train_id, float(mileage))
         # one device per train, one train per device
         conn.execute("UPDATE devices SET train_id=NULL WHERE train_id=? AND id<>?", (train_id, device_id))
         conn.execute("INSERT INTO devices (id,kind,train_id) VALUES (?,?,?)"

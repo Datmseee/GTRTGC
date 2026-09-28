@@ -26,7 +26,9 @@ python main.py                  # http://localhost:8000/docs  (try-it-out API pa
 - **Trains on the demo track:** add a train (train ID, the device ID its ESP32 uses, the RFID tag UID, starting mileage), change a train's device/tag, override its mileage (logged as a manual entry, handy for putting a train just below a PM threshold before a demo), or remove it.
 - **Station distances:** the real toy-track length of ST1 → ST2, ST2 → ST1 and Depot → ST1, in metres.
 - **Wheel & scale:** wheel diameter (or circumference), counts per wheel turn (AS5600 = 4096) and the demo scale.
-- **Data sources:** *Accept data from the simulator page*. **Switch this off when the real ESP32s are running.** The backend listens to both, and it only knows a message is for `LRV01` from its device ID, so simulator clicks would otherwise mix with the real LRV01's counts. With it off, the simulator page shows *SIMULATOR INPUT OFF* and nothing it sends is recorded; real hardware (MQTT or HTTP) is always accepted.
+- **Data sources:** the real ESP32s and the simulator page can drive the same train **at the same time**. The backend keeps a separate wheel counter for the simulator (`LRV01~SIM`), so both add distance and neither corrupts the other; the mileage log records which source each step came from (`mqtt` / `simulator` / `manual`). Untick *Accept data from the simulator page* for a hardware-only demo; the simulator page then shows *SIMULATOR INPUT OFF*.
+
+**Double-click to edit** (Demo Track view): a train card's **mileage** or **location**, or a **distance label** on the track. Enter saves, Esc cancels. Changes are logged as `manual`; setting a lower mileage also removes PM records above it, so the PM status stays consistent.
 
 **Hardware simulator page (`/simulator`).** A stand-in for the ESP32s that you control by hand:
 - **Wheel:** drag it in a circle (or scroll on it) = the AS5600 on the axle. 4096 counts per turn, sent as a running total every second, exactly like the firmware. *Auto spin* turns it by itself.
@@ -78,6 +80,7 @@ In Demo mode, the trains on the map stay parked at stations and mileage never in
 | GET | `/api/health` | backend + broker status |
 | GET | `/api/fleet` | all 59 trains with mileage, status, location, worst PM |
 | GET | `/api/trains/{id}` | one train incl. every PM cycle and its tags |
+| PATCH | `/api/trains/{id}` | manual correction `{"mileage": 1995}` and/or `{"location": "ST2"}` |
 | GET | `/api/alerts` | trains with PM overdue / due soon |
 | GET | `/api/history/{id}` | PM history, mileage log, RFID events, stock changes |
 | GET | `/api/events` | latest RFID reads (incl. unknown tags) |

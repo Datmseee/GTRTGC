@@ -206,3 +206,39 @@ def test_simulator_switch(client):
     assert client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 20}).status_code == 200
     assert client.put("/api/config", json={"accept_simulator": 1}).status_code == 400
     assert client.put("/api/config", json={"demo_scale": True}).status_code == 400
+
+
+def test_hardware_and_simulator_together(client):
+    km0 = client.get("/api/trains/810D-001").json()["mileage"]
+    hw = lambda p: client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": p})
+    sim = lambda p: client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": p,
+                                                              "source": "simulator"})
+    hw(50000); sim(0)            # both "power on" with very different running totals
+    hw(54096); sim(4096)         # each turns the wheel once
+    hw(58192); sim(8192)         # ...and once more
+    km = client.get("/api/trains/810D-001").json()["mileage"]
+    assert km == pytest.approx(km0 + 4 * 4096 * km_per_pulse(), abs=0.1)   # 4 turns in total, no corruption
+    assert all(d["kind"] != "sim" for d in client.get("/api/devices").json())
+    assert client.post("/api/ingest/odometer", json={"device_id": "NOPE", "pulses": 1,
+                                                     "source": "simulator"}).status_code == 404
+
+
+def test_manual_adjust(client):
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 0})
+    client.post("/api/ingest/rfid", json={"station_id": "ST1", "tag": "A1B2C3D4"})
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 4096})
+    since = client.get("/api/trains/810D-001").json()["since_station_km"]
+    t = client.patch("/api/trains/810D-001", json={"mileage": 1995}).json()
+    assert t["mileage"] == 1995 and t["since_station_km"] == pytest.approx(since, abs=1e-3)
+    t = client.patch("/api/trains/810D-001", json={"location": "ST2"}).json()
+    assert t["location"] == "ST2" and t["since_station_km"] == 0 and t["status"] == "in-service"
+    assert client.get("/api/events?limit=1").json()[0]["tag"] == "MANUAL"
+    assert client.patch("/api/trains/810D-001", json={"location": "X"}).status_code == 400
+    assert client.patch("/api/trains/810D-001", json={}).status_code == 400
+    assert client.patch("/api/trains/NOPE", json={"mileage": 1}).status_code == 404
+
+
+def test_manual_mileage_drops_impossible_pm_records(client):
+    t = client.patch("/api/trains/810D-001", json={"mileage": 1950}).json()
+    assert t["pm"]["name"] == "2K PM" and t["pm"]["status"] == "soon" and t["pm"]["remaining"] == 50
+    assert all(p["mileage_at_pm"] <= 1950 for p in client.get("/api/history/810D-001").json()["pm_history"])

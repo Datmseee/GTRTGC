@@ -78,6 +78,85 @@ header::before{
 }
 @keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--green)}50%{opacity:0.5;box-shadow:0 0 3px var(--green)}}
 .hdr-live-txt{font-family:var(--sans);font-size:10px;font-weight:700;color:var(--green);letter-spacing:0.15em}
+/* Mode switch: Simulation / Demo */
+.mode-sw{display:flex;margin-left:10px;border:1px solid var(--border2);border-radius:20px;overflow:hidden;background:var(--bg2)}
+.mode-sw button{background:none;border:0;padding:4px 12px;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.15em;color:var(--txt1);cursor:pointer}
+.mode-sw button:hover:not(:disabled){color:var(--txt0)}
+.mode-sw button.active{background:var(--cyan-dim);color:var(--cyan)}
+.mode-sw button:disabled{opacity:0.4;cursor:not-allowed}
+/* Demo Track view (Demo mode) */
+.demo-track{position:absolute;inset:0;z-index:850;display:none;flex-direction:column;background:var(--bg0);padding:16px 18px 14px;gap:10px;overflow:auto}
+.demo-track.show{display:flex}
+.dt-head{}
+.dt-title{font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:0.14em;color:var(--txt0)}
+.dt-sub{font-family:var(--mono);font-size:10px;color:var(--txt2);letter-spacing:0.04em;margin-top:3px}
+.dt-svg{flex:1;min-height:220px;width:100%}
+.dt-rail{fill:none;stroke:var(--track-pg);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.dt-rail.branch{stroke-width:7;opacity:0.75}
+.dt-sta circle{fill:var(--bg0);stroke:var(--cyan);stroke-width:4}
+.dt-sta text{font-family:var(--sans);font-weight:700;letter-spacing:0.1em;fill:var(--txt0);font-size:22px}
+.dt-sta text.sm{font-family:var(--mono);font-weight:400;font-size:13px;fill:var(--txt1);letter-spacing:0.04em}
+.dt-train{cursor:pointer}
+.dt-train rect{stroke:var(--bg0);stroke-width:2}
+.dt-train text{font-family:var(--mono);font-size:14px;font-weight:600;fill:var(--bg0);pointer-events:none}
+.dt-train.sel rect{stroke:var(--cyan);stroke-width:4}
+.dt-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.dt-card{background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
+.dt-card:hover,.dt-card.sel{border-color:var(--cyan)}
+.dt-card-top{display:flex;justify-content:space-between;align-items:center}
+.dt-card-id{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--cyan)}
+.dt-card-dev{font-family:var(--sans);font-size:10px;letter-spacing:0.1em;color:var(--txt1);display:flex;align-items:center;gap:5px}
+.dt-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dt-card-where{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--txt0);margin-top:6px}
+.dt-card-km{font-family:var(--mono);font-size:20px;color:#fff;margin:4px 0 6px}
+.dt-card-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--txt1);margin-top:2px}
+.dt-dim{color:var(--txt2);font-weight:400}
+.dt-moving{font-family:var(--sans);font-size:9px;letter-spacing:0.15em;color:var(--green);border:1px solid var(--green);border-radius:10px;padding:1px 6px;margin-left:4px}
+.dt-empty{font-family:var(--mono);font-size:11px;color:var(--txt2)}
+/* Demo settings */
+.ds-open{display:none;float:right;margin-left:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.15em;color:var(--txt1);cursor:pointer}
+.ds-open.show{display:block}
+.ds-open{padding:6px 14px}
+.ds-open:hover{color:var(--cyan);border-color:var(--cyan)}
+.hmodal-inner.ds-inner{max-width:860px}
+.ds-inner .hm-h3{margin-top:18px}
+.ds-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;table-layout:fixed}
+.ds-table th:nth-child(1){width:19%}.ds-table th:nth-child(2){width:17%}.ds-table th:nth-child(3){width:20%}.ds-table th:nth-child(4){width:17%}.ds-table th:nth-child(5){width:27%}
+.ds-table th{text-align:left;font-family:var(--sans);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--txt2);font-weight:700;padding:0 6px 6px 0}
+.ds-table td{padding:4px 6px 4px 0;vertical-align:middle}
+.ds-table tr.ds-new td{padding-top:10px;border-top:1px dashed var(--border)}
+.ds-id{color:var(--cyan);font-weight:600}
+.ds-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-left:6px;vertical-align:middle}
+.ds-in{width:100%;min-width:0;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;color:var(--txt0);font-family:var(--mono);font-size:12px}
+.ds-in:focus{outline:none;border-color:var(--cyan)}
+.ds-in.num{max-width:130px}
+.ds-table .ds-in.num{max-width:none}
+.ds-act{white-space:nowrap}
+.ds-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;margin-right:4px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--txt0);cursor:pointer}
+.ds-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.ds-btn.del:hover{border-color:var(--red);color:var(--red)}
+.ds-btn.add{color:var(--green);border-color:var(--green)}
+.ds-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px 16px}
+.ds-field{display:flex;align-items:center;gap:6px;font-family:var(--sans);font-size:12px;color:var(--txt1);flex-wrap:wrap}
+.ds-field span{font-family:var(--mono);font-size:10px;color:var(--txt2)}
+.ds-row{margin-top:8px}
+.ds-note{font-family:var(--mono);font-size:10px;color:var(--txt2);line-height:1.6;margin-top:6px}
+.ds-switch{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:13px;color:var(--txt0);cursor:pointer}
+.ds-switch input{width:16px;height:16px;accent-color:var(--cyan)}
+.ds-msg{font-family:var(--mono);font-size:11px}
+/* Start screen */
+.mode-ov{position:fixed;inset:0;z-index:2100;display:none;align-items:center;justify-content:center;background:var(--bg0);background:color-mix(in srgb, var(--bg0) 94%, transparent);backdrop-filter:blur(4px)}
+.mode-ov.show{display:flex}
+.mode-inner{background:var(--bg1);border:1px solid var(--border);border-radius:12px;max-width:640px;width:92%;max-height:90vh;overflow-y:auto;padding:28px;box-shadow:0 20px 60px var(--bg0),0 0 40px var(--cyan-dim)}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+.mode-card{display:flex;flex-direction:column;justify-content:flex-start;text-align:left;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;color:var(--txt0);font-family:var(--sans);transition:border-color .15s, box-shadow .15s, transform .15s}
+.mode-card:hover:not(:disabled){border-color:var(--cyan);box-shadow:0 0 22px var(--cyan-dim);transform:translateY(-2px)}
+.mode-card:disabled{opacity:0.45;cursor:not-allowed}
+.mode-card-k{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--cyan);margin-bottom:8px}
+.mode-card-t{font-size:18px;font-weight:700;letter-spacing:0.1em;color:var(--txt0);margin-bottom:8px}
+.mode-card-d{font-family:var(--mono);font-size:11px;color:var(--txt1);line-height:1.6}
+.mode-card-s{margin-top:14px;font-family:var(--mono);font-size:10px;letter-spacing:0.04em;color:var(--txt2)}
+.mode-foot{margin-top:16px;font-family:var(--mono);font-size:10px;color:var(--txt2);letter-spacing:0.04em}
 .hclock{margin-left:auto;text-align:right}
 .hclock-time{font-size:24px;font-weight:300;letter-spacing:0.06em;color:#fff}
 .hclock-date{font-size:9px;color:var(--txt2);letter-spacing:0.1em}
@@ -536,6 +615,11 @@ header::before{
 }
 
 @media (max-width: 520px){
+  .ds-table thead{display:none}
+  .ds-table tr{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:10px}
+  .ds-in.num{max-width:none}
+  .mode-cards{grid-template-columns:1fr}
+  .mode-sw button{padding:4px 8px;letter-spacing:0.08em}
   header{padding:0}
   .hdr-top{padding:8px 10px}
   .hstats{grid-template-columns:repeat(2,minmax(0,1fr));padding:6px}
@@ -664,8 +748,12 @@ header::before{
       </div>
     </div>
     <div class="hdr-live">
-      <div class="hdr-live-dot"></div>
-      <div class="hdr-live-txt">LIVE</div>
+      <div class="hdr-live-dot" id="liveDot"></div>
+      <div class="hdr-live-txt" id="liveTxt">LIVE</div>
+    </div>
+    <div class="mode-sw" id="modeSw" title="Switch data source">
+      <button id="modeBtnSim" onclick="setMode('sim')">SIMULATION</button>
+      <button id="modeBtnDemo" onclick="setMode('demo')">DEMO</button>
     </div>
     <div class="hclock">
       <div class="hclock-time" id="clock">—</div>
@@ -701,6 +789,24 @@ header::before{
   <!-- MAP -->
   <div class="map-panel">
     <div id="map"></div>
+    <div class="demo-track" id="demoTrack">
+      <div class="dt-head">
+        <button class="ds-open" id="dsOpen" onclick="openDemoSettings()" title="Demo settings: trains, station distances, wheel, simulator">⚙ DEMO SETTINGS</button>
+        <div class="dt-title">DEMO TRACK</div>
+        <div class="dt-sub">Live positions from RFID station reads + axle-encoder distance. Nothing on this view is simulated.</div>
+      </div>
+      <svg class="dt-svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-label="Demo track">
+        <path id="dtPath-top" class="dt-rail" d="M150,230 A120,120 0 0 1 270,110 L730,110 A120,120 0 0 1 850,230"/>
+        <path id="dtPath-bottom" class="dt-rail" d="M850,230 A120,120 0 0 1 730,350 L270,350 A120,120 0 0 1 150,230"/>
+        <path id="dtPath-depot_out" class="dt-rail branch" d="M500,500 L400,350 L270,350 A120,120 0 0 1 150,230"/>
+        <path class="dt-rail branch" d="M600,350 L500,500"/>
+        <g class="dt-sta"><circle cx="150" cy="230" r="20"/><text x="96" y="238" text-anchor="end">ST1</text><text class="sm" x="96" y="258" text-anchor="end">Station 1</text></g>
+        <g class="dt-sta"><circle cx="850" cy="230" r="20"/><text x="904" y="238">ST2</text><text class="sm" x="904" y="258">Station 2</text></g>
+        <g class="dt-sta"><circle cx="500" cy="500" r="20"/><text x="540" y="508">DEPOT</text><text class="sm" x="540" y="528">RFID reader</text></g>
+        <g id="dtTrains"></g>
+      </svg>
+      <div class="dt-cards" id="dtCards"></div>
+    </div>
     <div class="sys-label" id="lbl-sk">SENGKANG LRT</div>
     <div class="sys-label" id="lbl-pg">PUNGGOL LRT</div>
     <div id="tooltip">
@@ -764,6 +870,35 @@ header::before{
 </div>
 
 <!-- HELP MODAL -->
+<div class="mode-ov" id="modeOverlay">
+  <div class="mode-inner">
+    <div class="hm-title">Select mode</div>
+    <div class="hm-sub">SPLRT Fleet Ops Center · you can switch any time from the header</div>
+    <div class="mode-cards">
+      <button class="mode-card" id="modeCardSim" onclick="chooseMode('sim')">
+        <div class="mode-card-k">WITHOUT DATA</div>
+        <div class="mode-card-t">SIMULATION</div>
+        <div class="mode-card-d">All 59 trains with simulated mileage and PM status. No hardware or backend needed.</div>
+        <div class="mode-card-s">Always available</div>
+      </button>
+      <button class="mode-card" id="modeCardDemo" onclick="chooseMode('demo')">
+        <div class="mode-card-k">WITH DATA</div>
+        <div class="mode-card-t">DEMO</div>
+        <div class="mode-card-d">Live data from the demo track: axle encoders + RFID stations via the backend. 810D-001 and 810D-002 follow the model LRVs.</div>
+        <div class="mode-card-s" id="modeDemoStatus">Checking backend…</div>
+      </button>
+    </div>
+    <div class="mode-foot">Tip: open with ?mode=demo or ?mode=sim to skip this screen.</div>
+  </div>
+</div>
+<div class="hmodal" id="demoSettings" onclick="if(event.target===this)closeDemoSettings()">
+  <div class="hmodal-inner ds-inner">
+    <div class="hm-title">Demo settings</div>
+    <div class="hm-sub">Trains on the demo track, station distances and wheel calibration · saved in the backend</div>
+    <div id="dsBody"></div>
+    <div class="hm-close"><span class="ds-msg" id="dsMsg"></span><button class="hm-btn" onclick="closeDemoSettings()">Close</button></div>
+  </div>
+</div>
 <div class="hmodal" id="helpModal" onclick="if(event.target===this)closeHelp()">
   <div class="hmodal-inner">
     <div class="hm-title">SPLRT Fleet Operations</div>
@@ -1318,7 +1453,7 @@ function getDisplaySpeedMps(train){
 
 function getTrainColor(train){
   if(train.status==='depot'||train.status==='maintenance') return '#3a5570';
-  const pm=getPMStatus(train.mileage);
+  const pm=pmOf(train);
   if(pm.status==='over') return '#ff3a5c';
   if(pm.status==='soon') return '#ffb020';
   return '#00e888';
@@ -1617,8 +1752,11 @@ function getTrainPt(train){
 }
 
 function initTrainMarkers(){
-  fleet.forEach(train => {
-    if(train.status !== 'in-service' || !train.loop) return;
+  fleet.forEach(createTrainMarker);
+}
+
+function createTrainMarker(train){
+    if(train.marker || train.status !== 'in-service' || !train.loop) return;
     const pt = getTrainPt(train);
     if(!pt) return;
 
@@ -1646,7 +1784,6 @@ function initTrainMarkers(){
     train.marker.on('click', () => selectTrainById(train.id));
     train.marker.on('mouseover', () => showTrainTooltip(train));
     train.marker.on('mouseout', hideTrainTooltip);
-  });
 }
 
 const tooltip = document.getElementById('tooltip');
@@ -1810,7 +1947,7 @@ function updateStationDetailPanel(){
 function showTrainTooltip(train){
   const pt = getTrainPt(train);
   if(!pt) return;
-  const pm = getPMStatus(train.mileage);
+  const pm = pmOf(train);
   document.getElementById('tt-id').textContent = train.id;
   document.getElementById('tt-type').textContent = train.type;
   document.getElementById('tt-mi').textContent = `${formatKm(train.mileage)} km`;
@@ -1909,7 +2046,9 @@ function animate(now){
     let moved = 0;
     const stop = getNextStop(train.loop, train.dir, train.dist);
     const toStop = stop ? distanceToStop(train.dist, stop.dist, loopLen, train.dir) : Infinity;
-    if(train.dwell > 0){
+    if(MODE === 'demo'){
+      // Demo mode: trains stay parked - only real hardware data changes the fleet
+    } else if(train.dwell > 0){
       train.dwell = Math.max(0, train.dwell - dt);
     } else if(train.atStop && gapAhead < targetGap * SIM.gapReleaseRatio){
       train.dwell = 1;
@@ -1945,7 +2084,7 @@ function animate(now){
       }
     }
     train.pos = loopLen ? train.dist / loopLen : train.pos;
-    train.mileage += moved / 1000;
+    if(MODE === 'sim') train.mileage += moved / 1000;   // Demo mode: mileage only from the hardware
     train.currentSpeedMps = dt > 0 ? moved / dt : 0;
 
     if(train.marker){
@@ -2007,18 +2146,19 @@ function setFilter(f, btn){
 function updateFleetList(){
   const list = document.getElementById('fleetList');
   const loopShort = {'SK-West':'SKW','SK-East':'SKE','PG-West':'PGW','PG-East':'PGE'};
-  let trains = fleet;
-  if(currentFilter==='in-service') trains = fleet.filter(t => t.status==='in-service');
-  else if(currentFilter==='depot')  trains = fleet.filter(t => t.status!=='in-service');
-  else if(currentFilter==='pm-alert') trains = fleet.filter(t => {
-    const pm = getPMStatus(t.mileage);
+  const base = visibleFleet();            // Demo mode: only the demo-track LRVs
+  let trains = base;
+  if(currentFilter==='in-service') trains = base.filter(t => t.status==='in-service');
+  else if(currentFilter==='depot')  trains = base.filter(t => t.status!=='in-service');
+  else if(currentFilter==='pm-alert') trains = base.filter(t => {
+    const pm = pmOf(t);
     return pm.status==='over'||pm.status==='soon';
   });
 
   list.innerHTML = trains.map(t => {
     const color = getTrainColor(t);
     const isSel = selectedTrain && selectedTrain.id === t.id;
-    const loopLabel = t.loop ? loopShort[t.loop]||t.loop : 'Depot';
+    const loopLabel = t.loop ? loopShort[t.loop]||t.loop : (t.liveLocation && t.status==='in-service' ? t.liveLocation : 'Depot');
     return `<div class="fi ${isSel?'selected':''}" onclick="selectTrainById('${t.id}')">
       <div class="fi-dot" style="background:${color};${color==='#00e888'?'box-shadow:0 0 5px '+color:''}"></div>
       <div class="fi-id">${t.id}</div>
@@ -2052,7 +2192,7 @@ function selectTrainById(id){
 }
 
 function updateDetailPanel(t){
-  const pm = getPMStatus(t.mileage);
+  const pm = pmOf(t);
   const loopNames = {
     'SK-West':'Sengkang West Loop','SK-East':'Sengkang East Loop',
     'PG-West':'Punggol West Loop','PG-East':'Punggol East Loop'
@@ -2073,7 +2213,7 @@ function updateDetailPanel(t){
   }
 
   const pmData = PM_CYCLES.map((c,i) => {
-    const info = getCycleStatus(t.mileage, c);
+    const info = cycleOf(t, i);
     const s = info.status;
     const remTxt = s === 'over'
       ? (info.pos === 0 ? 'DUE NOW' : `OVERDUE +${formatKm(info.pos)} km`)
@@ -2093,7 +2233,7 @@ function updateDetailPanel(t){
           <div class="drow"><span class="dlbl">Speed</span><span class="dval">${speedKmh}</span></div>
           <div class="drow"><span class="dlbl">Serial</span><span class="dval">${t.serial}</span></div>
           <div class="drow"><span class="dlbl">Year</span><span class="dval">${t.year}</span></div>
-          <div class="drow"><span class="dlbl">Deploy</span><span class="dval" style="font-size:11px">${t.loop?loopNames[t.loop]:'In Depot'}</span></div>
+          <div class="drow"><span class="dlbl">Deploy</span><span class="dval" style="font-size:11px">${t.loop?loopNames[t.loop]:(t.liveLocation && t.status==='in-service' ? (DEMO_LOCATIONS[t.liveLocation]||t.liveLocation) : 'In Depot')}</span></div>
         </div>
       </div>
     </div>
@@ -2137,13 +2277,17 @@ function updateDetailPanel(t){
 
 function updateAlertsPanel(){
   const alerts = [];
-  fleet.forEach(t => {
-    const pm = getPMStatus(t.mileage);
-    if(pm.status==='over') alerts.push({type:'crit',title:`${t.id} — ${pm.name} OVERDUE`,body:`${t.type} · ${formatKm(t.mileage)} km · ${t.loop||'Depot'}`,time:'Trigger now'});
-    else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${formatKm(pm.remaining)} km remaining · ${t.loop||'Depot'}`,time:'Schedule PM'});
+  visibleFleet().forEach(t => {
+    const pm = pmOf(t);
+    if(pm.status==='over') alerts.push({type:'crit',title:`${t.id} — ${pm.name} OVERDUE`,body:`${t.type} · ${formatKm(t.mileage)} km · ${placeOf(t)}`,time:'Trigger now'});
+    else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${formatKm(pm.remaining)} km remaining · ${placeOf(t)}`,time:'Schedule PM'});
   });
-  alerts.push({type:'info',title:'Check-in 1 reminder',body:'Online session scheduled 8–12 Jun 2026. Prepare progress slides.',time:'Upcoming'});
-  alerts.push({type:'info',title:'Stock change protocol active',body:'Automated PV re-assignment on train withdrawal is live.',time:'System'});
+  if(MODE === 'demo'){
+    if(!alerts.length) alerts.push({type:'info',title:'No PM alerts',body:'Both demo LRVs are within their PM cycles.',time:'Demo track'});
+  } else {
+    alerts.push({type:'info',title:'Check-in 1 reminder',body:'Online session scheduled 8–12 Jun 2026. Prepare progress slides.',time:'Upcoming'});
+    alerts.push({type:'info',title:'Stock change protocol active',body:'Automated PV re-assignment on train withdrawal is live.',time:'System'});
+  }
 
   document.getElementById('alertsPanel').innerHTML = `<div style="padding:8px 0">` +
     alerts.map(a=>`<div class="alert-card ${a.type}"><div class="ac-title">${a.title}</div><div class="ac-body">${a.body}</div><div class="ac-time">${a.time}</div></div>`).join('') +
@@ -2152,10 +2296,12 @@ function updateAlertsPanel(){
 }
 
 function updateHeaderStats(){
-  const inSvc  = fleet.filter(t=>t.status==='in-service').length;
-  const inDep  = fleet.filter(t=>t.status!=='in-service').length;
-  const over   = fleet.filter(t=>getPMStatus(t.mileage).status==='over').length;
-  const soon   = fleet.filter(t=>getPMStatus(t.mileage).status==='soon').length;
+  const vf = visibleFleet();
+  const inSvc  = vf.filter(t=>t.status==='in-service').length;
+  const inDep  = vf.filter(t=>t.status!=='in-service').length;
+  const over   = vf.filter(t=>pmOf(t).status==='over').length;
+  const soon   = vf.filter(t=>pmOf(t).status==='soon').length;
+  document.getElementById('h-total').textContent = vf.length;
   document.getElementById('h-svc').textContent  = inSvc;
   document.getElementById('h-dep').textContent  = inDep;
   document.getElementById('h-over').textContent = over;
@@ -2348,6 +2494,7 @@ document.addEventListener('keydown', e => {
   }
   if(e.key === 'Escape'){
     closeHelp();
+    closeDemoSettings();
     closeTutorial();
     if(selectedTrain){
       const prev = fleet.find(f => f.id === selectedTrain.id);
@@ -2364,12 +2511,20 @@ document.addEventListener('keydown', e => {
 // TICKER
 // ═══════════════════════════════════════════════════════
 function buildTicker(){
-  const alerts = fleet.filter(t=>getPMStatus(t.mileage).status!=='ok').slice(0,12);
-  const base = [
+  const vf = visibleFleet();
+  const alerts = vf.filter(t=>pmOf(t).status!=='ok').slice(0,12);
+  const base = MODE === 'demo' ? [
+    `<span class="as-item i"><span class="as-dot"></span>Demo mode — live data from the demo track (ST1 · ST2 · Depot)</span>`,
+    ...vf.map(t => `<span class="as-item i"><span class="as-dot"></span>${t.id}: ${formatKm(t.mileage)} km · ${placeOf(t)}</span>`),
+    ...alerts.map(t => {
+      const pm = pmOf(t);
+      return `<span class="as-item ${pm.status==='over'?'c':'w'}"><span class="as-dot"></span>${t.id}: ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}</span>`;
+    }),
+  ] : [
     `<span class="as-item i"><span class="as-dot"></span>System online — SPLRT Fleet OPS v2.0 · Live map active</span>`,
     `<span class="as-item i"><span class="as-dot"></span>${fleet.filter(t=>t.status==='in-service').length} trains in revenue service</span>`,
     ...alerts.map(t => {
-      const pm = getPMStatus(t.mileage);
+      const pm = pmOf(t);
       const cls = pm.status==='over'?'c':'w';
       return `<span class="as-item ${cls}"><span class="as-dot"></span>${t.id}: ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}</span>`;
     }),
@@ -2378,6 +2533,650 @@ function buildTicker(){
   ];
   const inner = document.getElementById('tickerInner');
   inner.innerHTML = [...base,...base].join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// DATA MODES
+//   SIMULATION - built-in simulated fleet, no hardware needed (works on GitHub Pages)
+//   DEMO       - live data from the backend (FastAPI + MQTT, see backend/README.md):
+//                810D-001 / 810D-002 follow the real LRVs on the demo track
+// URL options:  ?mode=sim | ?mode=demo   (skip the start screen)
+//               ?api=http://192.168.x.x:8000   (backend elsewhere)
+// ═══════════════════════════════════════════════════════
+const DEMO_LOCATIONS = {ST1:'Demo Track · Station 1', ST2:'Demo Track · Station 2', DEPOT:'Demo Track · Depot'};
+let MODE = 'sim';
+
+const LIVE = (() => {
+  const q = new URLSearchParams(location.search).get('api');
+  let candidates = [];
+  if(q && q !== 'off') candidates = [q];
+  else if(!q){
+    if(location.protocol === 'http:' || location.protocol === 'https:') candidates.push(location.origin);
+    candidates.push('http://localhost:8000');
+  }
+  candidates = [...new Set(candidates.map(u => u.replace(/\/+$/, '')))];
+  return {candidates, api:null, enabled:false, active:false, connected:false, ws:null, dirty:false,
+          retryMs:3000, retryTimer:null, pollTimer:null, snapshot:null};
+})();
+
+// PM status for a train: backend result in Demo mode, local calculation otherwise
+function pmOf(t){
+  return t.livePm || getPMStatus(t.mileage);
+}
+
+function cycleOf(t, i){
+  const c = t.liveCycles && t.liveCycles[i];
+  if(!c) return getCycleStatus(t.mileage, PM_CYCLES[i]);
+  const over = c.status === 'over';
+  return {
+    pos: over ? Math.max(0, -c.remaining) : Math.max(0, t.mileage - c.last_pm_km),
+    rem: Math.max(0, c.remaining),
+    remaining: c.remaining,
+    status: c.status,
+    pct: c.pct
+  };
+}
+
+function setLiveBadge(state){
+  const txt = document.getElementById('liveTxt');
+  const dot = document.getElementById('liveDot');
+  if(!txt || !dot) return;
+  const states = {
+    sim:        ['SIM',        'var(--amber)', 'Simulation mode - simulated data'],
+    connecting: ['CONNECTING', 'var(--amber)', 'Demo mode - looking for the backend (' + LIVE.candidates.join(', ') + ')'],
+    live:       ['LIVE',       'var(--green)', 'Demo mode - live data from ' + (LIVE.api || 'backend')],
+    offline:    ['OFFLINE',    'var(--red)',   'Demo mode - lost connection to the backend, showing last received data']
+  };
+  const [label, color, title] = states[state];
+  txt.textContent = label;
+  txt.style.color = color;
+  dot.style.background = color;
+  dot.style.boxShadow = `0 0 6px ${color}`;
+  txt.parentElement.title = title;
+}
+
+
+// Update one train and add/remove its map marker if it entered/left service
+function setTrainState(t, s){
+  const mapLoop = (s.loop && LOOPS[s.loop]) ? s.loop : null;   // demo-track LRVs are not on the map
+  if(mapLoop !== t.loop) t.dist = null;
+  t.mileage = s.mileage;
+  t.status = s.status;
+  t.loop = mapLoop;
+  if(s.serial) t.serial = s.serial;
+  if(s.year) t.year = s.year;
+  t.livePm = s.pm || null;
+  t.liveCycles = s.pm_cycles || null;
+  if((s.location || null) !== t.liveLocation) LIVE.tickerDirty = true;
+  t.liveLocation = s.location || null;
+  t.liveSince = s.since_station_km != null ? s.since_station_km : null;
+  t.liveDevice = s.device || null;
+
+  const onMap = t.status === 'in-service' && !!t.loop;
+  if(onMap && !t.marker){
+    if(t.dir == null) t.dir = 1;
+    t.cruiseMps = SIM.speedMinMps + Math.random() * (SIM.speedMaxMps - SIM.speedMinMps);
+    t.dwell = 0; t.atStop = false;
+    createTrainMarker(t);
+    if(MODE === 'demo' && LIVE.active){ t.dist = 0; t._loopLen = (getTrackMetrics(t.loop, t.dir) || {}).length; parkAtStations(); }
+  } else if(!onMap && t.marker){
+    map.removeLayer(t.marker);
+    t.marker = null; t._el = null; t._arrow = null; t.dist = null;
+    if(selectedTrain && selectedTrain.id === t.id) clearRouteArrows();
+  }
+  LIVE.dirty = true;
+}
+
+function applyLiveTrain(d){
+  if(!LIVE.enabled) return false;
+  let t = fleet.find(f => f.id === d.id);
+  if(!t){
+    if(!d.device) return false;           // only demo-track trains can be new
+    t = {id:d.id, type:d.type || 'DEMO', mileage:d.mileage, status:d.status, loop:null, pos:0, dir:1,
+         serial:d.serial || '—', year:d.year || '—', _demoOnly:true};
+    fleet.push(t);
+  }
+  setTrainState(t, d);
+  return true;
+}
+
+function fetchJson(url, timeoutMs = 2500){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  return fetch(url, {signal: ctrl.signal, cache: 'no-store'})
+    .finally(() => clearTimeout(timer))
+    .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+
+function liveFetch(path, timeoutMs){
+  return fetchJson(LIVE.api + path, timeoutMs);
+}
+
+async function findBackend(){
+  for(const base of LIVE.candidates){
+    try{
+      const h = await fetchJson(base + '/api/health', 1500);
+      if(h && h.ok) return base;
+    }catch(e){ /* try next */ }
+  }
+  return null;
+}
+
+async function liveLoadFleet(){
+  if(!DT.loaded) await loadDemoTrack();
+  const data = await liveFetch('/api/fleet');
+  if(!LIVE.enabled) return;                 // switched back to Simulation meanwhile
+  data.forEach(applyLiveTrain);
+  if(!LIVE.active){
+    LIVE.active = true;
+    initSimulation();                       // re-space trains on the map using the backend's statuses
+    parkAtStations();
+    LIVE.dirty = true;
+    liveRender();
+    buildTicker();
+    updateAlertsPanel();
+  }
+}
+
+// Demo mode: put every train on the map at its nearest station, standing still
+function parkAtStations(){
+  fleet.forEach(t => {
+    if(t.status !== 'in-service' || !t.loop || t.dist == null) return;
+    const stops = getStops(t.loop, t.dir);
+    const loopLen = t._loopLen || LOOP_LENGTHS[t.loop] || 0;
+    if(!stops || !stops.length || !loopLen) return;
+    let best = stops[0], bestD = Infinity;
+    stops.forEach(st => {
+      const d = Math.abs(st.dist - t.dist), circ = Math.min(d, loopLen - d);
+      if(circ < bestD){ bestD = circ; best = st; }
+    });
+    t.dist = best.dist;
+    t.pos = t.dist / loopLen;
+    t.atStop = true; t.dwell = 1;
+    t.currentSpeedMps = 0; t.displaySpeedMps = 0;
+  });
+}
+
+async function liveConnect(){
+  if(!LIVE.enabled || !LIVE.candidates.length) return;
+  try{
+    if(!LIVE.api) LIVE.api = await findBackend();
+    if(!LIVE.enabled) return;
+    if(!LIVE.api) throw new Error('no backend');
+    await liveLoadFleet();
+    if(!LIVE.enabled) return;
+    liveOpenSocket();
+    LIVE.retryMs = 3000;
+  }catch(e){
+    if(!LIVE.enabled) return;
+    LIVE.api = null;
+    setLiveBadge(LIVE.active ? 'offline' : 'connecting');
+    liveRetry();
+  }
+}
+
+function liveRetry(){
+  clearTimeout(LIVE.retryTimer);
+  LIVE.retryTimer = setTimeout(liveConnect, LIVE.retryMs);
+  LIVE.retryMs = Math.min(LIVE.retryMs * 2, 15000);
+}
+
+function liveOpenSocket(){
+  if(LIVE.ws){ const old = LIVE.ws; LIVE.ws = null; try{ old.close(); }catch(e){} }
+  const ws = new WebSocket(LIVE.api.replace(/^http/, 'ws') + '/ws');
+  LIVE.ws = ws;
+  let opened = false;
+  ws.onopen = () => { opened = true; LIVE.connected = true; setLiveBadge('live'); };
+  ws.onmessage = ev => {
+    let msg; try{ msg = JSON.parse(ev.data); }catch(e){ return; }
+    if(msg.train) applyLiveTrain(msg.train);
+    if(msg.type === 'removed'){
+      const t = fleet.find(f => f.id === msg.train_id);
+      if(t){ t.liveDevice = null; LIVE.dirty = true; LIVE.tickerDirty = true; }
+    }
+    if(msg.type === 'track'){ DT.loaded = false; loadDemoTrack(); }
+    if(msg.type === 'unknown_tag') console.info(`[SPLRT] Unknown RFID tag ${msg.tag} at ${msg.station_id} - register it via POST /api/tags`);
+  };
+  ws.onclose = () => {
+    if(LIVE.ws !== ws || !LIVE.enabled) return;
+    LIVE.connected = false;
+    LIVE.ws = null;
+    if(!opened){ livePoll(); return; }   // WebSocket not available: fall back to polling
+    setLiveBadge('offline');
+    liveRetry();
+  };
+}
+
+// Fallback when the server cannot do WebSockets: refresh the fleet every 2 s
+function livePoll(){
+  if(LIVE.pollTimer) return;
+  LIVE.connected = true;
+  setLiveBadge('live');
+  LIVE.pollTimer = setInterval(() => {
+    if(!LIVE.enabled) return;
+    liveLoadFleet().then(() => setLiveBadge('live')).catch(() => {
+      clearInterval(LIVE.pollTimer); LIVE.pollTimer = null;
+      LIVE.connected = false; LIVE.api = null;
+      setLiveBadge('offline');
+      liveRetry();
+    });
+  }, 2000);
+}
+
+function liveStop(){
+  LIVE.enabled = false;
+  clearTimeout(LIVE.retryTimer);
+  if(LIVE.pollTimer){ clearInterval(LIVE.pollTimer); LIVE.pollTimer = null; }
+  if(LIVE.ws){ const ws = LIVE.ws; LIVE.ws = null; try{ ws.close(); }catch(e){} }
+  LIVE.api = null; LIVE.active = false; LIVE.connected = false;
+}
+
+function liveRender(){
+  if(MODE === 'demo' && (LIVE.tickerDirty || (LIVE.dirty && Date.now() - (LIVE.tickerAt || 0) > 3000))){
+    LIVE.tickerDirty = false; LIVE.tickerAt = Date.now(); buildTicker();
+  }
+  if(!LIVE.dirty) return;
+  LIVE.dirty = false;
+  updateFleetList();
+  updateHeaderStats();
+  const alertsTab = document.getElementById('tab-alerts');
+  if(MODE === 'demo' || (alertsTab && alertsTab.classList.contains('active'))) updateAlertsPanel();   // Demo: alert count updates live
+}
+
+// ---------- mode switching ----------
+function setMode(m){
+  if(m === 'demo' && !LIVE.candidates.length) m = 'sim';   // ?api=off
+  if(m === MODE && (m === 'sim' || LIVE.enabled)){ updateModeUI(); return; }
+  if(m === 'demo'){
+    // remember the simulated fleet so Simulation can be restored exactly
+    LIVE.snapshot = fleet.map(t => ({id:t.id, mileage:t.mileage, status:t.status, loop:t.loop, serial:t.serial, year:t.year}));
+    MODE = 'demo';
+    LIVE.enabled = true; LIVE.retryMs = 3000;
+    setLiveBadge('connecting');
+    liveConnect();
+  } else {
+    liveStop();
+    MODE = 'sim';
+    if(LIVE.snapshot){
+      LIVE.snapshot.forEach(s => { const t = fleet.find(f => f.id === s.id); if(t) setTrainState(t, s); });
+      LIVE.snapshot = null;
+      initSimulation();
+    }
+    setLiveBadge('sim');
+  }
+  if(selectedTrain && !visibleFleet().includes(selectedTrain)){
+    if(selectedTrain._el) selectedTrain._el.classList.remove('selected');
+    selectedTrain = null;
+    clearRouteArrows();
+    renderNoSelection();
+  }
+  LIVE.dirty = true;
+  liveRender();
+  updateModeUI();
+  buildTicker();
+  updateAlertsPanel();
+}
+
+function updateModeUI(){
+  const sim = document.getElementById('modeBtnSim'), demo = document.getElementById('modeBtnDemo');
+  if(!sim || !demo) return;
+  sim.classList.toggle('active', MODE === 'sim');
+  demo.classList.toggle('active', MODE === 'demo');
+  demo.disabled = !LIVE.candidates.length;
+  if(demo.disabled) demo.title = 'Demo mode disabled by ?api=off';
+  updateDemoTrackVisibility();
+}
+
+let _helpStarted = false;
+function startHelpOnce(){
+  if(_helpStarted) return;
+  _helpStarted = true;
+  initHelp();
+}
+
+function chooseMode(m){
+  document.getElementById('modeOverlay').classList.remove('show');
+  setMode(m);
+  startHelpOnce();
+}
+
+async function showModeScreen(){
+  document.getElementById('modeOverlay').classList.add('show');
+  const el = document.getElementById('modeDemoStatus');
+  const card = document.getElementById('modeCardDemo');
+  if(!LIVE.candidates.length){
+    el.textContent = 'Disabled (?api=off)'; el.style.color = 'var(--txt2)'; card.disabled = true;
+    return;
+  }
+  el.textContent = 'Checking backend…'; el.style.color = 'var(--txt2)';
+  const base = await findBackend();
+  if(base){
+    el.textContent = '● Backend ready - ' + base.replace(/^https?:\/\//, '');
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = '● Backend not running - start backend/main.py first';
+    el.style.color = 'var(--red)';
+  }
+}
+
+function liveInit(){
+  setInterval(() => { liveRender(); renderDemoTrack(); }, 500);
+  // Full refresh every 20 s in Demo mode in case an event was missed
+  setInterval(() => { if(LIVE.enabled && LIVE.connected && !LIVE.pollTimer) liveLoadFleet().catch(() => {}); }, 20000);
+  setLiveBadge('sim');
+  updateModeUI();
+  const q = new URLSearchParams(location.search).get('mode');
+  if(q === 'sim' || q === 'demo'){
+    setMode(q);
+    startHelpOnce();
+  } else {
+    showModeScreen();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// DEMO TRACK VIEW  (Demo mode only)
+// Each model LRV is drawn where the real data puts it:
+//   last RFID station read  +  axle-encoder distance travelled since then.
+// Nothing here is simulated. Layout/lengths come from GET /api/track.
+// ═══════════════════════════════════════════════════════
+const DT = {
+  scale: 1000,
+  segFrom: {
+    ST1:   {to:'ST2', path:'top',       length_m:1.2},
+    ST2:   {to:'ST1', path:'bottom',    length_m:1.2},
+    DEPOT: {to:'ST1', path:'depot_out', length_m:0.8}
+  },
+  points: {ST1:{x:150,y:230}, ST2:{x:850,y:230}, DEPOT:{x:500,y:500}},
+  names: {ST1:'Station 1', ST2:'Station 2', DEPOT:'Depot'},
+  markers: {},        // train id -> {g, x, y, tx, ty}
+  loaded: false,
+  animating: false
+};
+
+async function loadDemoTrack(){
+  if(DT.loaded || !LIVE.api) return;
+  try{
+    const tr = await liveFetch('/api/track');
+    DT.scale = tr.demo_scale || DT.scale;
+    (tr.segments || []).forEach(s => { DT.segFrom[s.from] = {to:s.to, path:s.path, length_m:s.length_m}; });
+    if(tr.stations) Object.assign(DT.names, tr.stations);
+    DT.loaded = true;
+  }catch(e){ /* keep defaults */ }
+}
+
+function demoTrains(){
+  return fleet.filter(t => t.liveDevice);
+}
+
+// Where is this train on the demo track? Returns {x, y, frac, seg}
+function demoTrainTarget(t){
+  const loc = t.liveLocation && DT.points[t.liveLocation] ? t.liveLocation : 'DEPOT';
+  const base = DT.points[loc];
+  const seg = DT.segFrom[loc];
+  const toyM = (t.liveSince || 0) * 1000 / (DT.scale || 1);
+  if(!seg || toyM <= 0) return {x:base.x, y:base.y, frac:0, seg:null, loc, toyM:0};
+  const frac = Math.min(toyM / seg.length_m, 0.96);        // never "arrive" without an RFID read
+  const path = document.getElementById('dtPath-' + seg.path);
+  if(!path) return {x:base.x, y:base.y, frac:0, seg:null, loc, toyM};
+  const p = path.getPointAtLength(frac * path.getTotalLength());
+  return {x:p.x, y:p.y, frac, seg, loc, toyM};
+}
+
+// Demo mode shows only the demo-track trains everywhere (list, stats, alerts, ticker)
+function visibleFleet(){
+  return MODE === 'demo' ? fleet.filter(t => t.liveDevice) : fleet.filter(t => !t._demoOnly);
+}
+
+function placeOf(t){
+  if(MODE === 'demo') return DT.names[t.liveLocation] || t.liveLocation || 'Depot';
+  return t.loop || 'Depot';
+}
+
+function updateDemoTrackVisibility(){
+  const showTrack = MODE === 'demo';
+  document.getElementById('demoTrack').classList.toggle('show', showTrack);
+  document.getElementById('dsOpen').classList.toggle('show', showTrack);
+  if(!showTrack) closeDemoSettings();
+  if(showTrack){ renderDemoTrack(); startDemoTrackAnim(); }
+}
+
+function renderDemoTrack(){
+  const box = document.getElementById('demoTrack');
+  if(!box.classList.contains('show')) return;
+  const layer = document.getElementById('dtTrains');
+  const trains = demoTrains();
+  Object.keys(DT.markers).forEach(id => {
+    if(!trains.some(t => t.id === id)){ DT.markers[id].g.remove(); delete DT.markers[id]; }
+  });
+  const now = performance.now();
+
+  // stack trains standing at the same station
+  const atStation = {};
+  const targets = trains.map(t => {
+    const tg = demoTrainTarget(t);
+    if(tg.frac === 0){
+      const n = atStation[tg.loc] = (atStation[tg.loc] || 0) + 1;
+      tg.y += (n - 1) * 34;
+    }
+    return [t, tg];
+  });
+
+  targets.forEach(([t, tg]) => {
+    let m = DT.markers[t.id];
+    if(!m){
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'dt-train');
+      g.innerHTML = `<rect x="-46" y="-15" width="92" height="30" rx="7"></rect><text y="5" text-anchor="middle">${t.id}</text>`;
+      g.addEventListener('click', () => selectTrainById(t.id));
+      layer.appendChild(g);
+      m = DT.markers[t.id] = {g, x:tg.x, y:tg.y};
+    }
+    m.tx = tg.x; m.ty = tg.y;
+    if(t._dtLastKm !== t.mileage){ if(t._dtLastKm != null) t._dtMovedAt = now; t._dtLastKm = t.mileage; }
+    const moving = t._dtMovedAt && now - t._dtMovedAt < 2500;
+    const color = getTrainColor(t);
+    const rect = m.g.querySelector('rect');
+    rect.style.fill = color;
+    rect.style.filter = moving ? `drop-shadow(0 0 10px ${color})` : 'none';
+    m.g.classList.toggle('sel', !!(selectedTrain && selectedTrain.id === t.id));
+    t._dtTarget = tg;
+    t._dtMoving = moving;
+  });
+
+  // info cards
+  const fmtM = m => m < 10 ? m.toFixed(2) + ' m' : m.toFixed(1) + ' m';
+  document.getElementById('dtCards').innerHTML = trains.length ? trains.map(t => {
+    const tg = t._dtTarget || demoTrainTarget(t);
+    const pm = pmOf(t);
+    const pmColor = pm.status === 'over' ? 'var(--red)' : pm.status === 'soon' ? 'var(--amber)' : 'var(--green)';
+    const dev = t.liveDevice || {};
+    const where = tg.frac > 0 && tg.seg
+      ? `${tg.loc} → ${tg.seg.to} <span class="dt-dim">${Math.round(tg.frac * 100)}%</span>`
+      : `At ${DT.names[tg.loc] || tg.loc}`;
+    return `<div class="dt-card ${selectedTrain && selectedTrain.id === t.id ? 'sel' : ''}" onclick="selectTrainById('${t.id}')">
+      <div class="dt-card-top">
+        <span class="dt-card-id">${t.id}</span>
+        <span class="dt-card-dev"><span class="dt-dot" style="background:${dev.online ? 'var(--green)' : 'var(--txt2)'}"></span>${dev.id || ''} ${dev.online ? 'online' : 'offline'}</span>
+      </div>
+      <div class="dt-card-where">${where}${t._dtMoving ? ' <span class="dt-moving">MOVING</span>' : ''}</div>
+      <div class="dt-card-km">${formatKm(t.mileage)}<span class="dt-dim"> km</span></div>
+      <div class="dt-card-row"><span>Since last station</span><span>${fmtM(tg.toyM)} · ${(t.liveSince || 0).toFixed(3)} km</span></div>
+      <div class="dt-card-row"><span>Next PM</span><span style="color:${pmColor}">${pm.name} · ${pm.status === 'over' ? 'OVERDUE' : pm.status === 'soon' ? 'due soon' : 'OK'}</span></div>
+    </div>`;
+  }).join('') : `<div class="dt-empty">Waiting for data from the demo LRVs…</div>`;
+}
+
+function startDemoTrackAnim(){
+  if(DT.animating) return;
+  DT.animating = true;
+  const step = () => {
+    if(!document.getElementById('demoTrack').classList.contains('show')){ DT.animating = false; return; }
+    Object.values(DT.markers).forEach(m => {
+      if(m.tx == null) return;
+      m.x += (m.tx - m.x) * 0.15;
+      m.y += (m.ty - m.y) * 0.15;
+      m.g.setAttribute('transform', `translate(${m.x.toFixed(1)},${m.y.toFixed(1)})`);
+    });
+    requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ═══════════════════════════════════════════════════════
+// DEMO SETTINGS  (Demo mode: trains on the demo track, station distances,
+//                 wheel calibration, simulator on/off - all stored in the backend)
+// ═══════════════════════════════════════════════════════
+function liveSend(method, path, body){
+  return fetch(LIVE.api + path, {
+    method, cache: 'no-store',
+    headers: body ? {'Content-Type': 'application/json'} : {},
+    body: body ? JSON.stringify(body) : undefined
+  }).then(async r => {
+    const data = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(data.detail ? (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail)) : 'HTTP ' + r.status);
+    return data;
+  });
+}
+
+function dsEsc(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function dsMsg(text, ok){
+  const el = document.getElementById('dsMsg');
+  el.textContent = text;
+  el.style.color = ok ? 'var(--green)' : 'var(--red)';
+  clearTimeout(dsMsg._t);
+  dsMsg._t = setTimeout(() => { el.textContent = ''; }, 5000);
+}
+
+async function openDemoSettings(){
+  document.getElementById('demoSettings').classList.add('show');
+  if(!LIVE.api){
+    document.getElementById('dsBody').innerHTML = '<div class="ds-note">Backend not connected - start backend/main.py, then reopen.</div>';
+    return;
+  }
+  await dsLoad();
+}
+
+function closeDemoSettings(){
+  document.getElementById('demoSettings').classList.remove('show');
+}
+
+async function dsLoad(){
+  const body = document.getElementById('dsBody');
+  try{
+    const [trains, track, cfg] = await Promise.all([
+      liveFetch('/api/demo/trains'), liveFetch('/api/track'), liveFetch('/api/config')
+    ]);
+    const segLabel = {'ST1>ST2':'ST1 → ST2 (top)', 'ST2>ST1':'ST2 → ST1 (bottom)', 'DEPOT>ST1':'Depot → ST1'};
+    body.innerHTML = `
+      <div class="hm-h3">Trains on the demo track</div>
+      <table class="ds-table">
+        <thead><tr><th>Train ID</th><th>Device (MCU)</th><th>RFID tag UID</th><th>Mileage (km)</th><th></th></tr></thead>
+        <tbody>
+          ${trains.map(t => `<tr data-train="${dsEsc(t.train_id)}">
+            <td><span class="ds-id">${dsEsc(t.train_id)}</span><span class="ds-dot" style="background:${t.online ? 'var(--green)' : 'var(--txt2)'}" title="${t.online ? 'online' : 'offline'}"></span></td>
+            <td><input class="ds-in" name="device_id" value="${dsEsc(t.device_id)}"></td>
+            <td><input class="ds-in" name="tag" value="${dsEsc(t.tag || '')}"></td>
+            <td><input class="ds-in num" name="mileage" type="number" min="0" step="0.1" value="${t.mileage}"></td>
+            <td class="ds-act"><button class="ds-btn" onclick="dsSaveRow(this)">Save</button><button class="ds-btn del" onclick="dsRemove('${dsEsc(t.train_id)}')">Remove</button></td>
+          </tr>`).join('')}
+          <tr class="ds-new">
+            <td><input class="ds-in" name="train_id" placeholder="e.g. LRV-003"></td>
+            <td><input class="ds-in" name="device_id" placeholder="e.g. LRV03"></td>
+            <td><input class="ds-in" name="tag" placeholder="e.g. 04A3B2C1"></td>
+            <td><input class="ds-in num" name="mileage" type="number" min="0" step="0.1" placeholder="0"></td>
+            <td class="ds-act"><button class="ds-btn add" onclick="dsSaveRow(this, true)">+ Add train</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="ds-note">Device = the ID the train's ESP32 uses in its MQTT topic (splrt/lrv/&lt;ID&gt;/odometer). Tag = UID of the RFID tag on that train. Changing mileage overrides it (logged as a manual entry).</div>
+
+      <div class="hm-h3">Station distances (real toy-track metres)</div>
+      <div class="ds-grid">
+        ${track.segments.map(s => `<label class="ds-field">${segLabel[s.from + '>' + s.to] || (s.from + ' → ' + s.to)}
+          <input class="ds-in num ds-seg" data-from="${dsEsc(s.from)}" data-to="${dsEsc(s.to)}" type="number" min="0.01" step="0.01" value="${s.length_m}"> <span>m</span></label>`).join('')}
+      </div>
+      <div class="ds-row"><button class="ds-btn" onclick="dsSaveTrack()">Save distances</button></div>
+
+      <div class="hm-h3">Wheel &amp; scale</div>
+      <div class="ds-grid">
+        <label class="ds-field">Wheel diameter <input class="ds-in num" id="dsDiam" type="number" min="1" step="0.1" value="${(cfg.wheel_circumference_m / Math.PI * 1000).toFixed(1)}" oninput="document.getElementById('dsCirc').value=(this.value*Math.PI/1000).toFixed(4)"> <span>mm</span></label>
+        <label class="ds-field">= circumference <input class="ds-in num" id="dsCirc" type="number" min="0.001" step="0.0001" value="${cfg.wheel_circumference_m}" oninput="document.getElementById('dsDiam').value=(this.value/Math.PI*1000).toFixed(1)"> <span>m</span></label>
+        <label class="ds-field">Counts per wheel turn <input class="ds-in num" id="dsPpr" type="number" min="1" step="1" value="${cfg.pulses_per_rev}"> <span>(AS5600 = 4096)</span></label>
+        <label class="ds-field">Demo scale <input class="ds-in num" id="dsScale" type="number" min="1" step="1" value="${cfg.demo_scale}"> <span>× (1 m of track = ${cfg.demo_scale / 1000} km)</span></label>
+      </div>
+      <div class="ds-row"><button class="ds-btn" onclick="dsSaveWheel()">Save wheel &amp; scale</button></div>
+
+      <div class="hm-h3">Data sources</div>
+      <label class="ds-switch"><input type="checkbox" id="dsSim" ${cfg.accept_simulator ? 'checked' : ''} onchange="dsSaveSim(this.checked)">
+        <span>Accept data from the simulator page (/simulator)</span></label>
+      <div class="ds-note">Turn this <b>off</b> when the real ESP32s are running, so simulator clicks can't mix with real data. Real hardware (MQTT) is always accepted.</div>`;
+  }catch(e){
+    body.innerHTML = `<div class="ds-note" style="color:var(--red)">Could not load settings: ${dsEsc(e.message)}</div>`;
+  }
+}
+
+async function dsAfterChange(){
+  DT.loaded = false;
+  await loadDemoTrack();
+  await liveLoadFleet().catch(() => {});
+  await dsLoad();
+}
+
+async function dsSaveRow(btn, isNew){
+  const tr = btn.closest('tr');
+  const val = n => { const el = tr.querySelector(`[name="${n}"]`); return el ? el.value.trim() : ''; };
+  const trainId = isNew ? val('train_id') : tr.dataset.train;
+  const body = {train_id: trainId, device_id: val('device_id'), tag: val('tag')};
+  const km = val('mileage');
+  if(km !== '') body.mileage = Number(km);
+  if(!trainId || !body.device_id || !body.tag){ dsMsg('Train ID, device and tag are all required', false); return; }
+  try{
+    await liveSend('POST', '/api/demo/trains', body);
+    dsMsg(isNew ? `${trainId} added to the demo track` : `${trainId} saved`, true);
+    await dsAfterChange();
+  }catch(e){ dsMsg(e.message, false); }
+}
+
+async function dsRemove(trainId){
+  if(!window.confirm(`Take ${trainId} off the demo track?`)) return;
+  try{
+    await liveSend('DELETE', '/api/demo/trains/' + encodeURIComponent(trainId));
+    dsMsg(`${trainId} removed`, true);
+    await dsAfterChange();
+  }catch(e){ dsMsg(e.message, false); }
+}
+
+async function dsSaveTrack(){
+  const segments = [...document.querySelectorAll('.ds-seg')].map(i => ({from:i.dataset.from, to:i.dataset.to, length_m:Number(i.value)}));
+  try{
+    await liveSend('PUT', '/api/track', {segments});
+    dsMsg('Station distances saved', true);
+    await dsAfterChange();
+  }catch(e){ dsMsg(e.message, false); }
+}
+
+async function dsSaveWheel(){
+  const body = {
+    wheel_circumference_m: Number(document.getElementById('dsCirc').value),
+    pulses_per_rev: Number(document.getElementById('dsPpr').value),
+    demo_scale: Number(document.getElementById('dsScale').value)
+  };
+  try{
+    await liveSend('PUT', '/api/config', body);
+    dsMsg('Wheel & scale saved - applies to new wheel counts from now on', true);
+    await dsAfterChange();
+  }catch(e){ dsMsg(e.message, false); }
+}
+
+async function dsSaveSim(on){
+  try{
+    await liveSend('PUT', '/api/config', {accept_simulator: on});
+    dsMsg(on ? 'Simulator input ON' : 'Simulator input OFF - only real hardware is accepted', true);
+  }catch(e){ dsMsg(e.message, false); }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2391,10 +3190,10 @@ updateFleetList();
 updateHeaderStats();
 buildTicker();
 updateDisplaySpeeds();
-initHelp();
 setInterval(buildTicker, 15000);
 setInterval(updateDisplaySpeeds, 1000);
 requestAnimationFrame(animate);
+liveInit();
 </script>
 </body>
 </html>

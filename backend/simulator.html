@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPLRT Hardware Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#05080f;--bg1:#090e1a;--bg2:#0e1524;--bg3:#131c2e;--bg4:#192338;
+  --cyan:#00d4e8;--cyan-dim:rgba(0,212,232,0.15);--green:#00e888;--amber:#ffb020;--red:#ff3a5c;
+  --txt0:#c8dce8;--txt1:#6a8aa8;--txt2:#3a5570;--border:#182e45;--border2:#243e58;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans Condensed',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg0);color:var(--txt0);font-family:var(--mono);min-height:100vh}
+header{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg1);flex-wrap:wrap}
+.logo{width:34px;height:34px;border-radius:8px;background:var(--cyan);color:var(--bg0);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:11px}
+.title{font-family:var(--sans);font-weight:700;letter-spacing:0.1em;font-size:15px;color:#fff}
+.sub{font-size:9px;color:var(--txt2);letter-spacing:0.14em;text-transform:uppercase}
+.conn{margin-left:auto;display:flex;align-items:center;gap:8px;padding:4px 12px;border:1px solid var(--border2);border-radius:20px;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.15em}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--amber)}
+a.dash{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.15em;color:var(--cyan);text-decoration:none;border:1px solid var(--border2);border-radius:20px;padding:4px 12px}
+a.dash:hover{border-color:var(--cyan)}
+main{display:grid;grid-template-columns:minmax(300px,1fr) minmax(300px,1fr);gap:16px;padding:16px 20px;max-width:1200px;margin:0 auto}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:18px}
+.h{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:12px}
+.lrv-sel{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.lrv-sel button,.st-btn,.btn{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;color:var(--txt0);font-family:var(--sans);font-weight:700;letter-spacing:0.08em;cursor:pointer}
+.lrv-sel button{flex:1 1 150px;padding:10px 8px;font-size:13px;text-align:left}
+.lrv-sel button small{display:block;font-family:var(--mono);font-weight:400;font-size:10px;color:var(--txt1);letter-spacing:0;margin-top:3px}
+.lrv-sel button.active{border-color:var(--cyan);background:var(--cyan-dim);color:var(--cyan)}
+.wheel-wrap{display:flex;justify-content:center;padding:6px 0 10px}
+#wheel{width:min(300px,78vw);height:auto;touch-action:none;cursor:grab;user-select:none}
+#wheel.dragging{cursor:grabbing}
+.hint{text-align:center;font-size:10px;color:var(--txt1);margin-bottom:12px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.stat-l{font-family:var(--sans);font-size:9px;color:var(--txt2);letter-spacing:0.14em;text-transform:uppercase}
+.stat-v{font-size:17px;color:var(--txt0);margin-top:2px}
+.stat-v.c{color:var(--cyan)}.stat-v.g{color:var(--green)}
+.row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.btn{padding:7px 12px;font-size:11px}
+.btn:hover,.st-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.btn.on{border-color:var(--green);color:var(--green);background:rgba(0,232,136,0.08)}
+input[type=range]{flex:1;min-width:120px;accent-color:var(--cyan)}
+.lbl{font-size:10px;color:var(--txt1)}
+.stations{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.st-btn{padding:16px 8px;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.st-btn small{font-family:var(--mono);font-weight:400;font-size:10px;color:var(--txt1);letter-spacing:0}
+.st-btn.flash{border-color:var(--green);color:var(--green);box-shadow:0 0 16px rgba(0,232,136,0.35)}
+.track{margin:14px 0 4px;width:100%;height:auto}
+.log{margin-top:6px;height:260px;overflow-y:auto;background:var(--bg0);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;line-height:1.6}
+.log div{white-space:pre-wrap;word-break:break-word}
+.log .t{color:var(--txt2)}.log .ok{color:var(--green)}.log .rf{color:var(--cyan)}.log .err{color:var(--red)}.log .dim{color:var(--txt1)}
+.note{font-size:10px;color:var(--txt2);margin-top:10px;line-height:1.6}
+@media (max-width:760px){main{grid-template-columns:1fr;padding:12px}header{padding:12px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">SIM</div>
+  <div>
+    <div class="title">SPLRT HARDWARE SIMULATOR</div>
+    <div class="sub">Axle encoder (AS5600) + RFID stations · sends the same data as the ESP32s</div>
+  </div>
+  <div class="conn" id="conn"><div class="conn-dot" id="connDot"></div><span id="connTxt">CONNECTING</span></div>
+  <a class="dash" id="dashLink" href="/?mode=demo" target="_blank">OPEN DASHBOARD ↗</a>
+</header>
+
+<main>
+  <!-- LEFT: the LRV and its wheel -->
+  <section class="card">
+    <div class="h">1 · LRV on-board unit</div>
+    <div class="lrv-sel" id="lrvSel"></div>
+
+    <div class="wheel-wrap">
+      <svg id="wheel" viewBox="-110 -110 220 220" aria-label="Drag to rotate the wheel">
+        <circle r="104" fill="var(--bg2)" stroke="var(--border2)" stroke-width="2"/>
+        <g id="rotor">
+          <circle r="92" fill="var(--bg3)" stroke="var(--txt2)" stroke-width="10"/>
+          <circle r="92" fill="none" stroke="var(--bg4)" stroke-width="2" stroke-dasharray="4 8"/>
+          <g stroke="var(--txt1)" stroke-width="6" stroke-linecap="round">
+            <line x1="0" y1="-20" x2="0" y2="-84"/><line x1="0" y1="20" x2="0" y2="84"/>
+            <line x1="-20" y1="0" x2="-84" y2="0"/><line x1="20" y1="0" x2="84" y2="0"/>
+          </g>
+          <circle r="24" fill="var(--bg4)" stroke="var(--txt1)" stroke-width="3"/>
+          <!-- diametric magnet on the axle -->
+          <rect x="-14" y="-6" width="14" height="12" fill="var(--red)"/>
+          <rect x="0" y="-6" width="14" height="12" fill="var(--cyan)"/>
+          <circle cx="0" cy="-84" r="7" fill="var(--amber)"/>
+        </g>
+      </svg>
+    </div>
+    <div class="hint">Drag the wheel in a circle (or scroll on it) to drive the LRV</div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-l">AS5600 angle</div><div class="stat-v" id="sAngle">0.00°</div></div>
+      <div class="stat"><div class="stat-l">Raw (0–4095)</div><div class="stat-v" id="sRaw">0</div></div>
+      <div class="stat"><div class="stat-l">Wheel turns</div><div class="stat-v c" id="sTurns">0.00</div></div>
+      <div class="stat"><div class="stat-l">Total counts sent</div><div class="stat-v c" id="sCounts">0</div></div>
+      <div class="stat"><div class="stat-l">Toy distance</div><div class="stat-v" id="sDist">0.00 m</div></div>
+      <div class="stat"><div class="stat-l">Train mileage (server)</div><div class="stat-v g" id="sKm">—</div></div>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="autoBtn">AUTO SPIN: OFF</button>
+      <input type="range" id="speed" min="10" max="720" value="180" aria-label="Auto spin speed">
+      <span class="lbl" id="speedLbl">180°/s</span>
+    </div>
+    <div class="row">
+      <button class="btn" id="rebootBtn" title="Counter goes back to 0, like an ESP32 restart. The server keeps the mileage.">REBOOT MCU</button>
+      <span class="lbl">Sends counts every 1 s, like the firmware</span>
+    </div>
+  </section>
+
+  <!-- RIGHT: stations + message log -->
+  <section class="card">
+    <div class="h">2 · Station RFID readers</div>
+    <svg class="track" viewBox="0 0 300 120" aria-hidden="true">
+      <rect x="30" y="14" width="240" height="56" rx="26" fill="none" stroke="var(--red)" stroke-width="4"/>
+      <path d="M110 70 L150 108 L190 70" fill="none" stroke="var(--red)" stroke-width="4"/>
+      <circle cx="30" cy="42" r="9" fill="var(--red)"/><circle cx="270" cy="42" r="9" fill="var(--red)"/><circle cx="150" cy="108" r="9" fill="var(--red)"/>
+      <text x="44" y="46" fill="var(--txt0)" font-size="10" font-family="var(--sans)">ST1</text>
+      <text x="236" y="46" fill="var(--txt0)" font-size="10" font-family="var(--sans)">ST2</text>
+      <text x="164" y="112" fill="var(--txt0)" font-size="10" font-family="var(--sans)">DEPOT</text>
+    </svg>
+    <div class="stations">
+      <button class="st-btn" data-st="ST1">ST1<small>Station 1</small></button>
+      <button class="st-btn" data-st="ST2">ST2<small>Station 2</small></button>
+      <button class="st-btn" data-st="DEPOT">DEPOT<small>Depot</small></button>
+    </div>
+    <div class="note">Pressing a station = that reader sees the selected LRV's RFID tag (keys 1 / 2 / 3).</div>
+
+    <div class="h" style="margin-top:16px">3 · Messages sent</div>
+    <div class="log" id="log"></div>
+    <div class="note">Uses the backend's HTTP ingest endpoints, which run exactly the same code as the MQTT topics from the real ESP32s.</div>
+  </section>
+</main>
+
+<script>
+// ─── backend address: same server, or ?api=http://host:port ───
+const API = (() => {
+  const q = new URLSearchParams(location.search).get('api');
+  if(q) return q.replace(/\/+$/, '');
+  return (location.protocol.startsWith('http') ? location.origin : 'http://localhost:8000');
+})();
+document.getElementById('dashLink').href = API + '/?mode=demo';
+
+const COUNTS_PER_REV = 4096;          // AS5600 12-bit
+let settings = {pulses_per_rev:4096, wheel_circumference_m:0.0942, demo_scale:1000};
+
+// One simulated on-board unit per LRV (counts since "boot")
+// Filled from the backend's Demo settings (GET /api/demo/trains); these are just the defaults
+const LRVS = {
+  LRV01: {tag:'A1B2C3D4', train:'810D-001', angle:0, counts:0, frac:0, sent:-1, touched:false},
+  LRV02: {tag:'E5F6A7B8', train:'810D-002', angle:0, counts:0, frac:0, sent:-1, touched:false},
+};
+let current = 'LRV01';
+let blocked = false;     // simulator input switched off in Demo settings
+
+// ─── helpers ───
+const $ = id => document.getElementById(id);
+function log(cls, text){
+  const el = $('log');
+  const d = document.createElement('div');
+  const t = new Date().toLocaleTimeString('en-GB');
+  d.innerHTML = `<span class="t">${t}</span> <span class="${cls}"></span>`;
+  d.lastChild.textContent = text;
+  el.appendChild(d);
+  while(el.children.length > 200) el.removeChild(el.firstChild);
+  el.scrollTop = el.scrollHeight;
+}
+async function post(path, body){
+  const r = await fetch(API + path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(r.status + ' ' + (await r.text()).slice(0, 120));
+  return r.json();
+}
+async function get(path){
+  const r = await fetch(API + path, {cache:'no-store'});
+  if(!r.ok) throw new Error(r.status);
+  return r.json();
+}
+function setConn(ok){
+  const txt = !ok ? 'NO BACKEND' : blocked ? 'SIMULATOR INPUT OFF' : 'BACKEND OK';
+  const color = !ok ? 'var(--red)' : blocked ? 'var(--amber)' : 'var(--green)';
+  $('connTxt').textContent = txt;
+  $('connTxt').style.color = color;
+  $('connDot').style.background = color;
+  $('conn').title = blocked ? 'Turned off in the dashboard: Demo mode → ⚙ Settings → Data sources' : '';
+}
+function setBlocked(b){
+  if(b === blocked) return;
+  blocked = b;
+  log(b ? 'err' : 'ok', b ? 'Backend is ignoring the simulator (switched off in Demo settings). Nothing is being recorded.'
+                          : 'Simulator input accepted again.');
+  setConn(true);
+}
+
+// ─── LRV selector ───
+function renderLrvSel(){
+  if(!Object.keys(LRVS).length){ $('lrvSel').innerHTML = '<span class="lbl">No trains on the demo track - add one in the dashboard (Demo → ⚙ Settings)</span>'; return; }
+  $('lrvSel').innerHTML = Object.entries(LRVS).map(([id, l]) =>
+    `<button data-id="${id}" class="${id===current?'active':''}">${id}<small>train ${l.train} · tag ${l.tag}</small></button>`).join('');
+  $('lrvSel').querySelectorAll('button').forEach(b => b.onclick = () => { current = b.dataset.id; renderLrvSel(); render(); });
+}
+
+// ─── wheel physics: angle -> AS5600 raw -> cumulative counts ───
+function rotate(deg){
+  const l = LRVS[current];
+  if(!deg || !l) return;
+  l.angle += deg;
+  l.frac += Math.abs(deg) / 360 * COUNTS_PER_REV;   // mileage counts both directions (like the firmware)
+  const whole = Math.floor(l.frac);
+  l.counts += whole; l.frac -= whole;
+  l.touched = true;
+  render();
+}
+function render(){
+  const l = LRVS[current];
+  if(!l) return;
+  const a = ((l.angle % 360) + 360) % 360;
+  $('rotor').setAttribute('transform', `rotate(${l.angle})`);
+  $('sAngle').textContent = a.toFixed(2) + '°';
+  $('sRaw').textContent = Math.floor(a / 360 * COUNTS_PER_REV) % COUNTS_PER_REV;
+  $('sTurns').textContent = (l.counts / COUNTS_PER_REV).toFixed(2);
+  $('sCounts').textContent = l.counts.toLocaleString();
+  $('sDist').textContent = (l.counts / COUNTS_PER_REV * settings.wheel_circumference_m).toFixed(2) + ' m';
+  $('sKm').textContent = l.km != null ? l.km.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1}) + ' km' : '—';
+}
+
+const wheel = $('wheel');
+let dragging = false, lastA = 0;
+function pointerAngle(e){
+  const r = wheel.getBoundingClientRect();
+  return Math.atan2(e.clientY - (r.top + r.height/2), e.clientX - (r.left + r.width/2)) * 180 / Math.PI;
+}
+wheel.addEventListener('pointerdown', e => { dragging = true; lastA = pointerAngle(e); wheel.setPointerCapture(e.pointerId); wheel.classList.add('dragging'); });
+wheel.addEventListener('pointermove', e => {
+  if(!dragging) return;
+  const a = pointerAngle(e);
+  let d = a - lastA;
+  if(d > 180) d -= 360;
+  if(d < -180) d += 360;
+  lastA = a;
+  rotate(d);
+});
+['pointerup','pointercancel'].forEach(ev => wheel.addEventListener(ev, () => { dragging = false; wheel.classList.remove('dragging'); }));
+wheel.addEventListener('wheel', e => { e.preventDefault(); rotate(e.deltaY > 0 ? 15 : -15); }, {passive:false});
+
+// ─── auto spin ───
+let auto = false, lastT = null;
+$('speed').oninput = () => $('speedLbl').textContent = $('speed').value + '°/s';
+$('autoBtn').onclick = () => {
+  auto = !auto;
+  $('autoBtn').textContent = 'AUTO SPIN: ' + (auto ? 'ON' : 'OFF');
+  $('autoBtn').classList.toggle('on', auto);
+  lastT = null;
+};
+function tick(t){
+  if(auto){
+    if(lastT != null) rotate(+$('speed').value * (t - lastT) / 1000);
+    lastT = t;
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+$('rebootBtn').onclick = () => {
+  const l = LRVS[current];
+  if(!l) return;
+  l.counts = 0; l.frac = 0; l.sent = -1; l.touched = true;
+  log('dim', `${current} rebooted - counter back to 0 (server keeps the mileage)`);
+  render();
+};
+
+// ─── send odometer like the firmware: running total every 1 s ───
+async function sendOdometer(id, force){
+  const l = LRVS[id];
+  if(!l || !l.touched || (!force && l.counts === l.sent)) return;
+  const pulses = l.counts;
+  try{
+    const r = await post('/api/ingest/odometer', {device_id:id, pulses, source:'simulator'});
+    setBlocked(false);
+    l.sent = pulses;
+    if(r.km != null) l.km = r.km;
+    if(r.delta_pulses > 0 || force)
+      log('ok', `${id} odometer {"pulses": ${pulses}} → +${r.delta_km} km${r.km != null ? ' · ' + r.train_id + ' = ' + r.km.toFixed(1) + ' km' : ''}`);
+    setConn(true);
+    if(id === current) render();
+  }catch(e){
+    if(e.message.startsWith('403')){ setBlocked(true); return; }
+    setConn(false);
+    log('err', `${id} odometer failed: ${e.message}`);
+  }
+}
+setInterval(() => Object.keys(LRVS).forEach(id => sendOdometer(id, false)), 1000);
+
+// ─── station buttons = RFID reads ───
+async function stationRead(st){
+  const l = LRVS[current];
+  if(!l) return;
+  const btn = document.querySelector(`.st-btn[data-st="${st}"]`);
+  btn.classList.add('flash'); setTimeout(() => btn.classList.remove('flash'), 600);
+  await sendOdometer(current, false);          // make sure the distance so far is in first
+  try{
+    const r = await post('/api/ingest/rfid', {station_id:st, tag:l.tag, source:'simulator'});
+    setBlocked(false);
+    if(!r.train_id) log('err', `${st} read tag ${r.tag} → unknown tag (register it via POST /api/tags)`);
+    else log('rf', `${st} rfid {"tag": "${l.tag}"} → ${r.train_id} at ${st}` +
+             (r.repeat ? ' (repeat, ignored)' : r.segment_km != null ? ` · ${r.segment_km} km since last station` : ''));
+    setConn(true);
+  }catch(e){
+    if(e.message.startsWith('403')){ setBlocked(true); log('err', `${st} read ignored - simulator input is off`); return; }
+    setConn(false);
+    log('err', `${st} rfid failed: ${e.message}`);
+  }
+}
+document.querySelectorAll('.st-btn').forEach(b => b.onclick = () => stationRead(b.dataset.st));
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT') return;
+  const map = {'1':'ST1', '2':'ST2', '3':'DEPOT'};
+  if(map[e.key]) stationRead(map[e.key]);
+});
+
+// ─── startup: check backend, read calibration + LRV/tag mapping ───
+// Keep the LRV list in step with the dashboard's Demo settings (trains added / removed / re-tagged)
+async function syncTrains(first){
+  const [cfg, trains] = await Promise.all([get('/api/config'), get('/api/demo/trains')]);
+  settings = Object.assign(settings, cfg);
+  if(cfg.accept_simulator === false) setBlocked(true);
+  const seen = new Set();
+  for(const t of trains){
+    seen.add(t.device_id);
+    const isNew = !LRVS[t.device_id];
+    if(isNew) LRVS[t.device_id] = {angle:0, counts:0, frac:0, sent:-1, touched:false};
+    Object.assign(LRVS[t.device_id], {tag:t.tag, train:t.train_id, km:t.mileage});
+    if(isNew && !first){
+      log('dim', `New LRV ${t.device_id} (train ${t.train_id}) from Demo settings`);
+      LRVS[t.device_id].touched = true; await sendOdometer(t.device_id, true);   // power-on report
+    }
+  }
+  for(const id of Object.keys(LRVS)) if(!seen.has(id)) delete LRVS[id];
+  if(!LRVS[current]) current = Object.keys(LRVS)[0];
+  renderLrvSel(); render();
+}
+
+async function init(){
+  renderLrvSel(); render();
+  try{
+    await get('/api/health'); setConn(true);
+    await syncTrains(true);
+    // Like an ESP32 at power-on: report counts = 0 so the server starts counting from here
+    for(const id of Object.keys(LRVS)){ LRVS[id].touched = true; await sendOdometer(id, true); }
+    log('dim', `Connected to ${API} · wheel ${settings.wheel_circumference_m} m, ×${settings.demo_scale} demo scale`);
+  }catch(e){
+    setConn(false);
+    log('err', `Backend not reachable at ${API} - start it with: python main.py`);
+  }
+}
+init();
+setInterval(() => get('/api/health').then(() => { setConn(true); return syncTrains(false); }).catch(() => setConn(false)), 5000);
+</script>
+</body>
+</html>

@@ -79,6 +79,38 @@ CREATE TABLE IF NOT EXISTS stock_changes (
   FOREIGN KEY (withdrawn_train_id) REFERENCES trains(id),
   FOREIGN KEY (replacement_train_id) REFERENCES trains(id)
 );
+CREATE TABLE IF NOT EXISTS station_tags (
+  tag TEXT PRIMARY KEY,                 -- RFID UID of the tag stuck at the station
+  station_id TEXT NOT NULL UNIQUE       -- ST1 / ST2 / DEPOT
+);
+CREATE TABLE IF NOT EXISTS train_wheels (
+  train_id TEXT PRIMARY KEY,            -- per-train wheel size from calibration runs
+  circumference_m REAL NOT NULL,
+  calibrated_at TEXT
+);
+CREATE TABLE IF NOT EXISTS calibrations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  train_id TEXT NOT NULL,
+  counts INTEGER NOT NULL,              -- encoder counts between the 0 m and 100 m tags
+  turns REAL NOT NULL,
+  measured_m REAL,                      -- circumference from this run
+  previous_m REAL,
+  new_m REAL,                           -- value in use after this run (average of recent good runs)
+  accepted INTEGER NOT NULL,
+  reason TEXT,
+  recorded_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS cal_pending (
+  counter_key TEXT PRIMARY KEY,         -- device (or device~SIM) that passed the 0 m tag
+  start_pulses INTEGER NOT NULL,
+  started_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS train_marker (
+  train_id TEXT PRIMARY KEY,            -- last in-between track tag (CAL0 / CAL100) read since the last station
+  marker TEXT NOT NULL,
+  km REAL NOT NULL,                     -- train mileage when it was read
+  read_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
@@ -122,6 +154,11 @@ def init_db(seed=True):
         conn.executescript(SCHEMA)
         if seed and conn.execute("SELECT COUNT(*) FROM trains").fetchone()[0] == 0:
             _seed(conn)
+        # track tags: add any that are missing (also upgrades databases from before these features)
+        have = {r[0] for r in conn.execute("SELECT station_id FROM station_tags")}
+        for sid, tag in config.DEFAULT_STATION_TAGS.items():
+            if sid not in have:
+                conn.execute("INSERT OR IGNORE INTO station_tags (tag,station_id) VALUES (?,?)", (tag, sid))
 
 
 def _seed_fleet():

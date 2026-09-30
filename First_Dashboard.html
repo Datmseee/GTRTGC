@@ -90,16 +90,29 @@ header::before{
 .dt-head{}
 .dt-title{font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:0.14em;color:var(--txt0)}
 .dt-sub{font-family:var(--mono);font-size:10px;color:var(--txt2);letter-spacing:0.04em;margin-top:3px}
-.dt-svg{flex:1;min-height:220px;width:100%}
-.dt-rail{fill:none;stroke:var(--track-pg);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
-.dt-rail.branch{stroke-width:7;opacity:0.75}
-.dt-sta circle{fill:var(--bg0);stroke:var(--cyan);stroke-width:4}
-.dt-sta text{font-family:var(--sans);font-weight:700;letter-spacing:0.1em;fill:var(--txt0);font-size:22px}
-.dt-sta text.sm{font-family:var(--mono);font-weight:400;font-size:13px;fill:var(--txt1);letter-spacing:0.04em}
-.dt-train{cursor:pointer}
-.dt-train rect{stroke:var(--bg0);stroke-width:2}
-.dt-train text{font-family:var(--mono);font-size:14px;font-weight:600;fill:var(--bg0);pointer-events:none}
-.dt-train.sel rect{stroke:var(--cyan);stroke-width:4}
+.dt-stage{flex:1;min-height:240px;position:relative;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg0)}
+.dt-stage::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 80px var(--bg0)}
+.dt-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dt-grid{fill:none;stroke:var(--border);stroke-width:1;opacity:0.35}
+.dt-rail{fill:none;stroke:var(--track-pg);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:0.9}
+.dt-rail.alt{opacity:0.75}
+.dt-rail.depot{stroke:var(--txt2);opacity:0.9}
+.dt-core{fill:none;stroke:var(--bg0);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.dt-sta .halo{fill:var(--track-pg);fill-opacity:0.08;stroke:var(--track-pg);stroke-width:1}
+.dt-sta .core{fill:var(--bg1);stroke:var(--track-pg);stroke-width:2.5}
+.dt-sta.depot .halo,.dt-sta.depot .core{stroke:var(--txt1)}
+.dt-sta.depot .halo{fill:var(--txt2)}
+.dt-overlay{position:absolute;inset:0;pointer-events:none}
+.dt-sta-label{position:absolute;transform:translate(-50%,calc(-100% - 40px));pointer-events:none;white-space:nowrap !important}
+.dt-sta-label.depot{transform:translate(32px,-50%)}
+.dt-tm{position:absolute;width:0;height:0;pointer-events:auto;z-index:5}
+.dt-tm .train-dot{position:absolute;left:0;top:0}
+.dt-legend{z-index:6;left:auto !important;right:12px}
+.dt-tag rect{fill:var(--bg1);stroke:var(--cyan);stroke-width:2}
+.dt-tag-lbl{font-family:var(--mono);font-size:12px;fill:var(--cyan);letter-spacing:0.06em;opacity:0.85}
+.dt-leg-tag{border-radius:1px !important;transform:rotate(45deg);background:var(--bg1);border:1.5px solid var(--cyan)}
+.dt-edit-err.ok{border-color:var(--green);color:var(--green)}
+#dtStage .dt-edit-err{top:12px;bottom:auto;left:50%;transform:translateX(-50%);max-width:90%;z-index:7}
 .dt-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
 .dt-card{background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
 .dt-card:hover,.dt-card.sel{border-color:var(--cyan)}
@@ -109,12 +122,14 @@ header::before{
 .dt-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
 .dt-card-where{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--txt0);margin-top:6px}
 .dt-card-km{font-family:var(--mono);font-size:20px;color:#fff;margin:4px 0 6px}
-.dt-card-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--txt1);margin-top:2px}
+.dt-card-row{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;color:var(--txt1);margin-top:2px}
+.dt-done{margin-left:6px;background:transparent;border:1px solid var(--green);color:var(--green);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:9px;cursor:pointer}
+.dt-done:hover{background:var(--green);color:var(--bg0)}
 .dt-dim{color:var(--txt2);font-weight:400}
 .dt-moving{font-family:var(--sans);font-size:9px;letter-spacing:0.15em;color:var(--green);border:1px solid var(--green);border-radius:10px;padding:1px 6px;margin-left:4px}
 .dt-empty{font-family:var(--mono);font-size:11px;color:var(--txt2)}
 /* Double-click editing */
-.dt-len{font-family:var(--mono);font-size:14px;fill:var(--txt1);cursor:text}
+.dt-len{font-family:var(--mono);font-size:13px;fill:var(--txt1);cursor:text;letter-spacing:0.04em}
 .dt-len:hover{fill:var(--cyan);text-decoration:underline dotted}
 .dt-editable{cursor:text;border-bottom:1px dotted transparent}
 .dt-editable:hover{border-bottom-color:var(--cyan)}
@@ -123,6 +138,16 @@ header::before{
 .dt-edit input:focus,.dt-edit select:focus{outline:none;border-color:var(--cyan)}
 .dt-edit span{font-family:var(--mono);font-size:11px;color:var(--txt1)}
 .dt-edit-hint{width:100%;font-family:var(--mono);font-size:9px;color:var(--txt2)}
+.dt-edit-row{display:flex;align-items:center;gap:6px;width:100%}
+.dt-edit-row span:first-child{flex:0 0 96px;font-family:var(--sans);font-size:11px;color:var(--txt1)}
+.dt-edit-row input{width:70px;flex:1}
+.dt-tag-lbl.ed,.dt-tag.ed{cursor:text}
+.dt-tag-lbl.ed:hover{fill:var(--txt0);text-decoration:underline dotted}
+.dt-tag.ed:hover rect{fill:var(--cyan)}
+.dt-sta.ed{cursor:text}
+.dt-sta.ed:hover .core{stroke:var(--cyan);stroke-width:3}
+body.demo-edit .hs.ed{cursor:text}
+body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
 .dt-edit-err{position:absolute;left:18px;bottom:14px;z-index:5;background:var(--bg1);border:1px solid var(--red);color:var(--red);border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:11px}
 /* Demo settings */
 .ds-open{display:none;float:right;margin-left:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.15em;color:var(--txt1);cursor:pointer}
@@ -142,6 +167,9 @@ header::before{
 .ds-in:focus{outline:none;border-color:var(--cyan)}
 .ds-in.num{max-width:130px}
 .ds-table .ds-in.num{max-width:none}
+.ds-table.pm th{width:auto !important}
+.ds-table.pm th:nth-child(1){width:14% !important}.ds-table.pm th:nth-child(2){width:14% !important}
+.ds-table.pm .ds-in{width:100%;min-width:0;box-sizing:border-box}
 .ds-act{white-space:nowrap}
 .ds-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;margin-right:4px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--txt0);cursor:pointer}
 .ds-btn:hover{border-color:var(--cyan);color:var(--cyan)}
@@ -488,6 +516,7 @@ header::before{
 /* PM bars — thicker and glowing */
 .pm-wrap{padding:2px 14px 10px}
 .pm-item{margin-bottom:12px}
+.pm-due{font-family:var(--mono);font-size:10px;color:var(--txt2);margin-top:4px}
 .pm-hdr{display:flex;justify-content:space-between;font-size:9px;margin-bottom:5px;font-family:var(--sans);font-weight:600}
 .pm-name{color:var(--txt1)}
 .pm-rem.ok{color:var(--green)}.pm-rem.soon{color:var(--amber)}.pm-rem.over{color:var(--red)}
@@ -784,11 +813,11 @@ header::before{
       <div class="hs-lbl">In Depot</div>
       <div class="hs-val" style="color:var(--txt1)" id="h-dep">—</div>
     </div>
-    <div class="hs">
+    <div class="hs ed" ondblclick="editPmLevels(event)" title="Demo mode: double-click to change the overdue level">
       <div class="hs-lbl">PM Overdue</div>
       <div class="hs-val r" id="h-over">—</div>
     </div>
-    <div class="hs">
+    <div class="hs ed" ondblclick="editPmLevels(event)" title="Demo mode: double-click to change the due-soon warning level">
       <div class="hs-lbl">PM Due Soon</div>
       <div class="hs-val a" id="h-soon">—</div>
     </div>
@@ -804,21 +833,50 @@ header::before{
       <div class="dt-head">
         <button class="ds-open" id="dsOpen" onclick="openDemoSettings()" title="Demo settings: trains, station distances, wheel, simulator">⚙ DEMO SETTINGS</button>
         <div class="dt-title">DEMO TRACK</div>
-        <div class="dt-sub">Live positions from RFID station reads + axle-encoder distance (hardware and simulator page). Double-click a mileage, location or distance to edit it.</div>
+        <div class="dt-sub">Live positions from track RFID tags read by the train + axle-encoder distance (hardware and simulator page). Double-click any value to edit it: mileage, location, device, wheel, Next PM levels, distances, station / tag markers, calibration zone.</div>
       </div>
-      <svg class="dt-svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-label="Demo track">
-        <path id="dtPath-top" class="dt-rail" d="M150,230 A120,120 0 0 1 270,110 L730,110 A120,120 0 0 1 850,230"/>
-        <path id="dtPath-bottom" class="dt-rail" d="M850,230 A120,120 0 0 1 730,350 L270,350 A120,120 0 0 1 150,230"/>
-        <path id="dtPath-depot_out" class="dt-rail branch" d="M500,500 L400,350 L270,350 A120,120 0 0 1 150,230"/>
-        <path class="dt-rail branch" d="M600,350 L500,500"/>
-        <text class="dt-len" id="dtLen-ST1" x="500" y="146" text-anchor="middle" ondblclick="editSegment(event,'ST1')">ST1 → ST2 · 1.2 m</text>
-        <text class="dt-len" id="dtLen-ST2" x="500" y="330" text-anchor="middle" ondblclick="editSegment(event,'ST2')">ST2 → ST1 · 1.2 m</text>
-        <text class="dt-len" id="dtLen-DEPOT" x="428" y="440" text-anchor="end" ondblclick="editSegment(event,'DEPOT')">Depot → ST1 · 0.8 m</text>
-        <g class="dt-sta"><circle cx="150" cy="230" r="20"/><text x="96" y="238" text-anchor="end">ST1</text><text class="sm" x="96" y="258" text-anchor="end">Station 1</text></g>
-        <g class="dt-sta"><circle cx="850" cy="230" r="20"/><text x="904" y="238">ST2</text><text class="sm" x="904" y="258">Station 2</text></g>
-        <g class="dt-sta"><circle cx="500" cy="500" r="20"/><text x="540" y="508">DEPOT</text><text class="sm" x="540" y="528">RFID reader</text></g>
-        <g id="dtTrains"></g>
-      </svg>
+      <div class="dt-stage" id="dtStage">
+        <svg class="dt-svg" id="dtSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-label="Demo track">
+          <defs><pattern id="dtGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" class="dt-grid"/></pattern></defs>
+          <rect x="-3000" y="-3000" width="7000" height="7000" fill="url(#dtGrid)"/>
+          <!-- double rail, like the LRT map: coloured outer line + dark core -->
+          <path id="dtPath-top" class="dt-rail" d="M150,230 A120,120 0 0 1 270,110 L730,110 A120,120 0 0 1 850,230"/>
+          <path id="dtPath-bottom" class="dt-rail alt" d="M850,230 A120,120 0 0 1 730,350 L270,350 A120,120 0 0 1 150,230"/>
+          <path id="dtPath-depot_out" class="dt-rail depot" d="M500,500 L400,350 L270,350 A120,120 0 0 1 150,230"/>
+          <path class="dt-rail depot" d="M600,350 L500,500"/>
+          <path class="dt-core" d="M150,230 A120,120 0 0 1 270,110 L730,110 A120,120 0 0 1 850,230 A120,120 0 0 1 730,350 L270,350 A120,120 0 0 1 150,230"/>
+          <path id="dtPath-depot_in" class="dt-rail depot" d="M590,365 L500,500"/>
+          <path class="dt-core" d="M500,500 L400,350 M600,350 L500,500"/>
+          <text class="dt-len" id="dtLen-ST1" x="500" y="146" text-anchor="middle" ondblclick="editSegment(event,'ST1')">ST1 → ST2 · 1.2 m</text>
+          <text class="dt-len" id="dtLen-ST2" x="500" y="330" text-anchor="middle" ondblclick="editSegment(event,'ST2')">ST2 → ST1 · 1.2 m</text>
+          <text class="dt-len" id="dtLen-DEPOT" x="400" y="455" text-anchor="end" ondblclick="editSegment(event,'DEPOT')">Depot → ST1 · 0.8 m</text>
+          <text class="dt-len" id="dtLen-BRANCH" x="588" y="455" ondblclick="editSegment(event,'BRANCH')">Branch → Depot · 0.3 m</text>
+          <!-- track tags that are not stations: depot branch + wheel calibration zone -->
+          <g class="dt-tag ed" transform="translate(590,365)" ondblclick="editTrackTag(event,'BRANCH')"><title>Depot branch tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
+          <text class="dt-tag-lbl ed" x="604" y="360" ondblclick="editTrackTag(event,'BRANCH')">BRANCH</text>
+          <g class="dt-tag ed" transform="translate(470,455)" ondblclick="editTrackTag(event,'CAL0')"><title>Calibration 0 m tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
+          <text class="dt-tag-lbl ed" id="dtCal0" x="484" y="462" ondblclick="editCalZone(event)"><title>Double-click to set the calibration zone length</title>CAL 0 m</text>
+          <g class="dt-tag ed" transform="translate(425,388)" ondblclick="editTrackTag(event,'CAL100')"><title>Calibration end tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
+          <text class="dt-tag-lbl ed" id="dtCal100" x="439" y="383" ondblclick="editCalZone(event)"><title>Double-click to set the calibration zone length</title>CAL 100 m</text>
+          <g class="dt-sta ed" ondblclick="editTrackTag(event,'ST1')"><title>Station 1 - double-click to set its tag UID</title><circle class="halo" cx="150" cy="230" r="24"/><circle class="core" cx="150" cy="230" r="12"/></g>
+          <g class="dt-sta ed" ondblclick="editTrackTag(event,'ST2')"><title>Station 2 - double-click to set its tag UID</title><circle class="halo" cx="850" cy="230" r="24"/><circle class="core" cx="850" cy="230" r="12"/></g>
+          <g class="dt-sta depot ed" ondblclick="editTrackTag(event,'DEPOT')"><title>Depot - double-click to set its tag UID</title><circle class="halo" cx="500" cy="500" r="24"/><circle class="core" cx="500" cy="500" r="12"/></g>
+        </svg>
+        <div class="dt-overlay" id="dtOverlay">
+          <div class="sta-label dt-sta-label" data-x="150" data-y="230"><span>ST1</span><span class="sta-name-small">Station 1</span></div>
+          <div class="sta-label dt-sta-label" data-x="850" data-y="230"><span>ST2</span><span class="sta-name-small">Station 2</span></div>
+          <div class="sta-label dt-sta-label depot" data-x="500" data-y="500"><span>DEPOT</span><span class="sta-name-small">Depot</span></div>
+          <div id="dtTrains"></div>
+        </div>
+        <div class="map-legend dt-legend">
+          <div class="leg-row"><div class="leg-line" style="background:var(--track-pg)"></div>Demo track</div>
+          <div class="leg-row"><div class="leg-dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div>In Service — OK</div>
+          <div class="leg-row"><div class="leg-dot" style="background:var(--amber)"></div>PM Due Soon</div>
+          <div class="leg-row"><div class="leg-dot" style="background:var(--red)"></div>PM Overdue</div>
+          <div class="leg-row"><div class="leg-dot" style="background:var(--txt2)"></div>In Depot</div>
+          <div class="leg-row"><div class="leg-dot dt-leg-tag"></div>Track tag</div>
+        </div>
+      </div>
       <div class="dt-cards" id="dtCards"></div>
     </div>
     <div class="sys-label" id="lbl-sk">SENGKANG LRT</div>
@@ -1451,6 +1509,10 @@ function formatKm(value){
     minimumFractionDigits: 1,
     maximumFractionDigits: 1
   });
+}
+
+function formatKm0(value){
+  return Math.round(Number(value)).toLocaleString('en-SG');
 }
 
 function formatKmh(value){
@@ -2135,7 +2197,8 @@ function animate(now){
     const t = fleet.find(f => f.id === selectedTrain.id);
     if(t){
       updateRouteArrowPositions(t);
-      updateDetailPanel(t);
+      // don't rebuild the panel under the mouse while a value is being double-clicked / edited
+      if(!DT.editing && performance.now() - (DT.detailHold || 0) > 700) updateDetailPanel(t);
     }
   }
   if(selectedStation){
@@ -2231,8 +2294,11 @@ function updateDetailPanel(t){
     const s = info.status;
     const remTxt = s === 'over'
       ? (info.pos === 0 ? 'DUE NOW' : `OVERDUE +${formatKm(info.pos)} km`)
-      : `${formatKm(info.rem)} km`;
-    return{label:PM_LABELS[i], interval:c.toLocaleString()+' km', pct:info.pct, s, remTxt};
+      : (info.remaining != null && info.remaining <= 0)            // Demo: within the overdue grace
+        ? `DUE +${formatKm(-info.remaining)} km` : `${formatKm(info.rem)} km`;
+    const lc = t.liveCycles && t.liveCycles[i];
+    return{label:PM_LABELS[i], interval:c.toLocaleString()+' km', pct:info.pct, s, remTxt,
+           due: lc ? lc.due_at : null, last: lc ? lc.last_pm_km : null};
   });
 
   document.getElementById('detailPanel').innerHTML = `
@@ -2284,6 +2350,7 @@ function updateDetailPanel(t){
             <span class="pm-rem ${p.s}">${p.remTxt}</span>
           </div>
           <div class="pm-track"><div class="pm-fill ${p.s}" style="width:${p.pct}%"></div></div>
+          ${p.due != null ? `<div class="pm-due">last done ${p.last > 0 ? formatKm0(p.last) + ' km' : '—'} · <span class="${MODE === 'demo' ? 'dt-editable' : ''}" title="Demo mode: double-click to change when this PM is due" ondblclick="editPmDue(event,'${t.id}','${p.label}')">due at ${formatKm0(p.due)} km</span></div>` : ''}
         </div>
       `).join('')}
     </div>`;
@@ -2294,7 +2361,7 @@ function updateAlertsPanel(){
   visibleFleet().forEach(t => {
     const pm = pmOf(t);
     if(pm.status==='over') alerts.push({type:'crit',title:`${t.id} — ${pm.name} OVERDUE`,body:`${t.type} · ${formatKm(t.mileage)} km · ${placeOf(t)}`,time:'Trigger now'});
-    else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${formatKm(pm.remaining)} km remaining · ${placeOf(t)}`,time:'Schedule PM'});
+    else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${pm.remaining <= 0 ? 'due now, ' + formatKm(-pm.remaining) + ' km past (within grace)' : formatKm(pm.remaining) + ' km remaining'} · ${placeOf(t)}`,time:'Schedule PM'});
   });
   if(MODE === 'demo'){
     if(!alerts.length) alerts.push({type:'info',title:'No PM alerts',body:'Both demo LRVs are within their PM cycles.',time:'Demo track'});
@@ -2626,6 +2693,8 @@ function setTrainState(t, s){
   t.liveLocation = s.location || null;
   t.liveSince = s.since_station_km != null ? s.since_station_km : null;
   t.liveDevice = s.device || null;
+  t.liveWheel = s.wheel || null;
+  t.liveMarker = s.last_marker || null;
 
   const onMap = t.status === 'in-service' && !!t.loop;
   if(onMap && !t.marker){
@@ -2749,7 +2818,17 @@ function liveOpenSocket(){
       const t = fleet.find(f => f.id === msg.train_id);
       if(t){ t.liveDevice = null; LIVE.dirty = true; LIVE.tickerDirty = true; }
     }
-    if(msg.type === 'track'){ DT.loaded = false; loadDemoTrack(); }
+    if(msg.type === 'track'){ DT.loaded = false; loadDemoTrack(); liveLoadFleet().catch(() => {}); }
+    if(msg.type === 'unknown_station_tag' && MODE === 'demo')
+      showEditError(`${msg.device_id} passed unknown track tag ${msg.tag} - add it in ⚙ Demo settings → Track tags`);
+    if(msg.type === 'calibration' && MODE === 'demo' && msg.train_id){
+      if(msg.calibration === 'accepted'){
+        const pct = (msg.new_m - msg.previous_m) / msg.previous_m * 100;
+        showEditError(`${msg.train_id} wheel calibrated: ⌀ ${(msg.new_m / Math.PI * 1000).toFixed(2)} mm (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%) from ${msg.turns} turns`, true);
+      } else if(msg.calibration === 'rejected'){
+        showEditError(`${msg.train_id} calibration rejected: ${msg.reason}`);
+      }
+    }
     if(msg.type === 'unknown_tag') console.info(`[SPLRT] Unknown RFID tag ${msg.tag} at ${msg.station_id} - register it via POST /api/tags`);
   };
   ws.onclose = () => {
@@ -2833,6 +2912,7 @@ function setMode(m){
 }
 
 function updateModeUI(){
+  document.body.classList.toggle('demo-edit', MODE === 'demo');
   const sim = document.getElementById('modeBtnSim'), demo = document.getElementById('modeBtnDemo');
   if(!sim || !demo) return;
   sim.classList.toggle('active', MODE === 'sim');
@@ -2900,10 +2980,15 @@ const DT = {
   segFrom: {
     ST1:   {to:'ST2', path:'top',       length_m:1.2},
     ST2:   {to:'ST1', path:'bottom',    length_m:1.2},
-    DEPOT: {to:'ST1', path:'depot_out', length_m:0.8}
+    DEPOT: {to:'ST1', path:'depot_out', length_m:0.8},
+    BRANCH:{to:'DEPOT', path:'depot_in', length_m:0.3}
   },
-  points: {ST1:{x:150,y:230}, ST2:{x:850,y:230}, DEPOT:{x:500,y:500}},
-  names: {ST1:'Station 1', ST2:'Station 2', DEPOT:'Depot'},
+  points: {ST1:{x:150,y:230}, ST2:{x:850,y:230}, DEPOT:{x:500,y:500}, BRANCH:{x:590,y:365}},
+  names: {ST1:'Station 1', ST2:'Station 2', DEPOT:'Depot', BRANCH:'Depot branch', CAL0:'Calibration 0 m', CAL100:'Calibration end'},
+  short: {BRANCH:'Branch', DEPOT:'Depot'},
+  calDistance: 0.1,
+  // track tags part-way along a segment: the train is never shown past one until it has read it
+  segTags: { DEPOT: [{id:'CAL0', x:470, y:455}, {id:'CAL100', x:425, y:388}] },
   markers: {},        // train id -> {g, x, y, tx, ty}
   editing: false,
   loaded: false,
@@ -2917,8 +3002,22 @@ async function loadDemoTrack(){
     DT.scale = tr.demo_scale || DT.scale;
     (tr.segments || []).forEach(s => { DT.segFrom[s.from] = {to:s.to, path:s.path, length_m:s.length_m}; });
     if(tr.stations) Object.assign(DT.names, tr.stations);
+    if(tr.markers) Object.assign(DT.names, tr.markers);
+    if(tr.cal_distance_m) DT.calDistance = tr.cal_distance_m;
+    try{ const cfg = await liveFetch('/api/config'); DT.pmSoonPct = cfg.pm_soon_pct; DT.pmGrace = cfg.pm_overdue_grace_km; }catch(e){}
+    const end = document.getElementById('dtCal100');
+    if(end) end.textContent = `CAL ${Math.round(DT.calDistance * DT.scale)} m`;
     DT.loaded = true;
   }catch(e){ /* keep defaults */ }
+}
+
+function wheelText(t){
+  const w = t.liveWheel;
+  if(!w) return '—';
+  const mm = (w.circumference_m / Math.PI * 1000).toFixed(1);
+  if(!w.calibrated_at) return `⌀ ${mm} mm · not measured yet`;
+  const hhmm = new Date(w.calibrated_at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+  return w.source === 'manual' ? `⌀ ${mm} mm · set by hand ${hhmm}` : `⌀ ${mm} mm · measured ${hhmm} (100 m test)`;
 }
 
 function demoTrains(){
@@ -2926,17 +3025,64 @@ function demoTrains(){
 }
 
 // Where is this train on the demo track? Returns {x, y, frac, seg}
+// Distance along an SVG path closest to a point (tag diamonds sit on the path)
+function pathLenAt(path, x, y){
+  const L = path.getTotalLength();
+  let best = 0, bd = Infinity;
+  for(let l = 0; l <= L; l += 2){
+    const p = path.getPointAtLength(l), d = (p.x - x) ** 2 + (p.y - y) ** 2;
+    if(d < bd){ bd = d; best = l; }
+  }
+  return best;
+}
+
 function demoTrainTarget(t){
   const loc = t.liveLocation && DT.points[t.liveLocation] ? t.liveLocation : 'DEPOT';
   const base = DT.points[loc];
   const seg = DT.segFrom[loc];
   const toyM = (t.liveSince || 0) * 1000 / (DT.scale || 1);
-  if(!seg || toyM <= 0) return {x:base.x, y:base.y, frac:0, seg:null, loc, toyM:0};
-  const frac = Math.min(toyM / seg.length_m, 0.96);        // never "arrive" without an RFID read
-  const path = document.getElementById('dtPath-' + seg.path);
-  if(!path) return {x:base.x, y:base.y, frac:0, seg:null, loc, toyM};
-  const p = path.getPointAtLength(frac * path.getTotalLength());
-  return {x:p.x, y:p.y, frac, seg, loc, toyM};
+  const path = seg ? document.getElementById('dtPath-' + seg.path) : null;
+  // heading along the track (0 deg = up, like the train markers on the LRT map)
+  const heading = at => {
+    if(!path) return 0;
+    const L = path.getTotalLength();
+    const a = path.getPointAtLength(Math.min(at, L - 6)), b = path.getPointAtLength(Math.min(at, L - 6) + 6);
+    return Math.atan2(b.x - a.x, -(b.y - a.y)) * 180 / Math.PI;
+  };
+  if(!seg || !path || toyM <= 0) return {x:base.x, y:base.y, frac:0, seg:null, loc, toyM:Math.max(0, toyM), angle:heading(0)};
+  const Lsvg = path.getTotalLength(), Lm = seg.length_m;
+  // Knots (track metres -> path length). Tags part-way along the segment are exact points:
+  // the first sits where it is drawn, each next one is its real distance further on (e.g. the calibration zone).
+  const knots = [[0, 0]];
+  const tags = (DT.segTags[loc] || []).map((g, i, arr) => {
+    const l = g._len != null ? g._len : (g._len = pathLenAt(path, g.x, g.y));
+    return {id: g.id, l};
+  });
+  tags.forEach((g, i) => {
+    const m = i === 0 ? g.l / Lsvg * Lm : knots[knots.length - 1][0] + (g.id === 'CAL100' ? DT.calDistance : (g.l - tags[i - 1].l) / Lsvg * Lm);
+    g.m = Math.min(m, Lm * 0.95);
+    knots.push([g.m, g.l]);
+  });
+  knots.push([Lm, Lsvg]);
+  const toLen = m => {
+    for(let i = 1; i < knots.length; i++){
+      const [m0, l0] = knots[i - 1], [m1, l1] = knots[i];
+      if(m <= m1) return l0 + (m1 > m0 ? (m - m0) / (m1 - m0) : 0) * (l1 - l0);
+    }
+    return Lsvg;
+  };
+  // Where the dashboard KNOWS the train is: from the last tag it read, plus wheel distance since then,
+  // and never past the next tag it hasn't read yet (nor into the next station: that needs its RFID read).
+  const mk = t.liveMarker;
+  const readIdx = mk ? tags.findIndex(g => g.id === mk.id) : -1;
+  let pos = readIdx >= 0 ? tags[readIdx].m + (mk.since_km || 0) * 1000 / (DT.scale || 1) : toyM;
+  const next = tags[readIdx + 1];
+  const limit = next ? next.m - Lm * 0.02 : Lm * 0.96;
+  const waiting = pos > limit ? (next ? next.id : seg.to) : null;
+  pos = Math.max(0, Math.min(pos, limit));
+  const at = toLen(pos);
+  const p = path.getPointAtLength(at);
+  return {x:p.x, y:p.y, frac:pos / Lm, seg, loc, toyM, angle:heading(at), waiting, passed: readIdx >= 0 ? tags[readIdx].id : null};
 }
 
 // Demo mode shows only the demo-track trains everywhere (list, stats, alerts, ticker)
@@ -2963,7 +3109,7 @@ function renderDemoTrack(){
   const layer = document.getElementById('dtTrains');
   const trains = demoTrains();
   Object.keys(DT.markers).forEach(id => {
-    if(!trains.some(t => t.id === id)){ DT.markers[id].g.remove(); delete DT.markers[id]; }
+    if(!trains.some(t => t.id === id)){ DT.markers[id].wrap.remove(); delete DT.markers[id]; }
   });
   const now = performance.now();
 
@@ -2973,7 +3119,9 @@ function renderDemoTrack(){
     const tg = demoTrainTarget(t);
     if(tg.frac === 0){
       const n = atStation[tg.loc] = (atStation[tg.loc] || 0) + 1;
-      tg.y += (n - 1) * 34;
+      const a = (tg.angle || 0) * Math.PI / 180;
+      tg.x += Math.cos(a) * (n - 1) * 42;
+      tg.y += Math.sin(a) * (n - 1) * 42;
     }
     return [t, tg];
   });
@@ -2981,21 +3129,30 @@ function renderDemoTrack(){
   targets.forEach(([t, tg]) => {
     let m = DT.markers[t.id];
     if(!m){
-      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('class', 'dt-train');
-      g.innerHTML = `<rect x="-46" y="-15" width="92" height="30" rx="7"></rect><text y="5" text-anchor="middle">${t.id}</text>`;
-      g.addEventListener('click', () => selectTrainById(t.id));
-      layer.appendChild(g);
-      m = DT.markers[t.id] = {g, x:tg.x, y:tg.y};
+      const wrap = document.createElement('div');
+      wrap.className = 'dt-tm';
+      const el = document.createElement('div');
+      el.className = 'train-dot';
+      const arrow = document.createElement('div');
+      arrow.className = 'train-arrow';
+      const label = document.createElement('div');
+      label.className = 'train-label';
+      label.textContent = t.id;
+      el.append(arrow, label);
+      wrap.appendChild(el);
+      el.addEventListener('click', () => selectTrainById(t.id));
+      layer.appendChild(wrap);
+      m = DT.markers[t.id] = {wrap, el, arrow, x:tg.x, y:tg.y, a:tg.angle};
     }
-    m.tx = tg.x; m.ty = tg.y;
+    m.tx = tg.x; m.ty = tg.y; m.ta = tg.angle;
     if(t._dtLastKm !== t.mileage){ if(t._dtLastKm != null) t._dtMovedAt = now; t._dtLastKm = t.mileage; }
     const moving = t._dtMovedAt && now - t._dtMovedAt < 2500;
     const color = getTrainColor(t);
-    const rect = m.g.querySelector('rect');
-    rect.style.fill = color;
-    rect.style.filter = moving ? `drop-shadow(0 0 10px ${color})` : 'none';
-    m.g.classList.toggle('sel', !!(selectedTrain && selectedTrain.id === t.id));
+    const isSel = !!(selectedTrain && selectedTrain.id === t.id);
+    m.el.style.color = color;
+    m.el.style.boxShadow = `0 0 ${isSel ? 20 : moving ? 14 : 6}px ${color}`;
+    m.arrow.style.borderBottomColor = color;
+    m.el.classList.toggle('selected', isSel);
     t._dtTarget = tg;
     t._dtMoving = moving;
   });
@@ -3003,7 +3160,7 @@ function renderDemoTrack(){
   // distance labels on the track
   Object.entries(DT.segFrom).forEach(([from, seg]) => {
     const el = document.getElementById('dtLen-' + from);
-    if(el) el.textContent = `${from === 'DEPOT' ? 'Depot' : from} → ${seg.to} · ${(+seg.length_m).toFixed(2)} m`;
+    if(el) el.textContent = `${DT.short[from] || from} → ${DT.short[seg.to] || seg.to} · ${(+seg.length_m).toFixed(2)} m`;
   });
 
   // info cards (not while a value is being edited)
@@ -3013,19 +3170,26 @@ function renderDemoTrack(){
     const tg = t._dtTarget || demoTrainTarget(t);
     const pm = pmOf(t);
     const pmColor = pm.status === 'over' ? 'var(--red)' : pm.status === 'soon' ? 'var(--amber)' : 'var(--green)';
+    const pmLbl = pm.name.replace(' PM', '');
+    const pmCycle = PM_CYCLES[PM_LABELS.indexOf(pmLbl)];
     const dev = t.liveDevice || {};
+    const tagName = id => ({CAL0:'CAL 0 m', CAL100:'CAL END'})[id] || DT.short[id] || id;
     const where = tg.frac > 0 && tg.seg
-      ? `${tg.loc} → ${tg.seg.to} <span class="dt-dim">${Math.round(tg.frac * 100)}%</span>`
+      ? `${DT.short[tg.loc] || tg.loc} → ${DT.short[tg.seg.to] || tg.seg.to} <span class="dt-dim">${Math.round(tg.frac * 100)}%` +
+        (tg.waiting && DT.segTags[tg.loc] && tg.waiting !== tg.seg.to ? ` · waiting for ${tagName(tg.waiting)} tag` : tg.passed ? ` · passed ${tagName(tg.passed)}` : '') + `</span>`
       : `At ${DT.names[tg.loc] || tg.loc}`;
     return `<div class="dt-card ${selectedTrain && selectedTrain.id === t.id ? 'sel' : ''}" onclick="selectTrainById('${t.id}')">
       <div class="dt-card-top">
         <span class="dt-card-id">${t.id}</span>
-        <span class="dt-card-dev"><span class="dt-dot" style="background:${dev.online ? 'var(--green)' : 'var(--txt2)'}"></span>${dev.id || ''} ${dev.online ? 'online' : 'offline'}</span>
+        <span class="dt-card-dev"><span class="dt-dot" style="background:${dev.online ? 'var(--green)' : 'var(--txt2)'}"></span><span class="dt-editable" title="Double-click to change the on-board device" ondblclick="editDevice(event,'${t.id}')">${dev.id || ''}</span> ${dev.online ? 'online' : 'offline'}</span>
       </div>
       <div class="dt-card-where"><span class="dt-editable" title="Double-click to set the station" ondblclick="editLocation(event,'${t.id}')">${where}</span>${t._dtMoving ? ' <span class="dt-moving">MOVING</span>' : ''}</div>
       <div class="dt-card-km"><span class="dt-editable" title="Double-click to edit the mileage" ondblclick="editMileage(event,'${t.id}')">${formatKm(t.mileage)}</span><span class="dt-dim"> km</span></div>
       <div class="dt-card-row"><span>Since last station</span><span>${fmtM(tg.toyM)} · ${(t.liveSince || 0).toFixed(3)} km</span></div>
-      <div class="dt-card-row"><span>Next PM</span><span style="color:${pmColor}">${pm.name} · ${pm.status === 'over' ? 'OVERDUE' : pm.status === 'soon' ? 'due soon' : 'OK'}</span></div>
+      <div class="dt-card-row"><span>Wheel</span><span class="dt-editable" title="Measured by the 100 m test. Double-click to set it by hand" ondblclick="editWheel(event,'${t.id}')">${wheelText(t)}</span></div>
+      <div class="dt-card-row"><span>Next check</span><span class="dt-editable" title="Double-click to change the mileage this check is due at" ondblclick="editPmDue(event,'${t.id}','${pmLbl}')">${pm.name} at ${pm.due_at != null ? formatKm0(pm.due_at) : '—'} km</span></div>
+      <div class="dt-card-row"><span>Distance to check</span><span class="dt-editable" title="Double-click to set how far the train is from this check" ondblclick="editPmRemaining(event,'${t.id}','${pmLbl}')" style="color:${pmColor}">${pm.remaining >= 0 ? formatKm(pm.remaining) + ' km left' : formatKm(-pm.remaining) + ' km OVER'}</span></div>
+      <div class="dt-card-row"><span>Status <button class="dt-done" title="Maintenance crew finished this check: next ${pm.name} due ${pmCycle ? formatKm0(pmCycle) : ''} km from now" onclick="markPmDone(event,'${t.id}','${pmLbl}')">✓ ${pmLbl} check done</button></span><span class="dt-editable" title="Double-click to change the warning levels" ondblclick="editPmLevels(event)"><span style="color:${pmColor}">${pm.status === 'over' ? 'OVERDUE' : pm.status === 'soon' ? 'DUE SOON' : 'OK'}</span> <span class="dt-dim">· amber under ${pmCycle ? formatKm0(pmCycle * (DT.pmSoonPct != null ? DT.pmSoonPct : 8) / 100) : '—'} km · red ${(DT.pmGrace || 0) > 0 ? formatKm0(DT.pmGrace) + ' km over' : 'when due'}</span></span></div>
     </div>`;
   }).join('') : `<div class="dt-empty">Waiting for data from the demo LRVs…</div>`;
 }
@@ -3035,11 +3199,25 @@ function startDemoTrackAnim(){
   DT.animating = true;
   const step = () => {
     if(!document.getElementById('demoTrack').classList.contains('show')){ DT.animating = false; return; }
+    // SVG viewBox (1000 x 560, centred) -> pixels in the stage
+    const r = document.getElementById('dtSvg').getBoundingClientRect();
+    const k = Math.min(r.width / 1000, r.height / 560);
+    const ox = (r.width - 1000 * k) / 2, oy = (r.height - 560 * k) / 2;
+    const px = (x, y) => [ox + x * k, oy + y * k];
+    document.querySelectorAll('.dt-sta-label').forEach(el => {
+      const [x, y] = px(+el.dataset.x, +el.dataset.y);
+      el.style.left = x + 'px'; el.style.top = y + 'px';
+    });
     Object.values(DT.markers).forEach(m => {
       if(m.tx == null) return;
       m.x += (m.tx - m.x) * 0.15;
       m.y += (m.ty - m.y) * 0.15;
-      m.g.setAttribute('transform', `translate(${m.x.toFixed(1)},${m.y.toFixed(1)})`);
+      let d = ((m.ta - m.a + 540) % 360) - 180;          // turn the shortest way round
+      m.a += d * 0.15;
+      const [x, y] = px(m.x, m.y);
+      m.wrap.style.left = x.toFixed(1) + 'px';
+      m.wrap.style.top = y.toFixed(1) + 'px';
+      m.el.style.transform = `translate(-50%,-50%) rotate(${m.a.toFixed(1)}deg)`;
     });
     requestAnimationFrame(step);
   };
@@ -3084,83 +3262,152 @@ async function openDemoSettings(){
 }
 
 function closeDemoSettings(){
+  // a field still being typed in is saved too (its change event fires on blur)
+  const a = document.activeElement;
+  if(a && document.getElementById('dsBody').contains(a)) a.blur();
   document.getElementById('demoSettings').classList.remove('show');
 }
+
+// Hold the detail panel still for a moment after a click, so a double-click lands on the same element
+document.getElementById('detailPanel').addEventListener('pointerdown', () => { DT.detailHold = performance.now(); });
+
+// Settings save automatically: every field is saved when you leave it (Tab, Enter or clicking elsewhere)
+(function dsAutoSave(){
+  const body = document.getElementById('dsBody');
+  if(!body) return;
+  body.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && e.target.matches('input.ds-in') && !e.target.closest('.ds-new')){ e.preventDefault(); e.target.blur(); }
+  });
+  body.addEventListener('change', e => {
+    const el = e.target;
+    if(!el.matches('input.ds-in')) return;
+    if(el.closest('.ds-new')) return;                                   // new train: needs "+ Add train"
+    const row = el.closest('tr[data-train]');
+    if(row) return dsSaveRow(row, false, true);
+    if(el.classList.contains('ds-sttag')) return dsSaveStationTags(true);
+    if(el.classList.contains('ds-seg')) return dsSaveTrack(true);
+    if(['dsDiam','dsCirc','dsPpr','dsScale','dsCalDist','dsCalMax'].includes(el.id)) return dsSaveWheel(true);
+    if(['dsSoon','dsGrace'].includes(el.id)) return dsSavePmAlerts(true);
+    if(el.classList.contains('ds-pmdue')) return dsSavePmDue(el);
+  });
+})();
 
 async function dsLoad(){
   const body = document.getElementById('dsBody');
   try{
-    const [trains, track, cfg] = await Promise.all([
-      liveFetch('/api/demo/trains'), liveFetch('/api/track'), liveFetch('/api/config')
+    const [trains, track, cfg, stTags] = await Promise.all([
+      liveFetch('/api/demo/trains'), liveFetch('/api/track'), liveFetch('/api/config'), liveFetch('/api/station_tags')
     ]);
-    const segLabel = {'ST1>ST2':'ST1 → ST2 (top)', 'ST2>ST1':'ST2 → ST1 (bottom)', 'DEPOT>ST1':'Depot → ST1'};
+    const details = await Promise.all(trains.map(t => liveFetch('/api/trains/' + encodeURIComponent(t.train_id)).catch(() => null)));
+    const segLabel = {'ST1>ST2':'ST1 → ST2 (top)', 'ST2>ST1':'ST2 → ST1 (bottom)', 'DEPOT>ST1':'Depot → ST1', 'BRANCH>DEPOT':'Branch tag → Depot'};
     body.innerHTML = `
+      <div class="ds-note ds-auto">Changes save automatically when you leave a field (Tab, Enter or click elsewhere). A green message at the bottom confirms each save.</div>
       <div class="hm-h3">Trains on the demo track</div>
       <table class="ds-table">
-        <thead><tr><th>Train ID</th><th>Device (MCU)</th><th>RFID tag UID</th><th>Mileage (km)</th><th></th></tr></thead>
+        <thead><tr><th>Train ID</th><th>Device (MCU)</th><th>Train tag (optional)</th><th>Mileage (km)</th><th></th></tr></thead>
         <tbody>
           ${trains.map(t => `<tr data-train="${dsEsc(t.train_id)}">
             <td><span class="ds-id">${dsEsc(t.train_id)}</span><span class="ds-dot" style="background:${t.online ? 'var(--green)' : 'var(--txt2)'}" title="${t.online ? 'online' : 'offline'}"></span></td>
             <td><input class="ds-in" name="device_id" value="${dsEsc(t.device_id)}"></td>
             <td><input class="ds-in" name="tag" value="${dsEsc(t.tag || '')}"></td>
             <td><input class="ds-in num" name="mileage" type="number" min="0" step="0.1" value="${t.mileage}"></td>
-            <td class="ds-act"><button class="ds-btn" onclick="dsSaveRow(this)">Save</button><button class="ds-btn del" onclick="dsRemove('${dsEsc(t.train_id)}')">Remove</button></td>
+            <td class="ds-act"><button class="ds-btn del" onclick="dsRemove('${dsEsc(t.train_id)}')">Remove</button></td>
           </tr>`).join('')}
           <tr class="ds-new">
             <td><input class="ds-in" name="train_id" placeholder="e.g. LRV-003"></td>
             <td><input class="ds-in" name="device_id" placeholder="e.g. LRV03"></td>
-            <td><input class="ds-in" name="tag" placeholder="e.g. 04A3B2C1"></td>
+            <td><input class="ds-in" name="tag" placeholder="optional"></td>
             <td><input class="ds-in num" name="mileage" type="number" min="0" step="0.1" placeholder="0"></td>
             <td class="ds-act"><button class="ds-btn add" onclick="dsSaveRow(this, true)">+ Add train</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="ds-note">Device = the ID the train's ESP32 uses in its MQTT topic (splrt/lrv/&lt;ID&gt;/odometer). Tag = UID of the RFID tag on that train. Changing mileage overrides it (logged as a manual entry).</div>
+      <div class="ds-note">Device = the ID the train's ESP32 uses in its MQTT topics (splrt/lrv/&lt;ID&gt;/...). Train tag is only needed for the old setup with readers at the stations. Changing mileage overrides it (logged as a manual entry).</div>
+
+      <div class="hm-h3">Track tags (read by the train)</div>
+      <div class="ds-grid">
+        ${Object.entries(stTags).map(([sid, tag]) => `<label class="ds-field">${dsEsc(DT.names[sid] || sid)}
+          <input class="ds-in ds-sttag" data-station="${dsEsc(sid)}" value="${dsEsc(tag || '')}" placeholder="tag UID"></label>`).join('')}
+      </div>
+      <div class="ds-note">UID of each RFID tag on the track. Stations: the train snaps to that station. Depot branch: put it just after the switch - the train is then shown heading to the Depot. Calibration 0 m / end: the wheel size is recalculated from the turns counted between them. To find a UID: hold the tag to the train's reader - the dashboard shows "unknown track tag XXXXXXXX".</div>
 
       <div class="hm-h3">Station distances (real toy-track metres)</div>
       <div class="ds-grid">
         ${track.segments.map(s => `<label class="ds-field">${segLabel[s.from + '>' + s.to] || (s.from + ' → ' + s.to)}
           <input class="ds-in num ds-seg" data-from="${dsEsc(s.from)}" data-to="${dsEsc(s.to)}" type="number" min="0.01" step="0.01" value="${s.length_m}"> <span>m</span></label>`).join('')}
       </div>
-      <div class="ds-row"><button class="ds-btn" onclick="dsSaveTrack()">Save distances</button></div>
 
       <div class="hm-h3">Wheel &amp; scale</div>
       <div class="ds-grid">
-        <label class="ds-field">Wheel diameter <input class="ds-in num" id="dsDiam" type="number" min="1" step="0.1" value="${(cfg.wheel_circumference_m / Math.PI * 1000).toFixed(1)}" oninput="document.getElementById('dsCirc').value=(this.value*Math.PI/1000).toFixed(4)"> <span>mm</span></label>
+        <label class="ds-field">Starting wheel diameter <input class="ds-in num" id="dsDiam" type="number" min="1" step="0.1" value="${(cfg.wheel_circumference_m / Math.PI * 1000).toFixed(1)}" oninput="document.getElementById('dsCirc').value=(this.value*Math.PI/1000).toFixed(4)"> <span>mm</span></label>
         <label class="ds-field">= circumference <input class="ds-in num" id="dsCirc" type="number" min="0.001" step="0.0001" value="${cfg.wheel_circumference_m}" oninput="document.getElementById('dsDiam').value=(this.value/Math.PI*1000).toFixed(1)"> <span>m</span></label>
         <label class="ds-field">Counts per wheel turn <input class="ds-in num" id="dsPpr" type="number" min="1" step="1" value="${cfg.pulses_per_rev}"> <span>(AS5600 = 4096)</span></label>
         <label class="ds-field">Demo scale <input class="ds-in num" id="dsScale" type="number" min="1" step="1" value="${cfg.demo_scale}"> <span>× (1 m of track = ${cfg.demo_scale / 1000} km)</span></label>
+        <label class="ds-field">Calibration zone (0 m → end tag) <input class="ds-in num" id="dsCalDist" type="number" min="0.01" step="0.01" value="${cfg.cal_distance_m}"> <span>m of track = ${Math.round(cfg.cal_distance_m * cfg.demo_scale)} m</span></label>
+        <label class="ds-field">Max change per calibration <input class="ds-in num" id="dsCalMax" type="number" min="1" step="1" value="${cfg.cal_max_change_pct}"> <span>%</span></label>
       </div>
-      <div class="ds-row"><button class="ds-btn" onclick="dsSaveWheel()">Save wheel &amp; scale</button></div>
+      <div class="ds-note">Each train's wheel size is <b>measured</b> by the 100 m test (CAL 0 m → CAL END tags): zone length ÷ wheel turns counted. The starting diameter is only used until a train's first test. Measured values: ${trains.map(t => `${dsEsc(t.train_id)} ${t.wheel && t.wheel.calibrated_at ? '⌀' + (t.wheel.circumference_m / Math.PI * 1000).toFixed(1) + ' mm' : 'not measured yet'}`).join(' · ')}.</div>
+
+      <div class="hm-h3">Maintenance schedule (next PM due at)</div>
+      <table class="ds-table pm">
+        <thead><tr><th>Train</th><th>Mileage</th>${PM_LABELS.map(l => `<th>${l} due</th>`).join('')}</tr></thead>
+        <tbody>
+          ${details.filter(Boolean).map(d => `<tr>
+            <td><span class="ds-id">${dsEsc(d.id)}</span></td><td>${formatKm(d.mileage)}</td>
+            ${(d.pm_cycles || []).map(c => `<td><input class="ds-in num ds-pmdue" type="number" step="1" data-train="${dsEsc(d.id)}" data-pm="${c.label}" data-cycle="${c.cycle}"
+              value="${Math.round(c.due_at)}" style="color:${c.status === 'over' ? 'var(--red)' : c.status === 'soon' ? 'var(--amber)' : 'inherit'}"
+              title="Last ${c.label} PM at ${formatKm0(c.last_pm_km)} km"></td>`).join('')}
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="ds-note">Mileage (km) at which each PM is next due = where that PM was last done + its cycle. A bigger PM also counts as the smaller ones (a 13K PM includes the 2K). Amber = due soon, red = overdue. Same as double-clicking "Next PM" on a train card.</div>
+
+      <div class="hm-h3">Maintenance alerts</div>
+      <div class="ds-grid">
+        <label class="ds-field">"Due soon" when less than <input class="ds-in num" id="dsSoon" type="number" min="1" max="100" step="1" value="${cfg.pm_soon_pct}"> <span>% of the PM cycle is left</span></label>
+        <label class="ds-field">"Overdue" when more than <input class="ds-in num" id="dsGrace" type="number" min="0" step="1" value="${cfg.pm_overdue_grace_km}"> <span>km past the PM mileage</span></label>
+      </div>
+      <div class="ds-note">Example with ${cfg.pm_soon_pct}% / ${cfg.pm_overdue_grace_km} km: the 2K PM turns amber from ${Math.round(2000 * (1 - cfg.pm_soon_pct / 100)).toLocaleString()} km and red after ${(2000 + +cfg.pm_overdue_grace_km).toLocaleString()} km. The PM intervals (2K / 13K / 40K / 120K / 360K km) are fixed. Applies to Demo mode; Simulation uses 8% / 0 km.</div>
 
       <div class="hm-h3">Data sources</div>
       <label class="ds-switch"><input type="checkbox" id="dsSim" ${cfg.accept_simulator ? 'checked' : ''} onchange="dsSaveSim(this.checked)">
         <span>Accept data from the simulator page (/simulator)</span></label>
-      <div class="ds-note">The simulator page and the real ESP32s can run at the same time: each keeps its own wheel counter and both add distance to the train. Turn this <b>off</b> for a hardware-only demo. Real hardware (MQTT) is always accepted.</div>`;
+      <div class="ds-note">The simulator page and the real ESP32s can run at the same time: each keeps its own wheel counter and both add distance to the train. Turn this <b>off</b> for a hardware-only demo. Real hardware (MQTT) is always accepted.</div>
+      <label class="ds-field" style="margin-top:12px">Station-reader RFID reads (no train ID) belong to
+        <select class="ds-in" id="dsRfidDev" style="width:auto;min-width:200px;flex:0 0 auto" onchange="dsSaveRfidDev(this.value)">
+          ${[...new Set([cfg.rfid_train_device, ...trains.map(t => t.device_id)])].filter(Boolean).map(d => {
+            const t = trains.find(x => x.device_id === d);
+            return `<option value="${dsEsc(d)}" ${d === cfg.rfid_train_device ? 'selected' : ''}>${dsEsc(d)}${t ? ' → ' + dsEsc(t.train_id) : ' (not linked)'}</option>`;
+          }).join('')}
+        </select></label>
+      <div class="ds-note">For the firmware that publishes <code>splrt/station/ST1|ST2|DEPOT|Dir|ST0m|ST100m/rfid</code> with the card UID: the topic name says which marker was read, and the read moves this train.</div>`;
   }catch(e){
     body.innerHTML = `<div class="ds-note" style="color:var(--red)">Could not load settings: ${dsEsc(e.message)}</div>`;
   }
 }
 
-async function dsAfterChange(){
+async function dsAfterChange(quiet){
   DT.loaded = false;
   await loadDemoTrack();
   await liveLoadFleet().catch(() => {});
-  await dsLoad();
+  // auto-save: refresh the dialog only if the user isn't typing in another field right now
+  const a = document.activeElement;
+  if(!quiet || !(a && document.getElementById('dsBody').contains(a) && a.matches('input,select'))) await dsLoad();
 }
 
-async function dsSaveRow(btn, isNew){
+async function dsSaveRow(btn, isNew, quiet){
   const tr = btn.closest('tr');
   const val = n => { const el = tr.querySelector(`[name="${n}"]`); return el ? el.value.trim() : ''; };
   const trainId = isNew ? val('train_id') : tr.dataset.train;
-  const body = {train_id: trainId, device_id: val('device_id'), tag: val('tag')};
+  const body = {train_id: trainId, device_id: val('device_id')};
+  if(val('tag')) body.tag = val('tag');
   const km = val('mileage');
   if(km !== '') body.mileage = Number(km);
-  if(!trainId || !body.device_id || !body.tag){ dsMsg('Train ID, device and tag are all required', false); return; }
+  if(!trainId || !body.device_id){ dsMsg('Train ID and device are required', false); return; }
   try{
     await liveSend('POST', '/api/demo/trains', body);
     dsMsg(isNew ? `${trainId} added to the demo track` : `${trainId} saved`, true);
-    await dsAfterChange();
+    await dsAfterChange(quiet);
   }catch(e){ dsMsg(e.message, false); }
 }
 
@@ -3173,25 +3420,58 @@ async function dsRemove(trainId){
   }catch(e){ dsMsg(e.message, false); }
 }
 
-async function dsSaveTrack(){
+async function dsSaveStationTags(quiet){
+  const body = {};
+  document.querySelectorAll('.ds-sttag').forEach(i => { body[i.dataset.station] = i.value.trim(); });
+  try{
+    await liveSend('PUT', '/api/station_tags', body);
+    dsMsg('Track tags saved', true);
+    await dsAfterChange(quiet);
+  }catch(e){ dsMsg(e.message, false); }
+}
+
+async function dsSavePmAlerts(quiet){
+  const body = {
+    pm_soon_pct: Number(document.getElementById('dsSoon').value),
+    pm_overdue_grace_km: Number(document.getElementById('dsGrace').value)
+  };
+  try{
+    await liveSend('PUT', '/api/config', body);
+    dsMsg('Alert levels saved', true);
+    await dsAfterChange(quiet);
+  }catch(e){ dsMsg(e.message, false); }
+}
+
+async function dsSavePmDue(el){
+  const {train, pm, cycle} = el.dataset;
+  try{
+    await liveSend('PUT', '/api/pm/last', {train_id: train, pm_type: pm, last_pm_km: Number(el.value) - Number(cycle)});
+    dsMsg(`${train}: ${pm} PM now due at ${formatKm0(Number(el.value))} km`, true);
+    await dsAfterChange(true);
+  }catch(e){ dsMsg(e.message, false); }
+}
+
+async function dsSaveTrack(quiet){
   const segments = [...document.querySelectorAll('.ds-seg')].map(i => ({from:i.dataset.from, to:i.dataset.to, length_m:Number(i.value)}));
   try{
     await liveSend('PUT', '/api/track', {segments});
     dsMsg('Station distances saved', true);
-    await dsAfterChange();
+    await dsAfterChange(quiet);
   }catch(e){ dsMsg(e.message, false); }
 }
 
-async function dsSaveWheel(){
+async function dsSaveWheel(quiet){
   const body = {
     wheel_circumference_m: Number(document.getElementById('dsCirc').value),
     pulses_per_rev: Number(document.getElementById('dsPpr').value),
-    demo_scale: Number(document.getElementById('dsScale').value)
+    demo_scale: Number(document.getElementById('dsScale').value),
+    cal_distance_m: Number(document.getElementById('dsCalDist').value),
+    cal_max_change_pct: Number(document.getElementById('dsCalMax').value)
   };
   try{
     await liveSend('PUT', '/api/config', body);
     dsMsg('Wheel & scale saved - applies to new wheel counts from now on', true);
-    await dsAfterChange();
+    await dsAfterChange(quiet);
   }catch(e){ dsMsg(e.message, false); }
 }
 
@@ -3199,6 +3479,13 @@ async function dsSaveSim(on){
   try{
     await liveSend('PUT', '/api/config', {accept_simulator: on});
     dsMsg(on ? 'Simulator input ON' : 'Simulator input OFF - only real hardware is accepted', true);
+  }catch(e){ dsMsg(e.message, false); }
+}
+
+async function dsSaveRfidDev(dev){
+  try{
+    await liveSend('PUT', '/api/config', {rfid_train_device: dev});
+    dsMsg('Station-reader RFID reads now move the train of ' + dev, true);
   }catch(e){ dsMsg(e.message, false); }
 }
 
@@ -3213,6 +3500,7 @@ function openInlineEditor(anchor, opts){
   wrap.className = 'dt-edit';
   wrap.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 230)) + 'px';
   wrap.style.top = Math.max(8, r.top - 4) + 'px';
+  if(opts.fields) return openFieldsEditor(anchor, wrap, opts);
   let input;
   if(opts.options){
     input = document.createElement('select');
@@ -3221,9 +3509,14 @@ function openInlineEditor(anchor, opts){
       o.value = v; o.textContent = label; if(v === opts.value) o.selected = true;
       input.appendChild(o);
     });
+  } else if(opts.text){
+    input = document.createElement('input');
+    input.type = 'text'; input.value = opts.value; input.spellcheck = false;
+    input.style.textTransform = opts.upper ? 'uppercase' : '';
   } else {
     input = document.createElement('input');
     input.type = 'number'; input.step = opts.step || 'any'; input.min = opts.min != null ? opts.min : 0;
+    if(opts.max != null) input.max = opts.max;
     input.value = opts.value;
   }
   const unit = document.createElement('span');
@@ -3242,7 +3535,7 @@ function openInlineEditor(anchor, opts){
     const val = input.value;
     closeInlineEditor();
     if(!save) return;
-    try{ await opts.onSave(opts.options ? val : Number(val)); }
+    try{ await opts.onSave(opts.options || opts.text ? val.trim() : Number(val)); if(opts.okMsg) showEditError(opts.okMsg, true); }
     catch(e){ showEditError(e.message); }
   };
   input.addEventListener('keydown', e => {
@@ -3251,6 +3544,46 @@ function openInlineEditor(anchor, opts){
   });
   input.addEventListener('blur', () => finish(!!opts.options));   // select: save on change/blur
   if(opts.options) input.addEventListener('change', () => finish(true));
+  if(opts.note){ const n = document.createElement('div'); n.className = 'dt-edit-hint'; n.textContent = opts.note; wrap.insertBefore(n, hint); }
+}
+
+// Several values in one small editor (e.g. the two maintenance alert levels)
+function openFieldsEditor(anchor, wrap, opts){
+  wrap.style.width = '270px';
+  const inputs = opts.fields.map(f => {
+    const row = document.createElement('label');
+    row.className = 'dt-edit-row';
+    const lbl = document.createElement('span'); lbl.textContent = f.label;
+    const inp = document.createElement('input');
+    inp.type = 'number'; inp.step = f.step || 'any'; inp.min = f.min != null ? f.min : 0;
+    if(f.max != null) inp.max = f.max;
+    inp.value = f.value;
+    const unit = document.createElement('span'); unit.textContent = f.unit || '';
+    row.append(lbl, inp, unit); wrap.appendChild(row);
+    return inp;
+  });
+  if(opts.note){ const n = document.createElement('div'); n.className = 'dt-edit-hint'; n.textContent = opts.note; wrap.appendChild(n); }
+  const hint = document.createElement('div');
+  hint.className = 'dt-edit-hint'; hint.textContent = 'Tab = next · Enter = save · Esc = cancel';
+  wrap.appendChild(hint);
+  document.body.appendChild(wrap);
+  DT.editing = true;
+  inputs[0].focus(); inputs[0].select();
+  let done = false;
+  const finish = async save => {
+    if(done) return; done = true;
+    const vals = {};
+    opts.fields.forEach((f, i) => { vals[f.key] = Number(inputs[i].value); });
+    closeInlineEditor();
+    if(!save) return;
+    try{ await opts.onSave(vals); if(opts.okMsg) showEditError(opts.okMsg, true); }
+    catch(e){ showEditError(e.message); }
+  };
+  wrap.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); finish(true); }
+    if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); finish(false); }
+  });
+  wrap.addEventListener('focusout', e => { if(!wrap.contains(e.relatedTarget)) finish(false); });
 }
 
 function closeInlineEditor(){
@@ -3258,12 +3591,13 @@ function closeInlineEditor(){
   DT.editing = false;
 }
 
-function showEditError(msg){
+function showEditError(msg, ok){
+  document.querySelectorAll('.dt-edit-err').forEach(e => e.remove());
   const el = document.createElement('div');
-  el.className = 'dt-edit-err';
+  el.className = 'dt-edit-err' + (ok ? ' ok' : '');
   el.textContent = msg;
-  document.getElementById('demoTrack').appendChild(el);
-  setTimeout(() => el.remove(), 4000);
+  document.getElementById('dtStage').appendChild(el);
+  setTimeout(() => el.remove(), ok ? 6000 : 4000);
 }
 
 function editMileage(ev, id){
@@ -3281,6 +3615,119 @@ function editLocation(ev, id){
   openInlineEditor(ev.currentTarget, {value: t.liveLocation || 'DEPOT',
     options: Object.keys(DT.points).map(k => [k, `${k} · ${DT.names[k] || k}`]),
     onSave: v => liveSend('PATCH', '/api/trains/' + encodeURIComponent(id), {location: v})});
+}
+
+const demoEditable = () => MODE === 'demo' && !!LIVE.api;
+async function afterConfigEdit(){
+  DT.loaded = false;
+  await loadDemoTrack().catch(() => {});
+  await liveLoadFleet().catch(() => {});
+}
+
+// Maintenance alert levels ("due soon" % / "overdue" km) - header counters and the card's Next PM row
+async function editPmLevels(ev){
+  ev.stopPropagation();
+  if(!demoEditable()) return;
+  const anchor = ev.currentTarget;
+  const cfg = await liveFetch('/api/config');
+  openInlineEditor(anchor, {
+    fields: [
+      {key:'pm_soon_pct', label:'Due soon under', value: cfg.pm_soon_pct, unit:'% left', step:'1', min:1, max:100},
+      {key:'pm_overdue_grace_km', label:'Overdue after', value: cfg.pm_overdue_grace_km, unit:'km past', step:'1', min:0}
+    ],
+    note: 'Warning starts when less than this % of a PM cycle is left (2K PM: ' + Math.round(2000 * cfg.pm_soon_pct / 100) + ' km before).',
+    okMsg: 'Maintenance alert levels saved',
+    onSave: async v => { await liveSend('PUT', '/api/config', v); await afterConfigEdit(); }
+  });
+}
+
+// PM due mileage of one cycle (e.g. 2K PM due at 102,000 km) = where that PM was last done + the cycle
+function editPmDue(ev, id, label){
+  ev.stopPropagation();
+  const t = fleet.find(f => f.id === id);
+  if(!t || !demoEditable()) return;
+  const i = PM_LABELS.indexOf(label);
+  const c = t.liveCycles && t.liveCycles[i];
+  if(!c) return;
+  const cycle = PM_CYCLES[i];
+  openInlineEditor(ev.currentTarget, {value: Math.round(c.due_at), unit: 'km', step: '1', min: 0,
+    note: `Mileage at which the ${label} check is due. At most ${formatKm0(Math.floor(t.mileage + cycle))} km (now + ${cycle.toLocaleString()} km); lower than now = overdue.`,
+    okMsg: `${id}: ${label} PM now due at the new mileage`,
+    onSave: v => liveSend('PUT', '/api/pm/last', {train_id: id, pm_type: label, last_pm_km: v - cycle})});
+}
+
+// Maintenance done: records the check at the current mileage (a bigger check also covers the smaller ones)
+async function markPmDone(ev, id, label){
+  ev.stopPropagation();
+  if(!demoEditable()) return;
+  const t = fleet.find(f => f.id === id);
+  try{
+    await liveSend('POST', '/api/pm', {train_id: id, pm_type: label, notes: 'marked done on the dashboard'});
+    const i = PM_LABELS.indexOf(label);
+    showEditError(`${id}: ${label} check done at ${formatKm0(t ? t.mileage : 0)} km - next ${label} due at ${formatKm0((t ? t.mileage : 0) + PM_CYCLES[i])} km`, true);
+  }catch(e){ showEditError(e.message); }
+}
+
+// Same thing as a distance: "how many km until this check" (negative = already over)
+function editPmRemaining(ev, id, label){
+  ev.stopPropagation();
+  const t = fleet.find(f => f.id === id);
+  if(!t || !demoEditable()) return;
+  const i = PM_LABELS.indexOf(label);
+  const c = t.liveCycles && t.liveCycles[i];
+  if(!c) return;
+  const cycle = PM_CYCLES[i];
+  openInlineEditor(ev.currentTarget, {value: Math.round(c.remaining * 10) / 10, unit: 'km left', step: '1', min: -t.mileage,
+    note: `km until the ${label} check (up to ${cycle.toLocaleString()}). Negative = already overdue by that much.`,
+    okMsg: `${id}: ${label} check distance set`,
+    onSave: v => liveSend('PUT', '/api/pm/last', {train_id: id, pm_type: label, last_pm_km: t.mileage + v - cycle})});
+}
+
+// Wheel size: normally measured by the 100 m test, but can be set by hand (e.g. measured with calipers)
+function editWheel(ev, id){
+  ev.stopPropagation();
+  const t = fleet.find(f => f.id === id);
+  if(!t || !demoEditable()) return;
+  const w = t.liveWheel || {circumference_m: 0.0942};
+  openInlineEditor(ev.currentTarget, {value: (w.circumference_m / Math.PI * 1000).toFixed(1), unit: 'mm ⌀', step: '0.1', min: 1,
+    note: 'Set by hand. The next 100 m test measures it again.', okMsg: id + ' wheel size set by hand',
+    onSave: v => liveSend('PATCH', '/api/trains/' + encodeURIComponent(id), {wheel_mm: v})});
+}
+
+// Calibration zone length (CAL 0 m -> CAL END tags), in toy-track metres
+async function editCalZone(ev){
+  ev.stopPropagation();
+  if(!demoEditable()) return;
+  const anchor = ev.currentTarget;
+  const cfg = await liveFetch('/api/config');
+  openInlineEditor(anchor, {value: cfg.cal_distance_m, unit: 'm of track', step: '0.01', min: 0.01,
+    note: `= ${Math.round(cfg.cal_distance_m * cfg.demo_scale)} m real at ×${cfg.demo_scale}. Measure between the two tags.`,
+    okMsg: 'Calibration zone length saved',
+    onSave: async v => { await liveSend('PUT', '/api/config', {cal_distance_m: v}); await afterConfigEdit(); }});
+}
+
+// UID of the RFID tag stuck at a station / marker
+async function editTrackTag(ev, sid){
+  ev.stopPropagation();
+  if(!demoEditable()) return;
+  const anchor = ev.currentTarget;
+  const tags = await liveFetch('/api/station_tags');
+  openInlineEditor(anchor, {text: true, upper: true, value: tags[sid] || '', unit: 'UID',
+    note: `Tag at ${DT.names[sid] || sid}: hold it to the train's reader to see its UID.`,
+    okMsg: `${sid} tag saved`,
+    onSave: v => liveSend('PUT', '/api/station_tags', {[sid]: v})});
+}
+
+// Which on-board device (MCU) drives this train
+async function editDevice(ev, id){
+  ev.stopPropagation();
+  if(!demoEditable()) return;
+  const anchor = ev.currentTarget;
+  const row = (await liveFetch('/api/demo/trains')).find(r => r.train_id === id);
+  if(!row) return;
+  openInlineEditor(anchor, {text: true, value: row.device_id, unit: 'device',
+    note: 'LRV_ID in the train\'s firmware, e.g. LRV01.', okMsg: `${id} now listens to its new device`,
+    onSave: async v => { await liveSend('POST', '/api/demo/trains', {train_id: id, device_id: v, tag: row.tag || ''}); await liveLoadFleet().catch(() => {}); }});
 }
 
 function editSegment(ev, from){

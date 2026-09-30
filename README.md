@@ -4,10 +4,59 @@
 Automated mileage tracking and preventive maintenance scheduling for 59 trains on the Sengkang-Punggol LRT network.
 
 ## Running
-```bash
-python3 -m http.server 8080
-# open http://localhost:8080/First_Dashboard.html
+
+All commands are for Windows PowerShell. Full details and troubleshooting: [`backend/README.md`](backend/README.md). Hardware wiring and MQTT topics: [`HARDWARE_PROTOCOL.md`](HARDWARE_PROTOCOL.md).
+
+### Simulation only (no hardware, no backend)
+Double-click `First_Dashboard.html` and choose **Simulation**.
+
+### Full system (Demo mode with hardware / simulator)
+
+**1. Install (first time only)**
+```powershell
+cd C:\Users\mhr21\Documents\Competition\RailTech\GTRTGC\backend
+python -m pip install -r requirements.txt
 ```
+
+**2. Terminal 1 - MQTT broker**
+```powershell
+cd C:\Users\mhr21\Documents\Competition\RailTech\GTRTGC\backend
+& "C:\Program Files\Mosquitto\mosquitto.exe" -c mosquitto.conf -v
+```
+If it says *"Only one usage of each socket address"*: run `net stop mosquitto` in an **admin** PowerShell, then try again.
+
+**3. Terminal 2 - backend**
+```powershell
+cd C:\Users\mhr21\Documents\Competition\RailTech\GTRTGC\backend
+python main.py
+```
+If port 8000 is blocked (*WinError 10013*): `python main.py --port 5500` and use 5500 below.
+
+**4. Open in the browser**
+
+| Page | URL |
+|---|---|
+| Dashboard (Demo mode) | http://localhost:8000/?mode=demo |
+| Hardware simulator (drag wheel, station buttons) | http://localhost:8000/simulator |
+| API page | http://localhost:8000/docs |
+
+**5. Optional - Terminal 3: watch the raw hardware messages**
+```powershell
+& "C:\Program Files\Mosquitto\mosquitto_sub.exe" -h localhost -t "#" -v
+```
+
+### Before connecting the real hardware
+- Laptop and ESP32s on the same **iPhone hotspot** (Personal Hotspot → *Maximize Compatibility* ON).
+- Check the laptop IP with `ipconfig` (Wireless LAN IPv4, e.g. `172.20.10.4`) - it must match `MQTT_HOST` in the firmware.
+- Firewall rule for port 1883 (once, **admin** PowerShell):
+  ```powershell
+  New-NetFirewallRule -DisplayName "Mosquitto 1883" -Direction Inbound -Protocol TCP -LocalPort 1883 -Action Allow
+  ```
+- Dashboard → Demo → **⚙ Demo settings**: check devices (`LRV01`, `LRV02`), **Station tags**, wheel diameter and station distances.
+
+### Stop / reset
+- Stop: `Ctrl+C` in each terminal.
+- Reset all demo data: stop the backend and delete `backend\splrt.db` (recreated on the next start).
 
 ---
 

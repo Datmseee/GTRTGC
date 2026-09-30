@@ -18,6 +18,8 @@ def client(monkeypatch):
     monkeypatch.setattr(config, "MQTT_ENABLED", False)
     from fastapi.testclient import TestClient
     import main
+    import service
+    service._angle.clear()
     with TestClient(main.app) as c:
         yield c
 
@@ -108,7 +110,7 @@ def test_mqtt_routing(client):
     import mqtt_bridge
     r = mqtt_bridge.handle_message("splrt/lrv/LRV02/odometer", b'{"pulses": 10}')
     assert r["device_id"] == "LRV02"
-    r = mqtt_bridge.handle_message("splrt/lrv/LRV02/odometer", b"60")   # plain number also accepted
+    r = mqtt_bridge.handle_message("splrt/lrv/LRV02/odometer", b'{"pulses": 60}')
     assert r["delta_pulses"] == 50
     r = mqtt_bridge.handle_message("splrt/station/ST1/rfid", b"E5F6A7B8")
     assert r["train_id"] == "810D-002"
@@ -152,7 +154,7 @@ def test_serves_simulator(client):
 
 def test_track_and_since_station(client):
     tr = client.get("/api/track").json()
-    assert {s["from"] for s in tr["segments"]} == {"ST1", "ST2", "DEPOT"} and tr["demo_scale"] > 0
+    assert {s["from"] for s in tr["segments"]} == {"ST1", "ST2", "DEPOT", "BRANCH"} and tr["demo_scale"] > 0
     client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 0})
     client.post("/api/ingest/rfid", json={"station_id": "ST1", "tag": "A1B2C3D4"})
     assert client.get("/api/trains/810D-001").json()["since_station_km"] == 0
@@ -242,3 +244,235 @@ def test_manual_mileage_drops_impossible_pm_records(client):
     t = client.patch("/api/trains/810D-001", json={"mileage": 1950}).json()
     assert t["pm"]["name"] == "2K PM" and t["pm"]["status"] == "soon" and t["pm"]["remaining"] == 50
     assert all(p["mileage_at_pm"] <= 1950 for p in client.get("/api/history/810D-001").json()["pm_history"])
+
+
+def test_train_mounted_reader_with_station_tags(client):
+    tags = client.get("/api/station_tags").json()
+    assert set(tags) == {"ST1", "ST2", "DEPOT", "BRANCH", "CAL0", "CAL100"}
+    # enter the real UIDs of the tags stuck at the stations
+    tags = client.put("/api/station_tags", json={"ST1": "11:22:33:44", "ST2": "55667788", "DEPOT": "99aabbcc"}).json()
+    assert {k: tags[k] for k in ("ST1", "ST2", "DEPOT")} == {"ST1": "11223344", "ST2": "55667788", "DEPOT": "99AABBCC"}
+    km0 = client.get("/api/trains/810D-001").json()["mileage"]
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 0})
+    r = client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV01", "tag": "11223344"}).json()
+    assert r["train_id"] == "810D-001" and r["station_id"] == "ST1"
+    # read at ST2 carries the wheel count at that moment -> applied first, exact segment
+    r = client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV01", "tag": "55667788", "pulses": 8192}).json()
+    assert r["station_id"] == "ST2" and r["segment_km"] == pytest.approx(8192 * km_per_pulse(), abs=1e-3)
+    t = client.get("/api/trains/810D-001").json()
+    assert t["location"] == "ST2" and t["mileage"] == pytest.approx(km0 + 8192 * km_per_pulse(), abs=0.1)
+    # unknown station tag is reported, not a crash
+    r = client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV01", "tag": "DEADBEEF"}).json()
+    assert r["station_id"] is None
+    # validation
+    assert client.put("/api/station_tags", json={"ST1": "AA", "ST2": "AA"}).status_code == 400
+    assert client.put("/api/station_tags", json={"ST9": "AA"}).status_code == 400
+    assert client.put("/api/station_tags", json={"ST1": "A1B2C3D4"}).status_code == 400   # a train's tag
+    assert client.post("/api/ingest/lrv_rfid", json={"device_id": "NOPE", "tag": "11223344"}).status_code == 404
+
+
+def test_mqtt_train_rfid_and_simulator(client):
+    import mqtt_bridge
+    mqtt_bridge.handle_message("splrt/lrv/LRV02/odometer", b'{"pulses": 100}')
+    r = mqtt_bridge.handle_message("splrt/lrv/LRV02/rfid", b'{"tag": "5A000003", "pulses": 4196}')
+    assert r["station_id"] == "DEPOT" and r["segment_km"] == pytest.approx(4096 * km_per_pulse(), abs=1e-3)
+    r = mqtt_bridge.handle_message("splrt/lrv/LRV02/rfid", b"5A000001")     # plain UID also accepted
+    assert r["station_id"] == "ST1"
+    # simulator page uses the same endpoint with its own wheel counter
+    client.post("/api/ingest/odometer", json={"device_id": "LRV02", "pulses": 0, "source": "simulator"})
+    r = client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV02", "tag": "5A000002", "pulses": 4096,
+                                                  "source": "simulator"}).json()
+    assert r["station_id"] == "ST2" and r["segment_km"] == pytest.approx(4096 * km_per_pulse(), abs=1e-3)
+
+
+def test_demo_train_without_train_tag(client):
+    r = client.post("/api/demo/trains", json={"train_id": "LRV-009", "device_id": "LRV09"})
+    assert r.status_code == 200
+    assert next(t for t in client.get("/api/demo/trains").json() if t["train_id"] == "LRV-009")["tag"] is None
+
+
+def _lrv(client, tag, pulses, dev="LRV01"):
+    return client.post("/api/ingest/lrv_rfid", json={"device_id": dev, "tag": tag, "pulses": pulses}).json()
+
+
+def test_branch_tag_sends_train_towards_depot(client):
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 0})
+    assert _lrv(client, "5A000002", 0)["station_id"] == "ST2"
+    r = _lrv(client, "5A000004", 8192)                       # green tag just after the switch
+    assert r["station_id"] == "BRANCH"
+    t = client.get("/api/trains/810D-001").json()
+    assert t["location"] == "BRANCH" and t["status"] == "in-service" and t["since_station_km"] == 0
+    segs = {s["from"]: s for s in client.get("/api/track").json()["segments"]}
+    assert segs["BRANCH"]["to"] == "DEPOT"
+    assert _lrv(client, "5A000003", 12288)["station_id"] == "DEPOT"
+    assert client.get("/api/trains/810D-001").json()["status"] == "depot"
+
+
+def test_wheel_calibration_zone(client):
+    s = client.get("/api/config").json()
+    zone, ppr, nominal = s["cal_distance_m"], s["pulses_per_rev"], s["wheel_circumference_m"]
+    true_c = 0.0930                                           # the real (worn) wheel is a bit smaller
+    counts = round(zone / true_c * ppr)
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 0})
+    assert _lrv(client, "5A000005", 1000)["calibration"] == "started"      # yellow 0 m
+    r = _lrv(client, "5A000006", 1000 + counts)                            # red end
+    assert r["calibration"] == "accepted" and r["new_m"] == pytest.approx(true_c, abs=1e-4)
+    t = client.get("/api/trains/810D-001").json()
+    assert t["wheel"]["circumference_m"] == pytest.approx(true_c, abs=1e-4) and t["wheel"]["calibrated_at"]
+    assert t["location"] != "CAL100"                                        # calibration tags don't move the train
+    # the new wheel size is used for mileage from now on
+    km0 = t["mileage"]
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 1000 + counts + 40960})
+    km1 = client.get("/api/trains/810D-001").json()["mileage"]
+    assert km1 - km0 == pytest.approx(10 * true_c * s["demo_scale"] / 1000, abs=0.1)
+    # other trains keep the global value
+    assert client.get("/api/trains/810D-002").json()["wheel"]["circumference_m"] == nominal
+    # an implausible run (+50%) is rejected and does not change the wheel
+    base = 1000 + counts + 40960
+    _lrv(client, "5A000005", base)
+    r = _lrv(client, "5A000006", base + round(counts / 1.5))
+    assert r["calibration"] == "rejected" and "more than" in r["reason"]
+    assert client.get("/api/trains/810D-001").json()["wheel"]["circumference_m"] == pytest.approx(true_c, abs=1e-4)
+    # end tag without a start tag is ignored; history is kept
+    assert "ignored" in _lrv(client, "5A000006", base + 99999)["calibration"]
+    hist = client.get("/api/calibrations/810D-001").json()
+    assert [h["accepted"] for h in hist] == [0, 1]
+    # average of recent good runs
+    b2 = base + 200000
+    _lrv(client, "5A000005", b2); r = _lrv(client, "5A000006", b2 + round(zone / 0.0920 * ppr))
+    assert r["calibration"] == "accepted" and r["new_m"] == pytest.approx((0.0930 + 0.0920) / 2, abs=2e-4)
+
+
+def test_pm_alert_settings(client):
+    client.patch("/api/trains/810D-001", json={"mileage": 1900})            # 100 km before the 2K PM
+    assert client.get("/api/trains/810D-001").json()["pm"]["status"] == "soon"      # 5% left < 8% default
+    client.put("/api/config", json={"pm_soon_pct": 4})
+    assert client.get("/api/trains/810D-001").json()["pm"]["status"] == "ok"        # 5% left > 4%
+    client.patch("/api/trains/810D-001", json={"mileage": 2030})             # 30 km past the 2K PM
+    assert client.get("/api/trains/810D-001").json()["pm"]["status"] == "over"      # grace 0 km default
+    client.put("/api/config", json={"pm_overdue_grace_km": 50})
+    t = client.get("/api/trains/810D-001").json()
+    assert t["pm"]["status"] == "soon" and t["pm"]["remaining"] == -30               # within grace: due, amber
+    client.patch("/api/trains/810D-001", json={"mileage": 2060})
+    assert client.get("/api/trains/810D-001").json()["pm"]["status"] == "over"      # beyond the grace
+    assert client.put("/api/config", json={"pm_overdue_grace_km": 0}).status_code == 200
+    assert client.put("/api/config", json={"pm_soon_pct": 0}).status_code == 400
+    assert client.put("/api/config", json={"pm_soon_pct": 150}).status_code == 400
+
+
+@pytest.fixture(autouse=True)
+def _no_angle_batching(monkeypatch):
+    import service
+    monkeypatch.setattr(service, "ANGLE_MIN_GAP_S", 0.0)
+
+
+def test_teammate_angle_payload_unwraps(client):
+    """splrt/lrv/LRV01/odometer "292.41": angle in degrees, unwrapped into a running count on the server."""
+    import mqtt_bridge
+    import service
+    send = lambda deg: mqtt_bridge.handle_message("splrt/lrv/LRV01/odometer", f"{deg:.2f}".encode())
+    send(350.0)                                   # first reading = starting point
+    for deg in (0.0, 10.0, 20.0, 20.1, 20.0):     # across the 359 -> 0 wrap, then jitter
+        send(deg)
+    total = service._angle["LRV01"]["total"]
+    assert abs(total - round(30 / 360 * 4096)) <= 2
+    for turn in range(4):                         # 1 full turn forwards in 90 deg steps
+        send((20.0 + 90 * (turn + 1)) % 360)
+    service._angle["LRV01"]["at"] = 0             # skip the keep-alive throttle
+    r = send(20.0)
+    t = client.get("/api/trains/810D-001").json()
+    pulses = service._angle["LRV01"]["total"]
+    assert abs(pulses - round(390 / 360 * 4096)) <= 3
+    assert abs(t["session_km"] - pulses * km_per_pulse()) < 1e-3
+    r = mqtt_bridge.handle_message("splrt/lrv/LRV01/odometer", b"20.00")   # still: throttled, no DB write
+    assert r["note"] == "batched"
+
+
+def test_teammate_station_topics(client):
+    """splrt/station/<ST1|ST2|DEPOT|Dir|ST0m|ST100m>/rfid <uid>: credited to the rfid_train_device train."""
+    import mqtt_bridge
+    import service
+    rf = lambda name, uid: mqtt_bridge.handle_message(f"splrt/station/{name}/rfid", uid.encode())
+    send = lambda deg: mqtt_bridge.handle_message("splrt/lrv/LRV01/odometer", f"{deg:.2f}".encode())
+    r = rf("ST1", "84A7FCD7")
+    assert r["train_id"] == "810D-001" and r["station_id"] == "ST1"
+    r = rf("Dir", "DEPOT")
+    assert client.get("/api/trains/810D-001").json()["location"] == "BRANCH"
+    rf("DEPOT", "5F48F0D7")
+    assert client.get("/api/trains/810D-001").json()["location"] == "DEPOT"
+    # calibration: 0 m tag, 1 wheel turn, 100 m tag -> circumference = 0.1 m / 1 turn
+    send(0.0)
+    r = rf("ST0m", "6D85EFD7")
+    assert r["calibration"] == "started"
+    for deg in (90, 180, 270, 0):
+        send(float(deg))
+    service._angle["LRV01"]["at"] = 0
+    send(0.0)
+    r = rf("ST100m", "8EC201D8")
+    assert r["calibration"] == "accepted" and abs(r["measured_m"] - 0.1) < 0.002
+    assert abs(client.get("/api/trains/810D-001").json()["wheel"]["circumference_m"] - r["new_m"]) < 1e-6
+    # credit reads to LRV02 instead
+    assert client.put("/api/config", json={"rfid_train_device": "LRV02"}).status_code == 200
+    assert rf("ST2", "0396F313")["train_id"] == "810D-002"
+    assert client.put("/api/config", json={"rfid_train_device": ""}).status_code == 400
+    # an unlinked device gives a clear error instead of moving the wrong train
+    client.put("/api/config", json={"rfid_train_device": "LRV09"})
+    with pytest.raises(service.NotFound):
+        rf("ST1", "84A7FCD7")
+    # old setup still works: a registered TRAIN tag on a station topic
+    assert rf("ST1", "E5F6A7B8")["train_id"] == "810D-002"
+
+
+def test_demo_trains_report_measured_wheel(client):
+    w = {t["device_id"]: t["wheel"] for t in client.get("/api/demo/trains").json()}
+    assert w["LRV01"]["calibrated_at"] is None
+    assert w["LRV01"]["circumference_m"] == config.DEFAULT_SETTINGS["wheel_circumference_m"]
+
+
+def test_wheel_set_by_hand_then_test_averages(client):
+    r = client.patch("/api/trains/810D-001", json={"wheel_mm": 29.0})
+    assert r.status_code == 200 and r.json()["wheel"]["source"] == "manual"
+    assert abs(r.json()["wheel"]["circumference_m"] - 29.0 * 3.14159265 / 1000) < 1e-5
+    assert client.patch("/api/trains/810D-001", json={"wheel_mm": 0}).status_code == 400
+    # a 100 m test afterwards is averaged with the hand-set value and marked as a test
+    client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV01", "tag": "5A000005", "pulses": 0})
+    client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV01", "tag": "5A000006", "pulses": 4520})
+    w = client.get("/api/trains/810D-001").json()["wheel"]
+    assert w["source"] == "test"
+
+
+def test_last_marker_only_after_tag_read(client):
+    ing = lambda tag, n: client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV01", "tag": tag, "pulses": n})
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 0})
+    ing("5A000003", 0)                                        # DEPOT
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 3000})
+    assert client.get("/api/trains/810D-001").json()["last_marker"] is None   # moved, but no tag read
+    ing("5A000005", 3000)                                     # CAL0
+    client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": 4000})
+    m = client.get("/api/trains/810D-001").json()["last_marker"]
+    assert m["id"] == "CAL0" and abs(m["since_km"] - 1000 * km_per_pulse()) < 1e-3
+    ing("5A000001", 9000)                                     # ST1 clears it
+    assert client.get("/api/trains/810D-001").json()["last_marker"] is None
+
+
+def test_set_last_pm_moves_due_point(client):
+    r = client.put("/api/pm/last", json={"train_id": "810D-001", "pm_type": "2K", "last_pm_km": 99600})
+    assert r.status_code == 200, r.text
+    c2k = r.json()["pm_cycles"][0]
+    assert c2k["due_at"] == 101600 and c2k["status"] == "soon"       # 101,526 km: 74 km left < 8% (160 km)
+    # can't be after the current mileage
+    assert client.put("/api/pm/last", json={"train_id": "810D-001", "pm_type": "2K", "last_pm_km": 200000}).status_code == 400
+    # a later higher-level PM also counts for 2K
+    client.put("/api/pm/last", json={"train_id": "810D-001", "pm_type": "13K", "last_pm_km": 99900})
+    r = client.put("/api/pm/last", json={"train_id": "810D-001", "pm_type": "2K", "last_pm_km": 99000})
+    assert r.status_code == 400 and "13K" in r.json()["detail"]
+
+
+def test_low_mileage_train_can_be_made_due_soon(client):
+    """Demo: a train at 15 km, first 2K check set to 100 km away -> amber (under 160 km)."""
+    client.patch("/api/trains/810D-001", json={"mileage": 15.1})
+    r = client.put("/api/pm/last", json={"train_id": "810D-001", "pm_type": "2K", "last_pm_km": 15.1 + 100 - 2000})
+    assert r.status_code == 200, r.text
+    c = r.json()["pm_cycles"][0]
+    assert abs(c["due_at"] - 115.1) < 0.1 and c["status"] == "soon"
+    assert client.put("/api/pm/last", json={"train_id": "810D-001", "pm_type": "2K", "last_pm_km": -2500}).status_code == 400

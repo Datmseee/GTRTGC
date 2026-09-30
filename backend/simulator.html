@@ -39,6 +39,11 @@ main{display:grid;grid-template-columns:minmax(300px,1fr) minmax(300px,1fr);gap:
 .stat-l{font-family:var(--sans);font-size:9px;color:var(--txt2);letter-spacing:0.14em;text-transform:uppercase}
 .stat-v{font-size:17px;color:var(--txt0);margin-top:2px}
 .stat-v.c{color:var(--cyan)}.stat-v.g{color:var(--green)}
+.stat.edit{cursor:pointer;border-color:var(--border2)}
+.stat.edit:hover{border-color:var(--cyan)}
+.stat-s{font-size:9px;color:var(--txt2);margin-top:2px}
+.stat-in{width:100%;background:var(--bg1);border:1px solid var(--cyan);border-radius:4px;color:var(--txt0);font:inherit;font-size:15px;padding:2px 6px;margin-top:2px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
 .btn{padding:7px 12px;font-size:11px}
 .btn:hover,.st-btn:hover{border-color:var(--cyan);color:var(--cyan)}
@@ -62,7 +67,7 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--cyan)}
   <div class="logo">SIM</div>
   <div>
     <div class="title">SPLRT HARDWARE SIMULATOR</div>
-    <div class="sub">Axle encoder (AS5600) + RFID stations · sends the same data as the ESP32s</div>
+    <div class="sub">Axle encoder (AS5600) + on-board RFID reader · sends the same data as the train's ESP32</div>
   </div>
   <div class="conn" id="conn"><div class="conn-dot" id="connDot"></div><span id="connTxt">CONNECTING</span></div>
   <a class="dash" id="dashLink" href="/?mode=demo" target="_blank">OPEN DASHBOARD ↗</a>
@@ -99,14 +104,23 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--cyan)}
       <div class="stat"><div class="stat-l">Raw (0–4095)</div><div class="stat-v" id="sRaw">0</div></div>
       <div class="stat"><div class="stat-l">Wheel turns</div><div class="stat-v c" id="sTurns">0.00</div></div>
       <div class="stat"><div class="stat-l">Total counts sent</div><div class="stat-v c" id="sCounts">0</div></div>
-      <div class="stat"><div class="stat-l">Toy distance</div><div class="stat-v" id="sDist">0.00 m</div></div>
+      <div class="stat"><div class="stat-l">Toy distance (true)</div><div class="stat-v" id="sDist">0.00 m</div></div>
       <div class="stat"><div class="stat-l">Train mileage (server)</div><div class="stat-v g" id="sKm">—</div></div>
+      <div class="stat edit" id="trueStat" title="Double-click to change this simulated wheel's real size (e.g. to simulate wear)">
+        <div class="stat-l">Sim wheel ⌀ (real) ✎</div><div class="stat-v" id="sTrue">30.0 mm</div>
+        <div class="stat-s">double-click to edit · only this simulator</div></div>
+      <div class="stat"><div class="stat-l">Dashboard wheel ⌀ (measured)</div><div class="stat-v c" id="sMeas">—</div>
+        <div class="stat-s" id="sMeasNote">from the 100 m test</div></div>
     </div>
 
     <div class="row">
       <button class="btn" id="autoBtn">AUTO SPIN: OFF</button>
       <input type="range" id="speed" min="10" max="720" value="180" aria-label="Auto spin speed">
       <span class="lbl" id="speedLbl">180°/s</span>
+    </div>
+    <div class="row">
+      <button class="btn" id="calBtn" title="Drive the selected LRV through the calibration zone: CAL 0 m tag, exactly the zone length with this wheel's real size, CAL END tag">RUN 100 m TEST</button>
+      <span class="lbl" id="calLbl">CAL 0 m → zone → CAL END, with the real wheel size</span>
     </div>
     <div class="row">
       <button class="btn" id="rebootBtn" title="Counter goes back to 0, like an ESP32 restart. The server keeps the mileage.">REBOOT MCU</button>
@@ -116,7 +130,7 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--cyan)}
 
   <!-- RIGHT: stations + message log -->
   <section class="card">
-    <div class="h">2 · Station RFID readers</div>
+    <div class="h">2 · Track tags (read by the train)</div>
     <svg class="track" viewBox="0 0 300 120" aria-hidden="true">
       <rect x="30" y="14" width="240" height="56" rx="26" fill="none" stroke="var(--red)" stroke-width="4"/>
       <path d="M110 70 L150 108 L190 70" fill="none" stroke="var(--red)" stroke-width="4"/>
@@ -124,13 +138,24 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--cyan)}
       <text x="44" y="46" fill="var(--txt0)" font-size="10" font-family="var(--sans)">ST1</text>
       <text x="236" y="46" fill="var(--txt0)" font-size="10" font-family="var(--sans)">ST2</text>
       <text x="164" y="112" fill="var(--txt0)" font-size="10" font-family="var(--sans)">DEPOT</text>
+      <g fill="var(--bg1)" stroke="var(--cyan)" stroke-width="1.5">
+        <rect x="-3.5" y="-3.5" width="7" height="7" transform="translate(183,77) rotate(45)"/>
+        <rect x="-3.5" y="-3.5" width="7" height="7" transform="translate(141,99) rotate(45)"/>
+        <rect x="-3.5" y="-3.5" width="7" height="7" transform="translate(124,84) rotate(45)"/>
+      </g>
+      <g fill="var(--cyan)" font-size="8" font-family="var(--mono)">
+        <text x="191" y="80">BRANCH</text><text x="84" y="104">CAL 0</text><text x="84" y="86">CAL END</text>
+      </g>
     </svg>
     <div class="stations">
       <button class="st-btn" data-st="ST1">ST1<small>Station 1</small></button>
       <button class="st-btn" data-st="ST2">ST2<small>Station 2</small></button>
       <button class="st-btn" data-st="DEPOT">DEPOT<small>Depot</small></button>
+      <button class="st-btn" data-st="BRANCH">BRANCH<small>Depot branch</small></button>
+      <button class="st-btn" data-st="CAL0">CAL 0 m<small>Calibration start</small></button>
+      <button class="st-btn" data-st="CAL100">CAL END<small>Calibration end</small></button>
     </div>
-    <div class="note">Pressing a station = that reader sees the selected LRV's RFID tag (keys 1 / 2 / 3).</div>
+    <div class="note">Pressing a button = the selected LRV's on-board reader passes that track tag, together with the wheel count at that moment (keys 1-6). Wheel calibration: press <b>RUN 100 m TEST</b> (or CAL 0 m, turn the wheel through the zone, CAL END). The dashboard then measures the wheel size from the turns it counted.</div>
 
     <div class="h" style="margin-top:16px">3 · Messages sent</div>
     <div class="log" id="log"></div>
@@ -156,8 +181,18 @@ const LRVS = {
   LRV01: {tag:'A1B2C3D4', train:'810D-001', angle:0, counts:0, frac:0, sent:-1, touched:false},
   LRV02: {tag:'E5F6A7B8', train:'810D-002', angle:0, counts:0, frac:0, sent:-1, touched:false},
 };
+// Real size of each simulated wheel (mm). Belongs to the simulator only - the backend never sees it,
+// just like a real wheel: the dashboard has to MEASURE it with the 100 m calibration test.
+const DEFAULT_TRUE_MM = 30.0;
+let trueMM = {};
+try{ trueMM = JSON.parse(localStorage.getItem('splrt_sim_wheel_mm') || '{}') || {}; }catch(e){ trueMM = {}; }
+const trueDiam = id => +trueMM[id] || DEFAULT_TRUE_MM;
+const trueCirc = id => trueDiam(id) * Math.PI / 1000;       // m
+function saveTrueMM(){ try{ localStorage.setItem('splrt_sim_wheel_mm', JSON.stringify(trueMM)); }catch(e){} }
+let calRunning = false;
 let current = 'LRV01';
 let blocked = false;     // simulator input switched off in Demo settings
+let stationTags = {};    // station -> UID of the tag stuck there (from Demo settings)
 
 // ─── helpers ───
 const $ = id => document.getElementById(id);
@@ -201,20 +236,20 @@ function setBlocked(b){
 function renderLrvSel(){
   if(!Object.keys(LRVS).length){ $('lrvSel').innerHTML = '<span class="lbl">No trains on the demo track - add one in the dashboard (Demo → ⚙ Settings)</span>'; return; }
   $('lrvSel').innerHTML = Object.entries(LRVS).map(([id, l]) =>
-    `<button data-id="${id}" class="${id===current?'active':''}">${id}<small>train ${l.train} · tag ${l.tag}</small></button>`).join('');
-  $('lrvSel').querySelectorAll('button').forEach(b => b.onclick = () => { current = b.dataset.id; renderLrvSel(); render(); });
+    `<button data-id="${id}" class="${id===current?'active':''}">${id}<small>train ${l.train}</small></button>`).join('');
+  $('lrvSel').querySelectorAll('button').forEach(b => b.onclick = () => { if(calRunning) return; current = b.dataset.id; renderLrvSel(); render(); });
 }
 
 // ─── wheel physics: angle -> AS5600 raw -> cumulative counts ───
-function rotate(deg){
-  const l = LRVS[current];
+function rotate(deg, id = current){
+  const l = LRVS[id];
   if(!deg || !l) return;
   l.angle += deg;
   l.frac += Math.abs(deg) / 360 * COUNTS_PER_REV;   // mileage counts both directions (like the firmware)
   const whole = Math.floor(l.frac);
   l.counts += whole; l.frac -= whole;
   l.touched = true;
-  render();
+  if(id === current) render();
 }
 function render(){
   const l = LRVS[current];
@@ -225,7 +260,17 @@ function render(){
   $('sRaw').textContent = Math.floor(a / 360 * COUNTS_PER_REV) % COUNTS_PER_REV;
   $('sTurns').textContent = (l.counts / COUNTS_PER_REV).toFixed(2);
   $('sCounts').textContent = l.counts.toLocaleString();
-  $('sDist').textContent = (l.counts / COUNTS_PER_REV * settings.wheel_circumference_m).toFixed(2) + ' m';
+  $('sDist').textContent = (l.counts / COUNTS_PER_REV * trueCirc(current)).toFixed(2) + ' m';
+  if(!$('trueStat').querySelector('input')) $('sTrue').textContent = trueDiam(current).toFixed(1) + ' mm';
+  const w = l.wheel;
+  if(w){
+    const mm = w.circumference_m / Math.PI * 1000;
+    const err = (mm - trueDiam(current)) / trueDiam(current) * 100;
+    $('sMeas').textContent = mm.toFixed(1) + ' mm';
+    $('sMeasNote').textContent = (w.calibrated_at ? 'measured by the 100 m test' : 'not measured yet (starting value)') +
+      ` · ${err >= 0 ? '+' : ''}${err.toFixed(1)}% vs real`;
+    $('sMeasNote').style.color = Math.abs(err) > 0.5 ? 'var(--amber)' : 'var(--green)';
+  }else{ $('sMeas').textContent = '—'; $('sMeasNote').textContent = 'from the 100 m test'; $('sMeasNote').style.color = ''; }
   $('sKm').textContent = l.km != null ? l.km.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1}) + ' km' : '—';
 }
 
@@ -297,44 +342,123 @@ async function sendOdometer(id, force){
 setInterval(() => Object.keys(LRVS).forEach(id => sendOdometer(id, false)), 1000);
 
 // ─── station buttons = RFID reads ───
-async function stationRead(st){
-  const l = LRVS[current];
-  if(!l) return;
+async function stationRead(st, dev){
+  dev = dev || current;
+  const l = LRVS[dev];
+  if(!l) return null;
   const btn = document.querySelector(`.st-btn[data-st="${st}"]`);
   btn.classList.add('flash'); setTimeout(() => btn.classList.remove('flash'), 600);
-  await sendOdometer(current, false);          // make sure the distance so far is in first
+  // Reader on the train passes the tag stuck at this station; the wheel count at that moment goes with it
+  const tag = stationTags[st];
+  if(!tag){ log('err', `No tag set for ${st} - enter it in the dashboard: Demo → ⚙ Settings → Track tags`); return null; }
   try{
-    const r = await post('/api/ingest/rfid', {station_id:st, tag:l.tag, source:'simulator'});
+    const r = await post('/api/ingest/lrv_rfid', {device_id:dev, tag, pulses:l.counts, source:'simulator'});
     setBlocked(false);
-    if(!r.train_id) log('err', `${st} read tag ${r.tag} → unknown tag (register it via POST /api/tags)`);
-    else log('rf', `${st} rfid {"tag": "${l.tag}"} → ${r.train_id} at ${st}` +
+    l.sent = l.counts;
+    if(!r.station_id) log('err', `${dev} read tag ${r.tag} → unknown track tag`);
+    else if(r.calibration){
+      const txt = r.calibration === 'accepted'
+        ? `wheel calibrated: ${r.turns} turns → circumference ${r.new_m} m (was ${r.previous_m} m)`
+        : r.calibration === 'rejected' ? `calibration rejected: ${r.reason}` : r.calibration;
+      log(r.calibration === 'rejected' ? 'err' : 'rf', `${dev} ${st} {"tag": "${tag}", "pulses": ${l.counts}} → ${txt}`);
+      if(r.calibration === 'accepted') l.wheel = {circumference_m: r.new_m, calibrated_at: new Date().toISOString()};
+      render();
+    }
+    else log('rf', `${dev} rfid {"tag": "${tag}", "pulses": ${l.counts}} → ${r.train_id} at ${st}` +
              (r.repeat ? ' (repeat, ignored)' : r.segment_km != null ? ` · ${r.segment_km} km since last station` : ''));
     setConn(true);
+    return r;
   }catch(e){
-    if(e.message.startsWith('403')){ setBlocked(true); log('err', `${st} read ignored - simulator input is off`); return; }
+    if(e.message.startsWith('403')){ setBlocked(true); log('err', `${st} read ignored - simulator input is off`); return null; }
     setConn(false);
     log('err', `${st} rfid failed: ${e.message}`);
+    return null;
   }
 }
-document.querySelectorAll('.st-btn').forEach(b => b.onclick = () => stationRead(b.dataset.st));
+document.querySelectorAll('.st-btn').forEach(b => b.onclick = () => { if(!calRunning) stationRead(b.dataset.st); });
 document.addEventListener('keydown', e => {
   if(e.target.tagName === 'INPUT') return;
-  const map = {'1':'ST1', '2':'ST2', '3':'DEPOT'};
-  if(map[e.key]) stationRead(map[e.key]);
+  const map = {'1':'ST1', '2':'ST2', '3':'DEPOT', '4':'BRANCH', '5':'CAL0', '6':'CAL100'};
+  if(map[e.key] && !calRunning) stationRead(map[e.key]);
 });
+
+// ─── simulated wheel's real size: double-click to edit ───
+$('trueStat').addEventListener('dblclick', () => {
+  const box = $('trueStat');
+  if(box.querySelector('input') || !LRVS[current]) return;
+  const id = current;
+  const v = $('sTrue');
+  v.innerHTML = `<input class="stat-in" type="number" min="5" max="200" step="0.1" value="${trueDiam(id).toFixed(1)}">`;
+  const inp = v.querySelector('input');
+  inp.focus(); inp.select();
+  let done = false;
+  const finish = save => {
+    if(done) return; done = true;
+    const mm = +inp.value;
+    if(save && !(mm >= 5 && mm <= 200)){ log('err', 'Wheel diameter must be between 5 and 200 mm'); save = false; }
+    v.innerHTML = '';
+    if(save && Math.abs(mm - trueDiam(id)) > 1e-9){
+      trueMM[id] = +mm.toFixed(2); saveTrueMM();
+      log('dim', `${id} simulated wheel is now ⌀${mm.toFixed(1)} mm (real size). The dashboard keeps its measured value until the next 100 m test.`);
+    }
+    render();
+  };
+  inp.addEventListener('keydown', e => { if(e.key === 'Enter') finish(true); if(e.key === 'Escape') finish(false); e.stopPropagation(); });
+  inp.addEventListener('blur', () => finish(true));
+});
+
+// ─── 100 m test: CAL 0 m tag -> exactly the zone length with the REAL wheel -> CAL END tag ───
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function spinBy(id, totalDeg, ms){
+  return new Promise(resolve => {
+    let doneDeg = 0, t0 = null;
+    const step = t => {
+      if(t0 == null) t0 = t;
+      const target = Math.min(1, (t - t0) / ms) * totalDeg;
+      rotate(target - doneDeg, id); doneDeg = target;
+      if(doneDeg < totalDeg) requestAnimationFrame(step); else resolve();
+    };
+    requestAnimationFrame(step);
+  });
+}
+$('calBtn').onclick = async () => {
+  const id = current;
+  if(calRunning || !LRVS[id]) return;
+  calRunning = true; $('calBtn').disabled = true;
+  try{
+    const zone = settings.cal_distance_m || 0.1;
+    const turns = zone / trueCirc(id);
+    $('calLbl').textContent = `${id}: CAL 0 m…`;
+    if(!(await stationRead('CAL0', id))) return;
+    $('calLbl').textContent = `${id}: ${zone} m zone = ${turns.toFixed(3)} turns of the ⌀${trueDiam(id).toFixed(1)} mm wheel…`;
+    await spinBy(id, turns * 360, Math.max(800, turns * 700));
+    await sleep(150);
+    $('calLbl').textContent = `${id}: CAL END…`;
+    const r = await stationRead('CAL100', id);
+    $('calLbl').textContent = !r ? 'test failed - see the log' :
+      r.calibration === 'accepted' ? `${id}: measured ⌀${(r.new_m / Math.PI * 1000).toFixed(1)} mm (this run ⌀${(r.measured_m / Math.PI * 1000).toFixed(1)} mm)` :
+      `${id}: ${r.calibration}${r.reason ? ' - ' + r.reason : ''}`;
+  }finally{
+    calRunning = false; $('calBtn').disabled = false;
+  }
+};
 
 // ─── startup: check backend, read calibration + LRV/tag mapping ───
 // Keep the LRV list in step with the dashboard's Demo settings (trains added / removed / re-tagged)
 async function syncTrains(first){
-  const [cfg, trains] = await Promise.all([get('/api/config'), get('/api/demo/trains')]);
+  const [cfg, trains, stTags] = await Promise.all([get('/api/config'), get('/api/demo/trains'), get('/api/station_tags')]);
   settings = Object.assign(settings, cfg);
+  stationTags = stTags;
+  document.querySelectorAll('.st-btn').forEach(b => {
+    b.querySelector('small').textContent = stTags[b.dataset.st] ? 'tag ' + stTags[b.dataset.st] : 'no tag set';
+  });
   if(cfg.accept_simulator === false) setBlocked(true);
   const seen = new Set();
   for(const t of trains){
     seen.add(t.device_id);
     const isNew = !LRVS[t.device_id];
     if(isNew) LRVS[t.device_id] = {angle:0, counts:0, frac:0, sent:-1, touched:false};
-    Object.assign(LRVS[t.device_id], {tag:t.tag, train:t.train_id, km:t.mileage});
+    Object.assign(LRVS[t.device_id], {tag:t.tag, train:t.train_id, km:t.mileage, wheel:t.wheel || null});
     if(isNew && !first){
       log('dim', `New LRV ${t.device_id} (train ${t.train_id}) from Demo settings`);
       LRVS[t.device_id].touched = true; await sendOdometer(t.device_id, true);   // power-on report
@@ -352,7 +476,8 @@ async function init(){
     await syncTrains(true);
     // Like an ESP32 at power-on: report counts = 0 so the server starts counting from here
     for(const id of Object.keys(LRVS)){ LRVS[id].touched = true; await sendOdometer(id, true); }
-    log('dim', `Connected to ${API} · wheel ${settings.wheel_circumference_m} m, ×${settings.demo_scale} demo scale`);
+    log('dim', `Connected to ${API} · ×${settings.demo_scale} demo scale · simulated wheels: ` +
+        Object.keys(LRVS).map(id => `${id} ⌀${trueDiam(id).toFixed(1)} mm`).join(', '));
   }catch(e){
     setConn(false);
     log('err', `Backend not reachable at ${API} - start it with: python main.py`);

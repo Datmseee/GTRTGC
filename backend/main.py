@@ -104,10 +104,17 @@ class RfidIn(BaseModel):
     source: str = Field("http", description='"simulator" for the simulator page')
 
 
+class LrvRfidIn(BaseModel):
+    device_id: str = Field(examples=["LRV01"])
+    tag: str = Field(examples=["5A000001"], description="UID of the station tag the train passed")
+    pulses: Optional[int] = Field(None, ge=0, description="wheel count at the moment of the read")
+    source: str = Field("http", description='"simulator" for the simulator page')
+
+
 class DemoTrainIn(BaseModel):
     train_id: str = Field(examples=["LRV-003"])
     device_id: str = Field(examples=["LRV03"])
-    tag: str = Field(examples=["04A3B2C1"])
+    tag: Optional[str] = Field(None, examples=["04A3B2C1"], description="only for the old reader-at-station setup")
     mileage: Optional[float] = Field(None, description="set / override the mileage (km)")
     type: Optional[str] = None
 
@@ -161,12 +168,13 @@ def get_train(train_id: str):
 class AdjustIn(BaseModel):
     mileage: Optional[float] = None
     location: Optional[str] = Field(None, examples=["ST1"])
+    wheel_mm: Optional[float] = Field(None, description="set the wheel diameter by hand (mm)")
 
 
 @app.patch("/api/trains/{train_id}")
 def patch_train(train_id: str, body: AdjustIn):
-    """Manual correction (dashboard double-click): set mileage and/or current station."""
-    return _wrap(service.adjust_train, train_id, body.mileage, body.location)
+    """Manual correction (dashboard double-click): set mileage, current station and/or wheel size."""
+    return _wrap(service.adjust_train, train_id, body.mileage, body.location, body.wheel_mm)
 
 
 @app.get("/api/alerts")
@@ -202,6 +210,18 @@ def post_tag(body: TagIn):
 @app.post("/api/pm")
 def post_pm(body: PmIn):
     return _wrap(service.record_pm, body.train_id, body.pm_type, body.technician, body.notes)
+
+
+class LastPmIn(BaseModel):
+    train_id: str
+    pm_type: str = Field(examples=["2K"])
+    last_pm_km: float = Field(description="mileage when this PM level was last done; next due = this + cycle")
+
+
+@app.put("/api/pm/last")
+def put_last_pm(body: LastPmIn):
+    """Set where a PM level was last done (dashboard double-click on 'due at')."""
+    return _wrap(service.set_last_pm, body.train_id, body.pm_type, body.last_pm_km)
 
 
 @app.post("/api/stockchange")
@@ -255,6 +275,30 @@ def put_config(body: dict):
 def ingest_odometer(body: OdometerIn):
     _wrap(service.check_source, body.source)
     return _wrap(service.ingest_odometer, body.device_id, body.pulses, body.source)
+
+
+@app.post("/api/ingest/lrv_rfid")
+def ingest_lrv_rfid(body: LrvRfidIn):
+    """Reader on the train: the train passed a station tag."""
+    _wrap(service.check_source, body.source)
+    return _wrap(service.ingest_lrv_rfid, body.device_id, body.tag, body.pulses, body.source)
+
+
+@app.get("/api/calibrations/{train_id}")
+def get_calibrations(train_id: str, limit: int = 20):
+    """Wheel calibration runs for a train (newest first)."""
+    return _wrap(service.calibrations, train_id, limit)
+
+
+@app.get("/api/station_tags")
+def get_station_tags():
+    return service.station_tags()
+
+
+@app.put("/api/station_tags")
+def put_station_tags(body: dict):
+    """{"ST1": "04A3B2C1", ..., "BRANCH": "...", "CAL0": "...", "CAL100": "..."} - UID of each track tag."""
+    return _wrap(service.set_station_tags, body)
 
 
 @app.post("/api/ingest/rfid")

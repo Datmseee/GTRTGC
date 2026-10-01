@@ -4,7 +4,7 @@
 SPLRT Fleet Management Dashboard — single-file HTML/CSS/JS app (`First_Dashboard.html`). No build tools. Open directly in browser or `python3 -m http.server 8080`.
 
 ## Map Stack
-- **Leaflet.js 1.9.4** via CDN + **OpenStreetMap** tiles darkened via CSS filter `.dark-tiles` (no API key; CARTO now requires one on public sites)
+- **Leaflet.js 1.9.4** via CDN + **Esri World Dark Gray Canvas** tiles (no API key; CARTO now requires one on public sites). Native to zoom 16, upscaled beyond; tweak darkness via `.dark-tiles`
 - No canvas — trains are `L.marker` with `L.divIcon`, tracks are `L.polyline`
 
 ## Key Data Structures

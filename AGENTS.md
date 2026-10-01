@@ -16,7 +16,7 @@ python3 -m http.server 8080
 
 ## Map Stack
 
-- Leaflet.js 1.9.4 via CDN + OpenStreetMap tiles darkened via CSS filter `.dark-tiles` (no API key; CARTO now requires one on public sites)
+- Leaflet.js 1.9.4 via CDN + Esri World Dark Gray Canvas tiles (no API key; CARTO now requires one on public sites)
 - Trains are `L.marker` with `L.divIcon`; tracks are `L.polyline` (NOT canvas)
 
 ## Where to Edit

@@ -58,22 +58,25 @@ Scenarios drive that train; the other is the standby.
 
 ## Table layout (floor mat)
 
-Printed mat: `demo_layout/SGRTGC_floor_mat_dark_6xA3.pdf` (or `_light_` to save ink). 6 A3 landscape sheets,
-3 across x 2 down, **print at 100% / actual size**. Cut each sheet along the red dotted line (left or top edge)
-and lay it over its neighbour. Finished mat: 1236 x 582 mm, audience along the bottom edge.
+**Event setup: A4 mat, visual props.** `demo_layout/SGRTGC_floor_mat_light_6xA4.pdf` (or `_dark_`):
+6 A4 landscape sheets, 3 across x 2 down, **print at 100% / actual size**. Cut each sheet along the red
+dotted line (left or top edge) and lay it over its neighbour. Finished mat about 874 x 411 mm, audience
+along the bottom edge. Check: CAL 0 to CAL END = 70.7 mm. Props are the A3 design scaled x0.7071.
 
-The dashboard's demo track is drawn from the same geometry (`demo_layout/layout.py`), so the table and the
-screen match. Put the RFID cards under the paper at the diamonds. CAL 0 to CAL END is exactly 100 mm.
+The electronics (ESP32, knob encoder, RFID reader) sit beside the mat as the "on-board unit".
+Move the train prop by hand, spin the knob, and tap the RFID card when the train reaches a diamond.
 
-Enter these in **Demo settings** (double-click each length on the demo track) so the train moves on screen
-in step with the mat:
+The dashboard's demo track is drawn from the same geometry (`demo_layout/layout.py`), so the table and
+the screen match. Enter these in **Demo settings** (double-click each length on the demo track):
 
-| Segment | Length |
-|---|---|
-| ST1 → ST2 | 0.472 m |
-| ST2 → ST1 | 2.300 m |
-| Depot → ST1 | 1.188 m |
-| Branch → Depot | 0.291 m |
+| Segment | A4 mat | (A3 mat) |
+|---|---|---|
+| ST1 → ST2 | 0.334 m | 0.472 m |
+| ST2 → ST1 | 1.626 m | 2.300 m |
+| Depot → ST1 | 0.840 m | 1.188 m |
+| Branch → Depot | 0.206 m | 0.291 m |
+
+Leave the calibration zone length as it is: it defines the wheel calibration, not the mat.
 
 To change the layout: edit `demo_layout/layout.py`, then run `python mat.py` (new PDFs) and
 `python dash_svg.py ../First_Dashboard.html` (new dashboard track).

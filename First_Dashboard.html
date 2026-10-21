@@ -97,6 +97,8 @@ header::before{
 .dt-rail{fill:none;stroke:var(--track-pg);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;opacity:0.9}
 .dt-rail.alt{opacity:0.75}
 .dt-rail.depot{stroke:var(--txt2);opacity:0.9}
+.dt-route{fill:none;stroke:none}
+.dt-foot{fill:none;stroke:var(--txt2);stroke-width:1;stroke-dasharray:4 3;opacity:0.7}
 .dt-core{fill:none;stroke:var(--bg0);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
 .dt-sta .halo{fill:var(--track-pg);fill-opacity:0.08;stroke:var(--track-pg);stroke-width:1}
 .dt-sta .core{fill:var(--bg1);stroke:var(--track-pg);stroke-width:2.5}
@@ -920,33 +922,36 @@ body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
         <svg class="dt-svg" id="dtSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-label="Demo track">
           <defs><pattern id="dtGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" class="dt-grid"/></pattern></defs>
           <rect x="-3000" y="-3000" width="7000" height="7000" fill="url(#dtGrid)"/>
-          <!-- double rail, like the LRT map: coloured outer line + dark core -->
-          <path id="dtPath-top" class="dt-rail" d="M150,230 A120,120 0 0 1 270,110 L730,110 A120,120 0 0 1 850,230"/>
-          <path id="dtPath-bottom" class="dt-rail alt" d="M850,230 A120,120 0 0 1 730,350 L270,350 A120,120 0 0 1 150,230"/>
-          <path id="dtPath-depot_out" class="dt-rail depot" d="M500,500 L400,350 L270,350 A120,120 0 0 1 150,230"/>
-          <path class="dt-rail depot" d="M600,350 L500,500"/>
-          <path class="dt-core" d="M150,230 A120,120 0 0 1 270,110 L730,110 A120,120 0 0 1 850,230 A120,120 0 0 1 730,350 L270,350 A120,120 0 0 1 150,230"/>
-          <path id="dtPath-depot_in" class="dt-rail depot" d="M590,365 L500,500"/>
-          <path class="dt-core" d="M500,500 L400,350 M600,350 L500,500"/>
-          <text class="dt-len" id="dtLen-ST1" x="500" y="146" text-anchor="middle" ondblclick="editSegment(event,'ST1')">ST1 → ST2 · 1.2 m</text>
-          <text class="dt-len" id="dtLen-ST2" x="500" y="330" text-anchor="middle" ondblclick="editSegment(event,'ST2')">ST2 → ST1 · 1.2 m</text>
-          <text class="dt-len" id="dtLen-DEPOT" x="400" y="455" text-anchor="end" ondblclick="editSegment(event,'DEPOT')">Depot → ST1 · 0.8 m</text>
-          <text class="dt-len" id="dtLen-BRANCH" x="588" y="455" ondblclick="editSegment(event,'BRANCH')">Branch → Depot · 0.3 m</text>
+          <!-- generated from demo_layout/layout.py: same geometry as the printed floor mat -->
+          <rect class="dt-foot" x="195.8" y="59.1" width="226.5" height="47.0"/><rect class="dt-foot" x="577.7" y="59.1" width="226.5" height="47.0"/><rect class="dt-foot" x="394.8" y="262.2" width="210.4" height="128.6"/>
+          <path class="dt-rail depot" d="M206.3,465.3 L234.7,465.3 A48.5,48.5 0 0 0 269.1,451.1 L364.4,355.7 A48.5,48.5 0 0 1 398.7,341.5 L601.3,341.5 A48.5,48.5 0 0 1 635.6,355.7 L730.9,451.1 A48.5,48.5 0 0 0 765.3,465.3 L793.7,465.3"/>
+          <path class="dt-rail" d="M171.5,139.2 L828.5,139.2 A121.4,121.4 0 0 1 949.8,260.6 L949.8,343.9 A121.4,121.4 0 0 1 828.5,465.3 L171.5,465.3 A121.4,121.4 0 0 1 50.2,343.9 L50.2,260.6 A121.4,121.4 0 0 1 171.5,139.2 L172.3,139.2"/>
+          <path class="dt-core" d="M206.3,465.3 L234.7,465.3 A48.5,48.5 0 0 0 269.1,451.1 L364.4,355.7 A48.5,48.5 0 0 1 398.7,341.5 L601.3,341.5 A48.5,48.5 0 0 1 635.6,355.7 L730.9,451.1 A48.5,48.5 0 0 0 765.3,465.3 L793.7,465.3"/>
+          <path class="dt-core" d="M171.5,139.2 L828.5,139.2 A121.4,121.4 0 0 1 949.8,260.6 L949.8,343.9 A121.4,121.4 0 0 1 828.5,465.3 L171.5,465.3 A121.4,121.4 0 0 1 50.2,343.9 L50.2,260.6 A121.4,121.4 0 0 1 171.5,139.2 L172.3,139.2"/>
+          <!-- route geometry used to place the trains (not drawn) -->
+          <path id="dtPath-top" class="dt-route" d="M292.9,139.2 L674.8,139.2"/>
+          <path id="dtPath-bottom" class="dt-route" d="M674.8,139.2 L828.5,139.2 A121.4,121.4 0 0 1 949.8,260.6 L949.8,343.9 A121.4,121.4 0 0 1 828.5,465.3 L171.5,465.3 A121.4,121.4 0 0 1 50.2,343.9 L50.2,260.6 A121.4,121.4 0 0 1 171.5,139.2 L292.9,139.2"/>
+          <path id="dtPath-depot_out" class="dt-route" d="M500.0,341.5 L398.7,341.5 A48.5,48.5 0 0 0 364.4,355.7 L269.1,451.1 A48.5,48.5 0 0 1 234.7,465.3 L171.5,465.3 A121.4,121.4 0 0 1 50.2,343.9 L50.2,260.6 A121.4,121.4 0 0 1 171.5,139.2 L292.9,139.2"/>
+          <path id="dtPath-depot_in" class="dt-route" d="M703.6,423.8 L635.6,355.7 A48.5,48.5 0 0 0 601.3,341.5 L500.0,341.5"/>
+          <text class="dt-len" id="dtLen-ST1" x="483.8" y="163.5" text-anchor="middle" ondblclick="editSegment(event,'ST1')">ST1 → ST2 · 0.472 m</text>
+          <text class="dt-len" id="dtLen-ST2" x="500.0" y="441.0" text-anchor="middle" ondblclick="editSegment(event,'ST2')">ST2 → ST1 · 2.3 m</text>
+          <text class="dt-len" id="dtLen-DEPOT" x="291.3" y="373.9" text-anchor="end" ondblclick="editSegment(event,'DEPOT')">Depot → ST1 · 1.188 m</text>
+          <text class="dt-len" id="dtLen-BRANCH" x="712.0" y="373.9" ondblclick="editSegment(event,'BRANCH')">Branch → Depot · 0.291 m</text>
           <!-- track tags that are not stations: depot branch + wheel calibration zone -->
-          <g class="dt-tag ed" transform="translate(590,365)" ondblclick="editTrackTag(event,'BRANCH')"><title>Depot branch tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
-          <text class="dt-tag-lbl ed" x="604" y="360" ondblclick="editTrackTag(event,'BRANCH')">BRANCH</text>
-          <g class="dt-tag ed" transform="translate(470,455)" ondblclick="editTrackTag(event,'CAL0')"><title>Calibration 0 m tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
-          <text class="dt-tag-lbl ed" id="dtCal0" x="484" y="462" ondblclick="editCalZone(event)"><title>Double-click to set the calibration zone length</title>CAL 0 m</text>
-          <g class="dt-tag ed" transform="translate(425,388)" ondblclick="editTrackTag(event,'CAL100')"><title>Calibration end tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
-          <text class="dt-tag-lbl ed" id="dtCal100" x="439" y="383" ondblclick="editCalZone(event)"><title>Double-click to set the calibration zone length</title>CAL 100 m</text>
-          <g class="dt-sta ed" ondblclick="editTrackTag(event,'ST1')"><title>Station 1 - double-click to set its tag UID</title><circle class="halo" cx="150" cy="230" r="24"/><circle class="core" cx="150" cy="230" r="12"/></g>
-          <g class="dt-sta ed" ondblclick="editTrackTag(event,'ST2')"><title>Station 2 - double-click to set its tag UID</title><circle class="halo" cx="850" cy="230" r="24"/><circle class="core" cx="850" cy="230" r="12"/></g>
-          <g class="dt-sta depot ed" ondblclick="editTrackTag(event,'DEPOT')"><title>Depot - double-click to set its tag UID</title><circle class="halo" cx="500" cy="500" r="24"/><circle class="core" cx="500" cy="500" r="12"/></g>
+          <g class="dt-tag ed" transform="translate(703.6,423.8)" ondblclick="editTrackTag(event,'BRANCH')"><title>Depot branch tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
+          <text class="dt-tag-lbl ed" x="717.6" y="427.8" ondblclick="editTrackTag(event,'BRANCH')">BRANCH</text>
+          <g class="dt-tag ed" transform="translate(368.7,351.9)" ondblclick="editTrackTag(event,'CAL0')"><title>Calibration 0 m tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
+          <text class="dt-tag-lbl ed" id="dtCal0" x="354.7" y="345.9" text-anchor="end" ondblclick="editCalZone(event)"><title>Double-click to set the calibration zone length</title>CAL 0 m</text>
+          <g class="dt-tag ed" transform="translate(311.3,408.8)" ondblclick="editTrackTag(event,'CAL100')"><title>Calibration end tag - double-click to set its UID</title><rect x="-6" y="-6" width="12" height="12" transform="rotate(45)"/></g>
+          <text class="dt-tag-lbl ed" id="dtCal100" x="325.3" y="422.8" ondblclick="editCalZone(event)"><title>Double-click to set the calibration zone length</title>CAL 100 m</text>
+          <g class="dt-sta ed" ondblclick="editTrackTag(event,'ST1')"><title>Sengkang (ST1) - double-click to set its tag UID</title><circle class="halo" cx="292.9" cy="139.2" r="24"/><circle class="core" cx="292.9" cy="139.2" r="12"/></g>
+          <g class="dt-sta ed" ondblclick="editTrackTag(event,'ST2')"><title>Punggol (ST2) - double-click to set its tag UID</title><circle class="halo" cx="674.8" cy="139.2" r="24"/><circle class="core" cx="674.8" cy="139.2" r="12"/></g>
+          <g class="dt-sta depot ed" ondblclick="editTrackTag(event,'DEPOT')"><title>Sengkang Depot - double-click to set its tag UID</title><circle class="halo" cx="500.0" cy="341.5" r="24"/><circle class="core" cx="500.0" cy="341.5" r="12"/></g>
         </svg>
         <div class="dt-overlay" id="dtOverlay">
-          <div class="sta-label dt-sta-label" data-x="150" data-y="230"><span>ST1</span><span class="sta-name-small">Station 1</span></div>
-          <div class="sta-label dt-sta-label" data-x="850" data-y="230"><span>ST2</span><span class="sta-name-small">Station 2</span></div>
-          <div class="sta-label dt-sta-label depot" data-x="500" data-y="500"><span>DEPOT</span><span class="sta-name-small">Depot</span></div>
+          <div class="sta-label dt-sta-label" data-x="292.9" data-y="139.2"><span>ST1</span><span class="sta-name-small">Sengkang</span></div>
+          <div class="sta-label dt-sta-label" data-x="674.8" data-y="139.2"><span>ST2</span><span class="sta-name-small">Punggol</span></div>
+          <div class="sta-label dt-sta-label depot" data-x="500.0" data-y="341.5"><span>DEPOT</span><span class="sta-name-small">Sengkang</span></div>
           <div id="dtTrains"></div>
         </div>
         <div class="map-legend dt-legend">
@@ -2721,7 +2726,7 @@ function buildTicker(){
 // URL options:  ?mode=sim | ?mode=demo   (skip the start screen)
 //               ?api=http://192.168.x.x:8000   (backend elsewhere)
 // ═══════════════════════════════════════════════════════
-const DEMO_LOCATIONS = {ST1:'Demo Track · Station 1', ST2:'Demo Track · Station 2', DEPOT:'Demo Track · Depot'};
+const DEMO_LOCATIONS = {ST1:'Demo Track · Sengkang', ST2:'Demo Track · Punggol', DEPOT:'Demo Track · Sengkang Depot'};
 let MODE = 'sim';
 
 const LIVE = (() => {
@@ -3073,6 +3078,8 @@ function liveInit(){
 //   last RFID station read  +  axle-encoder distance travelled since then.
 // Nothing here is simulated. Layout/lengths come from GET /api/track.
 // ═══════════════════════════════════════════════════════
+// Names on the 3D-printed props and the floor mat (display only; backend IDs stay ST1 / ST2 / DEPOT)
+const DT_PROP_NAMES = {ST1:'Sengkang', ST2:'Punggol', DEPOT:'Sengkang Depot'};
 const DT = {
   scale: 1000,
   segFrom: {
@@ -3081,12 +3088,12 @@ const DT = {
     DEPOT: {to:'ST1', path:'depot_out', length_m:0.8},
     BRANCH:{to:'DEPOT', path:'depot_in', length_m:0.3}
   },
-  points: {ST1:{x:150,y:230}, ST2:{x:850,y:230}, DEPOT:{x:500,y:500}, BRANCH:{x:590,y:365}},
-  names: {ST1:'Station 1', ST2:'Station 2', DEPOT:'Depot', BRANCH:'Depot branch', CAL0:'Calibration 0 m', CAL100:'Calibration end'},
+  points: {ST1:{x:292.9,y:139.2}, ST2:{x:674.8,y:139.2}, DEPOT:{x:500.0,y:341.5}, BRANCH:{x:703.6,y:423.8}},
+  names: {ST1:'Sengkang', ST2:'Punggol', DEPOT:'Sengkang Depot', BRANCH:'Depot branch', CAL0:'Calibration 0 m', CAL100:'Calibration end'},
   short: {BRANCH:'Branch', DEPOT:'Depot'},
   calDistance: 0.1,
   // track tags part-way along a segment: the train is never shown past one until it has read it
-  segTags: { DEPOT: [{id:'CAL0', x:470, y:455}, {id:'CAL100', x:425, y:388}] },
+  segTags: { DEPOT: [{id:'CAL0', x:368.7, y:351.9}, {id:'CAL100', x:311.3, y:408.8}] },
   markers: {},        // train id -> {g, x, y, tx, ty}
   editing: false,
   loaded: false,
@@ -3101,6 +3108,7 @@ async function loadDemoTrack(){
     (tr.segments || []).forEach(s => { DT.segFrom[s.from] = {to:s.to, path:s.path, length_m:s.length_m}; });
     if(tr.stations) Object.assign(DT.names, tr.stations);
     if(tr.markers) Object.assign(DT.names, tr.markers);
+    Object.assign(DT.names, DT_PROP_NAMES);   // match the printed station / depot props
     if(tr.cal_distance_m) DT.calDistance = tr.cal_distance_m;
     try{ const cfg = await liveFetch('/api/config'); DT.pmSoonPct = cfg.pm_soon_pct; DT.pmGrace = cfg.pm_overdue_grace_km; }catch(e){}
     const end = document.getElementById('dtCal100');
@@ -3935,7 +3943,7 @@ const SC_LIST = [
   // ---------------- TRACK ----------------
   {id:'A1', sec:'track', title:'Live mileage',
    what:'Mileage counts up live from the wheel encoder.',
-   setup:'Train at Station 1, healthy. Standby train in the depot.',
+   setup:'Train at Sengkang, healthy. Standby train in the depot.',
    todo:'Spin the knob a few turns.',
    ask:'LTA objective 1: automatically capture LRV mileage, in real time.',
    seed: ctx => ({L: {...HEALTHY_L, loc:'ST1'}, S: {...HEALTHY_S, loc:'DEPOT'}}),
@@ -3947,13 +3955,13 @@ const SC_LIST = [
    ]},
   {id:'A2', sec:'track', title:'Station check-in',
    what:'RFID at each station fixes the train position and checks the measured distance against the track.',
-   setup:'Train at Station 1, healthy.',
-   todo:'Spin toward Station 2, then tap the ST2 card.',
+   setup:'Train at Sengkang, healthy.',
+   todo:'Spin toward Punggol, then tap the ST2 card.',
    ask:'LTA check-in: show accuracy and reliability.',
    seed: ctx => ({L: {...HEALTHY_L, loc:'ST1'}, S: {...HEALTHY_S, loc:'DEPOT'}}),
    steps: [
      {say:'The train knows how far it has gone since the last station.',
-      do:'Spin to drive toward Station 2.', done: c => c.L.mileage - c.base.Lkm >= c.turn},
+      do:'Spin to drive toward Punggol.', done: c => c.L.mileage - c.base.Lkm >= c.turn},
      {say:'At the station, RFID confirms exactly where it is.',
       do:'Tap the ST2 card.', done: c => c.L.liveLocation === 'ST2'},
      {say:'Measured distance and track distance agree, so the mileage can be trusted.',
@@ -3975,7 +3983,7 @@ const SC_LIST = [
   // ---------------- PLAN ----------------
   {id:'B1', sec:'plan', title:'PM due soon',
    what:'Amber warning before a check is due, with a choice of maintenance slot.',
-   setup:'Train at Station 1, about 4 knob turns before the 2K warning line.',
+   setup:'Train at Sengkang, about 4 knob turns before the 2K warning line.',
    todo:'Spin about 4 turns, then pick a slot on the card.',
    ask:'LTA objective 3: use mileage to plan preventive maintenance.',
    seed: ctx => ({L: {km: HEALTHY_L.km, loc:'ST1', rem: {'2K': scSoonKm('2K') + scTurns(ctx, 3.5)}},
@@ -3988,7 +3996,7 @@ const SC_LIST = [
    ]},
   {id:'B2', sec:'plan', title:'PM overdue',
    what:'Red alert the moment the limit is crossed, with recall, withdraw or defer.',
-   setup:'Train at Station 2, about 4 turns before the 2K check is overdue.',
+   setup:'Train at Punggol, about 4 turns before the 2K check is overdue.',
    todo:'Spin about 4 turns, then choose on the card.',
    ask:'LTA step 2: recalling trains is manual today.',
    seed: ctx => ({L: {km: HEALTHY_L.km, loc:'ST2', rem: {'2K': scTurns(ctx, 3.5) - scGrace()}},
@@ -4016,7 +4024,7 @@ const SC_LIST = [
   // ---------------- ACT ----------------
   {id:'C1', sec:'act', title:'Stock change',
    what:'An overdue train is swapped with a healthy train from the depot in one click.',
-   setup:'Train at Station 2, 2K check overdue. Standby train healthy in the depot.',
+   setup:'Train at Punggol, 2K check overdue. Standby train healthy in the depot.',
    todo:'Click Recall now, drive the train to the depot, tap the DEPOT card.',
    ask:'LTA: trains may be withdrawn and stock changed during service.',
    seed: ctx => ({L: {km: HEALTHY_L.km, loc:'ST2', rem: {'2K': -12 - scGrace()}}, S: {...HEALTHY_S, loc:'DEPOT'}}),
@@ -4065,7 +4073,7 @@ const SC_LIST = [
    ]},
   {id:'D2', sec:'trust', title:'Restart recovery',
    what:'Mileage lives on the server, not on the train. A restart loses nothing.',
-   setup:'Train at Station 1, healthy.',
+   setup:'Train at Sengkang, healthy.',
    todo:'Unplug the train, wait 15 s, plug back in, spin again.',
    ask:'Bonus: reliability if a device loses power.',
    seed: ctx => ({L: {...HEALTHY_L, loc:'ST1'}, S: {...HEALTHY_S, loc:'DEPOT'}}),

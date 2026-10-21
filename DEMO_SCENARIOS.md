@@ -55,3 +55,25 @@ hubometer problem is on C810 / C810A. Display only.
 With one ESP32 (two encoder ports): encoder 1 → `LRV01` → 810A-001, encoder 2 → `LRV02` → 810A-002.
 Station RFID reads carry no train ID and go to the train in **Demo settings → "Station-reader RFID reads belong to"** (default `LRV01`).
 Scenarios drive that train; the other is the standby.
+
+## Table layout (floor mat)
+
+Printed mat: `demo_layout/SGRTGC_floor_mat_dark_6xA3.pdf` (or `_light_` to save ink). 6 A3 landscape sheets,
+3 across x 2 down, **print at 100% / actual size**. Cut each sheet along the red dotted line (left or top edge)
+and lay it over its neighbour. Finished mat: 1236 x 582 mm, audience along the bottom edge.
+
+The dashboard's demo track is drawn from the same geometry (`demo_layout/layout.py`), so the table and the
+screen match. Put the RFID cards under the paper at the diamonds. CAL 0 to CAL END is exactly 100 mm.
+
+Enter these in **Demo settings** (double-click each length on the demo track) so the train moves on screen
+in step with the mat:
+
+| Segment | Length |
+|---|---|
+| ST1 → ST2 | 0.472 m |
+| ST2 → ST1 | 2.300 m |
+| Depot → ST1 | 1.188 m |
+| Branch → Depot | 0.291 m |
+
+To change the layout: edit `demo_layout/layout.py`, then run `python mat.py` (new PDFs) and
+`python dash_svg.py ../First_Dashboard.html` (new dashboard track).

@@ -149,6 +149,82 @@ header::before{
 body.demo-edit .hs.ed{cursor:text}
 body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
 .dt-edit-err{position:absolute;left:18px;bottom:14px;z-index:5;background:var(--bg1);border:1px solid var(--red);color:var(--red);border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:11px}
+/* ═══ Demo scenarios ═══ */
+.sc-open{border-color:var(--cyan);color:var(--cyan)}
+.sc-open:hover{background:var(--cyan-dim)}
+/* audience banner: what this part of the demo shows */
+.sc-banner{position:absolute;left:14px;top:12px;z-index:1200;display:none;align-items:center;gap:10px;background:var(--bg1);border:1px solid var(--border2);border-radius:10px;padding:8px 10px 8px 12px;box-shadow:0 6px 24px var(--bg0)}
+.sc-banner.show{display:flex}
+.sc-chip{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--bg0);background:var(--cyan);border-radius:4px;padding:3px 7px;cursor:default;user-select:none}
+.sc-chip.s-plan{background:var(--amber)}.sc-chip.s-act{background:var(--green)}.sc-chip.s-trust{background:var(--blue)}
+.sc-btitle{font-family:var(--sans);font-size:20px;font-weight:700;letter-spacing:0.04em;color:var(--txt0)}
+.sc-bstep{font-family:var(--mono);font-size:11px;color:var(--txt1);margin-left:2px}
+.sc-bbtn{background:transparent;border:1px solid var(--border2);border-radius:6px;color:var(--txt1);font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 9px;cursor:pointer}
+.sc-bbtn:hover{border-color:var(--cyan);color:var(--cyan)}
+.sc-bbtn:disabled{opacity:0.35;cursor:default}
+/* rehearsal notes (hidden by default, toggled with the ` key or a double-click on the chip) */
+.sc-cue{display:none;margin-top:8px;max-width:900px;background:var(--bg1);border:1px dashed var(--border2);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:12px;color:var(--txt0);box-shadow:0 6px 24px var(--bg0)}
+.sc-cue.show{display:block}
+.dt-head.cue-on .dt-sub{display:none}
+.sc-cue-row{display:flex;gap:8px;align-items:baseline;margin-top:3px}
+.sc-cue-k{flex:0 0 34px;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.14em;color:var(--txt2)}
+.sc-cue-steps{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.sc-cue-step{font-size:10px;color:var(--txt2);border:1px solid var(--border);border-radius:10px;padding:1px 7px}
+.sc-cue-step.cur{color:var(--cyan);border-color:var(--cyan)}
+.sc-cue-step.done{color:var(--green);border-color:var(--green)}
+/* decision card */
+.sc-dec{position:absolute;right:14px;top:12px;z-index:1201;width:330px;max-width:calc(100% - 28px);display:none;background:var(--bg1);border:1px solid var(--amber);border-radius:12px;padding:12px 14px;box-shadow:0 10px 40px var(--bg0)}
+.sc-dec.show{display:block}
+.sc-dec.crit{border-color:var(--red)}
+.sc-dec.ok{border-color:var(--green)}
+.sc-dec-k{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--amber)}
+.sc-dec.crit .sc-dec-k{color:var(--red)}.sc-dec.ok .sc-dec-k{color:var(--green)}
+.sc-dec-t{font-family:var(--sans);font-size:17px;font-weight:700;color:var(--txt0);margin-top:3px}
+.sc-dec-b{font-family:var(--mono);font-size:11px;color:var(--txt1);margin-top:6px;line-height:1.5}
+.sc-dec-b b{color:var(--txt0);font-weight:600}
+.sc-dec-acts{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.sc-act{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;color:var(--txt0);font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer}
+.sc-act span{font-family:var(--mono);font-size:10px;font-weight:400;color:var(--txt1)}
+.sc-act:hover{border-color:var(--cyan)}
+.sc-act.primary{border-color:var(--cyan);background:var(--cyan-dim)}
+.sc-act:disabled{opacity:0.4;cursor:default}
+.sc-dec-in{width:100%;box-sizing:border-box;margin-top:8px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;color:var(--txt0);font-family:var(--mono);font-size:12px}
+.sc-dec-in:focus{outline:none;border-color:var(--cyan)}
+.sc-dec-x{float:right;background:none;border:none;color:var(--txt2);font-size:14px;cursor:pointer;line-height:1}
+.sc-dec-x:hover{color:var(--txt0)}
+.sc-chipline{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;margin-top:2px}
+.sc-tagchip{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.12em;border-radius:10px;padding:1px 7px;border:1px solid var(--cyan);color:var(--cyan)}
+.sc-tagchip.amber{border-color:var(--amber);color:var(--amber)}
+/* scenario drawer */
+.sc-drawer{position:fixed;top:0;right:0;bottom:0;width:380px;max-width:100%;z-index:2200;transform:translateX(105%);transition:transform .2s ease;background:var(--bg1);border-left:1px solid var(--border2);box-shadow:-10px 0 40px var(--bg0);display:flex;flex-direction:column}
+.sc-drawer.show{transform:none}
+.sc-dh{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--border)}
+.sc-dh-t{font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:0.14em;color:var(--txt0)}
+.sc-dbody{flex:1;overflow:auto;padding:6px 16px 16px}
+.sc-sec{margin-top:14px}
+.sc-sec-h{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.sc-sec-n{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.16em;color:var(--txt0)}
+.sc-sec-s{font-family:var(--mono);font-size:10px;color:var(--txt2)}
+.sc-card{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 10px;margin-bottom:6px;cursor:pointer;color:var(--txt0)}
+.sc-card:hover{border-color:var(--cyan)}
+.sc-card.cur{border-color:var(--cyan);background:var(--cyan-dim)}
+.sc-card.busy{opacity:0.6;cursor:progress}
+.sc-card-c{flex:0 0 28px;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--txt1)}
+.sc-card-t{flex:1;font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:0.02em}
+.sc-card-d{font-family:var(--mono);font-size:10px;color:var(--txt2)}
+.sc-reset{width:100%;margin-top:4px;background:transparent;border:1px dashed var(--border2);border-radius:8px;padding:8px;color:var(--txt1);font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.1em;cursor:pointer}
+.sc-reset:hover{border-color:var(--cyan);color:var(--cyan)}
+.sc-msg{font-family:var(--mono);font-size:11px;margin-top:8px;min-height:14px;color:var(--txt1)}
+.sc-msg.err{color:var(--red)}.sc-msg.ok{color:var(--green)}
+.sc-log{margin-top:16px;border-top:1px solid var(--border);padding-top:10px}
+.sc-log-i{font-family:var(--mono);font-size:10px;color:var(--txt1);margin-top:4px}
+.sc-log-i b{color:var(--txt0);font-weight:600}
+/* hover description, like an editor hover */
+.sc-tip{position:fixed;z-index:2400;display:none;width:300px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;box-shadow:0 8px 30px var(--bg0);font-family:var(--mono);font-size:11px;color:var(--txt0);line-height:1.5;pointer-events:none}
+.sc-tip.show{display:block}
+.sc-tip-h{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:4px}
+.sc-tip-r{margin-top:6px}
+.sc-tip-k{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.16em;color:var(--txt2);display:block}
 /* Demo settings */
 .ds-open{display:none;float:right;margin-left:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.15em;color:var(--txt1);cursor:pointer}
 .ds-open.show{display:block}
@@ -833,10 +909,14 @@ body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
     <div class="demo-track" id="demoTrack">
       <div class="dt-head">
         <button class="ds-open" id="dsOpen" onclick="openDemoSettings()" title="Demo settings: trains, station distances, wheel, simulator">⚙ DEMO SETTINGS</button>
+        <button class="ds-open sc-open" id="scOpen" onclick="scOpenDrawer()" title="Ready-made demo cases">▶ SCENARIOS</button>
         <div class="dt-title">DEMO TRACK</div>
         <div class="dt-sub">Live positions from track RFID tags read by the train + axle-encoder distance (hardware and simulator page). Double-click any value to edit it: mileage, location, device, wheel, Next PM levels, distances, station / tag markers, calibration zone.</div>
+        <div class="sc-cue" id="scCue"></div>
       </div>
       <div class="dt-stage" id="dtStage">
+        <div class="sc-banner" id="scBanner"></div>
+        <div class="sc-dec" id="scDec"></div>
         <svg class="dt-svg" id="dtSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-label="Demo track">
           <defs><pattern id="dtGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" class="dt-grid"/></pattern></defs>
           <rect x="-3000" y="-3000" width="7000" height="7000" fill="url(#dtGrid)"/>
@@ -957,13 +1037,18 @@ body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
       <button class="mode-card" id="modeCardDemo" onclick="chooseMode('demo')">
         <div class="mode-card-k">WITH DATA</div>
         <div class="mode-card-t">DEMO</div>
-        <div class="mode-card-d">Live data from the demo track: axle encoders + RFID stations via the backend. 810D-001 and 810D-002 follow the model LRVs.</div>
+        <div class="mode-card-d">Live data from the demo track: axle encoders + RFID stations via the backend. 810A-001 and 810A-002 (C810A) follow the model LRVs.</div>
         <div class="mode-card-s" id="modeDemoStatus">Checking backend…</div>
       </button>
     </div>
     <div class="mode-foot">Tip: open with ?mode=demo or ?mode=sim to skip this screen.</div>
   </div>
 </div>
+<div class="sc-drawer" id="scDrawer">
+  <div class="sc-dh"><span class="sc-dh-t">SCENARIOS</span><button class="sc-bbtn" onclick="scCloseDrawer()" title="Close (Esc)">✕</button></div>
+  <div class="sc-dbody" id="scBody"></div>
+</div>
+<div class="sc-tip" id="scTip"></div>
 <div class="hmodal" id="demoSettings" onclick="if(event.target===this)closeDemoSettings()">
   <div class="hmodal-inner ds-inner">
     <div class="hm-title">Demo settings</div>
@@ -2249,8 +2334,8 @@ function updateFleetList(){
     const loopLabel = t.loop ? loopShort[t.loop]||t.loop : (t.liveLocation && t.status==='in-service' ? t.liveLocation : 'Depot');
     return `<div class="fi ${isSel?'selected':''}" onclick="selectTrainById('${t.id}')">
       <div class="fi-dot" style="background:${color};${color==='#00e888'?'box-shadow:0 0 5px '+color:''}"></div>
-      <div class="fi-id">${t.id}</div>
-      <div class="fi-type">${t.type}</div>
+      <div class="fi-id">${dispId(t)}</div>
+      <div class="fi-type">${dispType(t)}</div>
       <div class="fi-loop" style="color:${t.loop?'#4a7a90':'#3a5570'}">${loopLabel}</div>
       <div class="fi-mi">${formatKm(t.mileage)}</div>
     </div>`;
@@ -2316,8 +2401,8 @@ function updateDetailPanel(t){
     <div class="det">
       <div class="det-header">
         <div class="det-badge">
-          <div class="det-badge-id">${t.id}</div>
-          <div class="det-badge-type">${t.type}</div>
+          <div class="det-badge-id">${dispId(t)}</div>
+          <div class="det-badge-type">${dispType(t)}</div>
         </div>
         <div class="det-info">
           <div class="drow"><span class="dlbl">Status</span><span class="sbadge ${statusClass[t.status]||'sb-dep'}">${statusLabel[t.status]||t.status}</span></div>
@@ -2371,8 +2456,8 @@ function updateAlertsPanel(){
   const alerts = [];
   visibleFleet().forEach(t => {
     const pm = pmOf(t);
-    if(pm.status==='over') alerts.push({type:'crit',title:`${t.id} — ${pm.name} OVERDUE`,body:`${t.type} · ${formatKm(t.mileage)} km · ${placeOf(t)}`,time:'Trigger now'});
-    else if(pm.status==='soon') alerts.push({type:'warn',title:`${t.id} — ${pm.name} due soon`,body:`${pm.remaining <= 0 ? 'due now, ' + formatKm(-pm.remaining) + ' km past (within grace)' : formatKm(pm.remaining) + ' km remaining'} · ${placeOf(t)}`,time:'Schedule PM'});
+    if(pm.status==='over') alerts.push({type:'crit',title:`${dispId(t)}: ${pm.name} OVERDUE`,body:`${dispType(t)} · ${formatKm(t.mileage)} km · ${placeOf(t)}`,time:'Trigger now'});
+    else if(pm.status==='soon') alerts.push({type:'warn',title:`${dispId(t)}: ${pm.name} due soon`,body:`${pm.remaining <= 0 ? 'due now, ' + formatKm(-pm.remaining) + ' km past (within grace)' : formatKm(pm.remaining) + ' km remaining'} · ${placeOf(t)}`,time:'Schedule PM'});
   });
   if(MODE === 'demo'){
     if(!alerts.length) alerts.push({type:'info',title:'No PM alerts',body:'Both demo LRVs are within their PM cycles.',time:'Demo track'});
@@ -2608,10 +2693,10 @@ function buildTicker(){
   const alerts = vf.filter(t=>pmOf(t).status!=='ok').slice(0,12);
   const base = MODE === 'demo' ? [
     `<span class="as-item i"><span class="as-dot"></span>Demo mode — live data from the demo track (ST1 · ST2 · Depot)</span>`,
-    ...vf.map(t => `<span class="as-item i"><span class="as-dot"></span>${t.id}: ${formatKm(t.mileage)} km · ${placeOf(t)}</span>`),
+    ...vf.map(t => `<span class="as-item i"><span class="as-dot"></span>${dispId(t)}: ${formatKm(t.mileage)} km · ${placeOf(t)}</span>`),
     ...alerts.map(t => {
       const pm = pmOf(t);
-      return `<span class="as-item ${pm.status==='over'?'c':'w'}"><span class="as-dot"></span>${t.id}: ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}</span>`;
+      return `<span class="as-item ${pm.status==='over'?'c':'w'}"><span class="as-dot"></span>${dispId(t)}: ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}</span>`;
     }),
   ] : [
     `<span class="as-item i"><span class="as-dot"></span>System online — SPLRT Fleet OPS v2.0 · Live map active</span>`,
@@ -2619,7 +2704,7 @@ function buildTicker(){
     ...alerts.map(t => {
       const pm = pmOf(t);
       const cls = pm.status==='over'?'c':'w';
-      return `<span class="as-item ${cls}"><span class="as-dot"></span>${t.id}: ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}</span>`;
+      return `<span class="as-item ${cls}"><span class="as-dot"></span>${dispId(t)}: ${pm.name} ${pm.status==='over'?'OVERDUE':'due soon'}</span>`;
     }),
     `<span class="as-item i"><span class="as-dot"></span>Revenue hours: 0500–0100 · Peak headway: 3 min · Off-peak: 8 min</span>`,
     `<span class="as-item i"><span class="as-dot"></span>MMB Depot — ${fleet.filter(t=>t.status==='depot').length} vehicles stabled</span>`,
@@ -2732,6 +2817,7 @@ function applyLiveTrain(d){
     fleet.push(t);
   }
   setTrainState(t, d);
+  scnSafe(() => scnOnTrain(t));
   return true;
 }
 
@@ -2824,6 +2910,7 @@ function liveOpenSocket(){
   ws.onopen = () => { opened = true; LIVE.connected = true; setLiveBadge('live'); };
   ws.onmessage = ev => {
     let msg; try{ msg = JSON.parse(ev.data); }catch(e){ return; }
+    scnSafe(() => scnOnEvent(msg));
     if(msg.train) applyLiveTrain(msg.train);
     if(msg.type === 'removed'){
       const t = fleet.find(f => f.id === msg.train_id);
@@ -2835,9 +2922,9 @@ function liveOpenSocket(){
     if(msg.type === 'calibration' && MODE === 'demo' && msg.train_id){
       if(msg.calibration === 'accepted'){
         const pct = (msg.new_m - msg.previous_m) / msg.previous_m * 100;
-        showEditError(`${msg.train_id} wheel calibrated: ⌀ ${(msg.new_m / Math.PI * 1000).toFixed(2)} mm (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%) from ${msg.turns} turns`, true);
+        showEditError(`${dispIdOf(msg.train_id)} wheel calibrated: ⌀ ${(msg.new_m / Math.PI * 1000).toFixed(2)} mm (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%) from ${msg.turns} turns`, true);
       } else if(msg.calibration === 'rejected'){
-        showEditError(`${msg.train_id} calibration rejected: ${msg.reason}`);
+        showEditError(`${dispIdOf(msg.train_id)} calibration rejected: ${msg.reason}`);
       }
     }
     if(msg.type === 'unknown_tag') console.info(`[SPLRT] Unknown RFID tag ${msg.tag} at ${msg.station_id} - register it via POST /api/tags`);
@@ -3112,6 +3199,7 @@ function updateDemoTrackVisibility(){
   document.getElementById('dsOpen').classList.toggle('show', showTrack);
   if(!showTrack) closeDemoSettings();
   if(showTrack){ renderDemoTrack(); startDemoTrackAnim(); }
+  scnSafe(scVisibility);
 }
 
 function renderDemoTrack(){
@@ -3148,7 +3236,7 @@ function renderDemoTrack(){
       arrow.className = 'train-arrow';
       const label = document.createElement('div');
       label.className = 'train-label';
-      label.textContent = t.id;
+      label.textContent = dispId(t);
       el.append(arrow, label);
       wrap.appendChild(el);
       el.addEventListener('click', () => selectTrainById(t.id));
@@ -3191,8 +3279,8 @@ function renderDemoTrack(){
       : `At ${DT.names[tg.loc] || tg.loc}`;
     return `<div class="dt-card ${selectedTrain && selectedTrain.id === t.id ? 'sel' : ''}" onclick="selectTrainById('${t.id}')">
       <div class="dt-card-top">
-        <span class="dt-card-id">${t.id}</span>
-        <span class="dt-card-dev"><span class="dt-dot" style="background:${dev.online ? 'var(--green)' : 'var(--txt2)'}"></span><span class="dt-editable" title="Double-click to change the on-board device" ondblclick="editDevice(event,'${t.id}')">${dev.id || ''}</span> ${dev.online ? 'online' : 'offline'}</span>
+        <span class="dt-card-id">${dispId(t)}</span>
+        <span class="dt-card-dev"><span class="dt-dot" style="background:${scDevColor(dev)}"></span><span class="dt-editable" title="Double-click to change the on-board device" ondblclick="editDevice(event,'${t.id}')">${dev.id || ''}</span> ${scDevText(dev)}</span>
       </div>
       <div class="dt-card-where"><span class="dt-editable" title="Double-click to set the station" ondblclick="editLocation(event,'${t.id}')">${where}</span>${t._dtMoving ? ' <span class="dt-moving">MOVING</span>' : ''}</div>
       <div class="dt-card-km"><span class="dt-editable" title="Double-click to edit the mileage" ondblclick="editMileage(event,'${t.id}')">${formatKm(t.mileage)}</span><span class="dt-dim"> km</span></div>
@@ -3200,7 +3288,8 @@ function renderDemoTrack(){
       <div class="dt-card-row"><span>Wheel</span><span class="dt-editable" title="Measured by the 100 m test. Double-click to set it by hand" ondblclick="editWheel(event,'${t.id}')">${wheelText(t)}</span></div>
       <div class="dt-card-row"><span>Next check</span><span class="dt-editable" title="Double-click to change the mileage this check is due at" ondblclick="editPmDue(event,'${t.id}','${pmLbl}')">${pm.name} at ${pm.due_at != null ? formatKm0(pm.due_at) : '—'} km</span></div>
       <div class="dt-card-row"><span>Distance to check</span><span class="dt-editable" title="Double-click to set how far the train is from this check" ondblclick="editPmRemaining(event,'${t.id}','${pmLbl}')" style="color:${pmColor}">${pm.remaining >= 0 ? formatKm(pm.remaining) + ' km left' : formatKm(-pm.remaining) + ' km OVER'}</span></div>
-      <div class="dt-card-row"><span>Status <button class="dt-done" title="Maintenance crew finished this check: next ${pm.name} due ${pmCycle ? formatKm0(pmCycle) : ''} km from now" onclick="markPmDone(event,'${t.id}','${pmLbl}')">✓ ${pmLbl} check done</button></span><span class="dt-editable" title="Double-click to change the warning levels" ondblclick="editPmLevels(event)"><span style="color:${pmColor}">${pm.status === 'over' ? 'OVERDUE' : pm.status === 'soon' ? 'DUE SOON' : 'OK'}</span> <span class="dt-dim">· amber under ${pmCycle ? formatKm0(pmCycle * (DT.pmSoonPct != null ? DT.pmSoonPct : 8) / 100) : '—'} km · red ${(DT.pmGrace || 0) > 0 ? formatKm0(DT.pmGrace) + ' km over' : 'when due'}</span></span></div>
+      <div class="dt-card-row"><span>Status <button class="dt-done" title="Maintenance crew finished this check: next ${pm.name} due ${pmCycle ? formatKm0(pmCycle) : ''} km from now" onclick="markPmDone(event,'${t.id}','${pmLbl}')">Mark ${pmLbl} done</button></span><span class="dt-editable" title="Double-click to change the warning levels" ondblclick="editPmLevels(event)"><span style="color:${pmColor}">${pm.status === 'over' ? 'OVERDUE' : pm.status === 'soon' ? 'DUE SOON' : 'OK'}</span> <span class="dt-dim">· amber under ${pmCycle ? formatKm0(pmCycle * (DT.pmSoonPct != null ? DT.pmSoonPct : 8) / 100) : '—'} km · red ${(DT.pmGrace || 0) > 0 ? formatKm0(DT.pmGrace) + ' km over' : 'when due'}</span></span></div>
+      ${scnCardExtra(t)}
     </div>`;
   }).join('') : `<div class="dt-empty">Waiting for data from the demo LRVs…</div>`;
 }
@@ -3675,7 +3764,7 @@ async function markPmDone(ev, id, label){
   try{
     await liveSend('POST', '/api/pm', {train_id: id, pm_type: label, notes: 'marked done on the dashboard'});
     const i = PM_LABELS.indexOf(label);
-    showEditError(`${id}: ${label} check done at ${formatKm0(t ? t.mileage : 0)} km - next ${label} due at ${formatKm0((t ? t.mileage : 0) + PM_CYCLES[i])} km`, true);
+    showEditError(`${dispIdOf(id)}: ${label} check done at ${formatKm0(t ? t.mileage : 0)} km - next ${label} due at ${formatKm0((t ? t.mileage : 0) + PM_CYCLES[i])} km`, true);
   }catch(e){ showEditError(e.message); }
 }
 
@@ -3767,6 +3856,639 @@ setInterval(buildTicker, 15000);
 setInterval(updateDisplaySpeeds, 1000);
 requestAnimationFrame(animate);
 liveInit();
+
+// ═══════════════════════════════════════════════════════
+// DEMO SCENARIOS  (Demo mode only, frontend only)
+// One click puts the demo trains into a ready-made situation (mileage, station, PM history).
+// It only calls PATCH /api/trains/{id}, PUT /api/pm/last, POST /api/pm and POST /api/stockchange.
+// It never touches devices, tags, wheel size, track lengths, settings or the WebSocket, so the
+// live encoder / RFID data keeps flowing while cases are switched, rerun or reset.
+// ═══════════════════════════════════════════════════════
+
+// The demo LRVs are C810D in the backend, but C810D already has onboard mileage (MVCS).
+// The hubometer problem is on C810 / C810A, so Demo mode shows them as C810A.
+// Display only: the IDs stored in the backend (and linked to LRV01 / LRV02) do not change.
+function dispIdOf(id){
+  return MODE === 'demo' && typeof id === 'string' ? id.replace(/^810D-/, '810A-') : id;
+}
+function dispId(t){ return t ? dispIdOf(t.id) : ''; }
+function dispType(t){
+  return t && MODE === 'demo' && t.liveDevice && t.type === 'C810D' ? 'C810A' : (t ? t.type : '');
+}
+
+// Train-board status in Demo mode. The firmware only sends data while the wheel turns,
+// so a train standing still is "idle", not "offline".
+function scDevText(dev){
+  if(!dev || !dev.id) return 'offline';
+  if(!dev.last_seen) return dev.online ? 'online' : 'offline';
+  const ago = (Date.now() - Date.parse(dev.last_seen)) / 1000;
+  return ago < (SC.offlineS || 15) ? 'online' : ago < 600 ? 'idle' : 'offline';
+}
+function scDevColor(dev){
+  const s = scDevText(dev);
+  return s === 'online' ? 'var(--green)' : s === 'idle' ? 'var(--amber)' : 'var(--txt2)';
+}
+
+// Planning assumption for "time left" on the decision cards: km a train covers per service day,
+// spread over LTA's revenue hours (5 am to 1 am = 20 h). Change here if you have a better figure.
+const SC_KM_PER_DAY = 250;
+const SC_SERVICE_HOURS = 20;
+
+const SC = {
+  cur: null, step: 0, token: 0, busy: false, cue: false, liveDev: 'LRV01',
+  base: {}, prev: {}, locKm: {}, flags: {}, booked: {}, deferred: {}, withdrawAtNext: null,
+  dec: null, log: [], timer: null, tipTimer: null
+};
+
+const SC_SECTIONS = [
+  {id:'track', name:'TRACK', sub:'Automatic mileage',  cls:''},
+  {id:'plan',  name:'PLAN',  sub:'Maintenance alerts', cls:'s-plan'},
+  {id:'act',   name:'ACT',   sub:'Depot and fleet',    cls:'s-act'},
+  {id:'trust', name:'TRUST', sub:'Reliability',        cls:'s-trust'}
+];
+
+// helpers used by the case definitions
+const scKm = v => formatKm(v);
+function scLive(){
+  const tr = demoTrains();
+  return tr.find(t => t.liveDevice && t.liveDevice.id === SC.liveDev) || tr[0] || null;
+}
+function scStandby(){
+  const L = scLive();
+  return demoTrains().find(t => t !== L) || null;
+}
+function scTurnKm(t){
+  const c = (t && t.liveWheel && t.liveWheel.circumference_m) || 0.0942;
+  return c * (DT.scale || 1000) / 1000;
+}
+function scSoonKm(label){
+  return PM_CYCLES[PM_LABELS.indexOf(label)] * (DT.pmSoonPct != null ? DT.pmSoonPct : 8) / 100;
+}
+const scGrace = () => +(DT.pmGrace || 0);
+const HEALTHY_L = {km: 101250, rem: {'2K': 900}};
+const HEALTHY_S = {km: 89243, rem: {'2K': 1400}};
+const scTurns = (ctx, n) => n * ctx.turn;
+
+// Each case: seed() returns where each train starts; steps[] drive the rehearsal notes.
+// A step with done() advances by itself when the live data shows it happened.
+const SC_LIST = [
+  // ---------------- TRACK ----------------
+  {id:'A1', sec:'track', title:'Live mileage',
+   what:'Mileage counts up live from the wheel encoder.',
+   setup:'Train at Station 1, healthy. Standby train in the depot.',
+   todo:'Spin the knob a few turns.',
+   ask:'LTA objective 1: automatically capture LRV mileage, in real time.',
+   seed: ctx => ({L: {...HEALTHY_L, loc:'ST1'}, S: {...HEALTHY_S, loc:'DEPOT'}}),
+   steps: [
+     {say:'Mileage is captured automatically from the wheel. No daily estimates, no spreadsheet.',
+      do:'Spin the knob a few turns.', done: c => c.L.mileage - c.base.Lkm >= c.turn * 1.5},
+     {say:'Every turn shows up live on the train card and in the fleet list.',
+      do:'Point at the mileage on the train card.'}
+   ]},
+  {id:'A2', sec:'track', title:'Station check-in',
+   what:'RFID at each station fixes the train position and checks the measured distance against the track.',
+   setup:'Train at Station 1, healthy.',
+   todo:'Spin toward Station 2, then tap the ST2 card.',
+   ask:'LTA check-in: show accuracy and reliability.',
+   seed: ctx => ({L: {...HEALTHY_L, loc:'ST1'}, S: {...HEALTHY_S, loc:'DEPOT'}}),
+   steps: [
+     {say:'The train knows how far it has gone since the last station.',
+      do:'Spin to drive toward Station 2.', done: c => c.L.mileage - c.base.Lkm >= c.turn},
+     {say:'At the station, RFID confirms exactly where it is.',
+      do:'Tap the ST2 card.', done: c => c.L.liveLocation === 'ST2'},
+     {say:'Measured distance and track distance agree, so the mileage can be trusted.',
+      do:'Point at the green message at the top.'}
+   ]},
+  {id:'A3', sec:'track', title:'Depot moves',
+   what:'Distance driven inside the depot and to the mainline is counted too.',
+   setup:'Train in the depot, healthy.',
+   todo:'Spin out of the depot, then tap the ST1 card.',
+   ask:'LTA: mileage must cover stabling yard to reception track to mainline (850 m).',
+   seed: ctx => ({L: {...HEALTHY_L, loc:'DEPOT'}, S: {...HEALTHY_S, loc:'DEPOT'}}),
+   steps: [
+     {say:'Today, depot moves are often missed. We count every metre.',
+      do:'Spin to drive out of the depot.', done: c => c.L.mileage - c.base.Lkm >= c.turn},
+     {say:'Joining the mainline is confirmed by RFID.',
+      do:'Tap the ST1 card.', done: c => c.L.liveLocation === 'ST1'},
+     {say:'The depot run is added to the train mileage.', do:'Point at the green message.'}
+   ]},
+  // ---------------- PLAN ----------------
+  {id:'B1', sec:'plan', title:'PM due soon',
+   what:'Amber warning before a check is due, with a choice of maintenance slot.',
+   setup:'Train at Station 1, about 4 knob turns before the 2K warning line.',
+   todo:'Spin about 4 turns, then pick a slot on the card.',
+   ask:'LTA objective 3: use mileage to plan preventive maintenance.',
+   seed: ctx => ({L: {km: HEALTHY_L.km, loc:'ST1', rem: {'2K': scSoonKm('2K') + scTurns(ctx, 3.5)}},
+                  S: {...HEALTHY_S, loc:'DEPOT'}}),
+   steps: [
+     {say:'The system warns before a check is due, so the depot can plan ahead.',
+      do:'Spin about 4 turns.', done: c => pmOf(c.L).status !== 'ok'},
+     {say:'The planner books a slot outside peak hours.',
+      do:'Pick a slot on the card.', done: c => !!SC.booked[c.L.id]}
+   ]},
+  {id:'B2', sec:'plan', title:'PM overdue',
+   what:'Red alert the moment the limit is crossed, with recall, withdraw or defer.',
+   setup:'Train at Station 2, about 4 turns before the 2K check is overdue.',
+   todo:'Spin about 4 turns, then choose on the card.',
+   ask:'LTA step 2: recalling trains is manual today.',
+   seed: ctx => ({L: {km: HEALTHY_L.km, loc:'ST2', rem: {'2K': scTurns(ctx, 3.5) - scGrace()}},
+                  S: {...HEALTHY_S, loc:'DEPOT'}}),
+   steps: [
+     {say:'No one has to watch a spreadsheet. The train flags itself.',
+      do:'Spin about 4 turns.', done: c => pmOf(c.L).status === 'over'},
+     {say:'Every decision is logged with a time.',
+      do:'Choose Recall, Withdraw or Defer.', done: c => !!SC.flags.decided}
+   ]},
+  {id:'B3', sec:'plan', title:'Bundled checks',
+   what:'Two checks fall due together and are merged into one depot visit.',
+   setup:'Train near 104,000 km with the 2K and 13K checks due at the same time.',
+   todo:'Spin about 4 turns and read the card.',
+   ask:'Bonus: fewer depot visits, less time out of service.',
+   seed: ctx => {
+     const r = scTurns(ctx, 3.5) - scGrace();
+     return {L: {km: 103999, loc:'ST1', rem: {'13K': r, '2K': r}}, S: {...HEALTHY_S, loc:'DEPOT'}};
+   },
+   steps: [
+     {say:'Two checks come due together.', do:'Spin about 4 turns.', done: c => pmOf(c.L).status === 'over'},
+     {say:'One 13K check also covers the 2K check, so the train only goes in once.',
+      do:'Point at the card.'}
+   ]},
+  // ---------------- ACT ----------------
+  {id:'C1', sec:'act', title:'Stock change',
+   what:'An overdue train is swapped with a healthy train from the depot in one click.',
+   setup:'Train at Station 2, 2K check overdue. Standby train healthy in the depot.',
+   todo:'Click Recall now, drive the train to the depot, tap the DEPOT card.',
+   ask:'LTA: trains may be withdrawn and stock changed during service.',
+   seed: ctx => ({L: {km: HEALTHY_L.km, loc:'ST2', rem: {'2K': -12 - scGrace()}}, S: {...HEALTHY_S, loc:'DEPOT'}}),
+   onReady: ctx => scCardOver(ctx.L),
+   steps: [
+     {say:'A train has to come out. A healthy train from the depot takes over.',
+      do:'Click Recall now.', done: () => !!SC.flags.recalled},
+     {say:'The withdrawn train keeps counting mileage on its way in.',
+      do:'Drive the train to the depot and tap the DEPOT card.', done: c => c.L.liveLocation === 'DEPOT'},
+     {say:'In the depot, it is ready for its check.', do:'Point at the sign-off card.'}
+   ]},
+  {id:'C2', sec:'act', title:'PM sign-off',
+   what:'The technician signs off the check. Mileage comes from the system, not a hubometer.',
+   setup:'Train in the depot with the 2K check overdue.',
+   todo:'Type a name and click Sign off.',
+   ask:'LTA step 3: hubometer is read by hand at every PM today.',
+   seed: ctx => ({L: {km: HEALTHY_L.km, loc:'DEPOT', rem: {'2K': -15 - scGrace()}}, S: {...HEALTHY_S, loc:'ST1'}}),
+   onReady: ctx => scCardSignoff(ctx.L),
+   steps: [
+     {say:'Mileage at the depot is already known. No hubometer reading, no subtraction.',
+      do:'Type a name and click Sign off.', done: () => !!SC.flags.signed},
+     {say:'The next check is scheduled from the real mileage.', do:'Point at Next check on the train card.'}
+   ]},
+  {id:'C3', sec:'act', title:'Fleet overview',
+   what:'One screen with every train: ID, mileage, status and location.',
+   setup:'One train in service with a check coming up, one healthy in the depot.',
+   todo:'Click a train in the fleet list.',
+   ask:'LTA objective 2: centralised fleet information.',
+   seed: ctx => ({L: {km: HEALTHY_L.km, loc:'ST1', rem: {'2K': scSoonKm('2K') / 2}}, S: {...HEALTHY_S, loc:'DEPOT'}}),
+   steps: [
+     {say:'Every train, its mileage, status and location on one screen.',
+      do:'Click a train in the fleet list.', done: c => !!selectedTrain && SC.base.sel !== selectedTrain.id},
+     {say:'Amber means plan it. Red means act now.', do:'Point at the colours.'}
+   ]},
+  // ---------------- TRUST ----------------
+  {id:'D1', sec:'trust', title:'Wheel wear check',
+   what:'Wheels wear down. The wheel size is re-measured on every depot exit so mileage does not drift.',
+   setup:'Train in the depot. Your wheel calibration is not changed by loading this case.',
+   todo:'Drive through CAL 0 and CAL END.',
+   ask:'Bonus: accuracy over the whole service life.',
+   seed: ctx => ({L: {...HEALTHY_L, loc:'DEPOT'}, S: {...HEALTHY_S, loc:'DEPOT'}}),
+   steps: [
+     {say:'A worn wheel would make the mileage drift. We re-measure it automatically.',
+      do:'Drive through CAL 0 and CAL END.', done: () => !!SC.flags.calib},
+     {say:'The new wheel size is used from now on.', do:'Point at Wheel on the train card.'}
+   ]},
+  {id:'D2', sec:'trust', title:'Restart recovery',
+   what:'Mileage lives on the server, not on the train. A restart loses nothing.',
+   setup:'Train at Station 1, healthy.',
+   todo:'Unplug the train, wait 15 s, plug back in, spin again.',
+   ask:'Bonus: reliability if a device loses power.',
+   seed: ctx => ({L: {...HEALTHY_L, loc:'ST1'}, S: {...HEALTHY_S, loc:'DEPOT'}}),
+   steps: [
+     {say:'What if the train loses power?', do:'Unplug the train and wait 15 s.', done: () => !!SC.flags.wentOff},
+     {say:'Mileage is stored centrally, so it carries on from the same number.',
+      do:'Plug it back in and spin.', done: c => !!SC.flags.wentOff && c.L.mileage > SC.flags.kmOff + 0.001}
+   ]}
+];
+SC_LIST.forEach(s => { s.code = s.id; });
+const SC_RESET = {id:'RESET', title:'Clean start',
+  seed: () => ({L: {...HEALTHY_L, loc:'DEPOT'}, S: {...HEALTHY_S, loc:'DEPOT'}}), steps: []};
+
+function scnSafe(fn){ try{ fn(); }catch(e){ console.warn('[scenarios]', e); } }
+function scCheck(tok){ if(tok !== SC.token) throw new Error('__superseded'); }
+function scNow(){ return new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
+
+// Put one train into a state. rem = km left to a check (negative = already over).
+// Checks without a rem are put half a cycle away, so they never interfere.
+async function scSeed(t, spec, tok){
+  await liveSend('PATCH', '/api/trains/' + encodeURIComponent(t.id), {mileage: +spec.km.toFixed(3), location: spec.loc});
+  scCheck(tok);
+  for(let i = PM_CYCLES.length - 1; i >= 0; i--){       // highest level first: it also counts for the lower ones
+    const c = PM_CYCLES[i], lbl = PM_LABELS[i];
+    const rem = spec.rem && spec.rem[lbl] != null ? spec.rem[lbl] : c / 2;
+    const last = Math.max(-c, Math.min(spec.km, spec.km - c + rem));
+    await liveSend('PUT', '/api/pm/last', {train_id: t.id, pm_type: lbl, last_pm_km: +last.toFixed(3)});
+    scCheck(tok);
+  }
+}
+
+async function scLoad(id){
+  const sc = id === 'RESET' ? SC_RESET : SC_LIST.find(s => s.id === id);
+  if(!sc) return;
+  if(MODE !== 'demo' || !LIVE.api){ scMsg('Switch to Demo mode and wait for LIVE first.', 'err'); return; }
+  try{
+    const cfg = await liveFetch('/api/config');
+    if(cfg && cfg.rfid_train_device) SC.liveDev = cfg.rfid_train_device;
+    if(cfg && cfg.offline_after_s) SC.offlineS = +cfg.offline_after_s;
+  }catch(e){}
+  const L = scLive(), S = scStandby();
+  if(!L){ scMsg('No demo train found. Check Demo settings.', 'err'); return; }
+  const tok = ++SC.token;
+  SC.busy = true;
+  scCloseDrawer();
+  SC.cur = id === 'RESET' ? null : sc;
+  SC.step = 0; SC.flags = {}; SC.booked = {}; SC.deferred = {}; SC.withdrawAtNext = null;
+  scCloseDecision();
+  scMsg(`Loading ${sc.title}…`);
+  scRenderAll(id);
+  try{
+    const ctx = {L, S, turn: scTurnKm(L)};
+    const seeds = sc.seed(ctx);
+    if(seeds.L) await scSeed(L, seeds.L, tok);
+    if(seeds.S && S) await scSeed(S, seeds.S, tok);
+    await liveLoadFleet();
+    scCheck(tok);
+    SC.base = {Lkm: L.mileage, sel: selectedTrain ? selectedTrain.id : null};
+    demoTrains().forEach(t => { SC.prev[t.id] = scState(t); SC.locKm[t.id] = t.mileage; });
+    SC.quietUntil = Date.now() + 1500;
+    SC.busy = false;
+    scMsg(id === 'RESET' ? 'Clean start: both trains healthy in the depot.' : `${sc.title} ready.`, 'ok');
+    if(sc.onReady) sc.onReady({L, S, turn: ctx.turn});
+    scEvaluate();
+  }catch(e){
+    if(e.message === '__superseded') return;      // another case was clicked meanwhile
+    SC.busy = false;
+    scMsg(`Could not load ${sc.title}: ${e.message}. Click it again to retry.`, 'err');
+    showEditError(`Could not load ${sc.title}: ${e.message}`);
+  }
+  scRenderAll();
+}
+
+function scStep(delta){
+  const i = SC.cur ? SC_LIST.indexOf(SC.cur) : -1;
+  const n = SC_LIST[Math.max(0, Math.min(SC_LIST.length - 1, i + delta))];
+  if(n) scLoad(n.id);
+}
+
+// ---------- live data hooks (wrapped in scnSafe by the callers) ----------
+function scState(t){
+  return {status: pmOf(t).status, loc: t.liveLocation || null, km: t.mileage};
+}
+
+function scnOnTrain(t){
+  if(MODE !== 'demo' || !t || !t.liveDevice) return;
+  if(SC.busy) return;
+  const prev = SC.prev[t.id], now = scState(t);
+  SC.prev[t.id] = now;
+  // right after a case loads, late echoes of the setup calls arrive: track them, don't react
+  if(Date.now() < (SC.quietUntil || 0)){ SC.locKm[t.id] = t.mileage; return; }
+  if(!prev) { SC.locKm[t.id] = t.mileage; return; }
+  if(prev.loc && now.loc && prev.loc !== now.loc) scOnArrive(t, prev, now);
+  if(prev.status !== now.status) scOnPmChange(t, now.status);
+  scEvaluate();
+}
+
+function scnOnEvent(msg){
+  if(MODE !== 'demo' || !msg) return;
+  if(msg.type === 'calibration' && msg.calibration){ SC.flags.calib = true; scEvaluate(); }
+}
+
+function scOnArrive(t, prev, now){
+  const L = scLive();
+  const measured = t.mileage - (SC.locKm[t.id] != null ? SC.locKm[t.id] : prev.km);
+  SC.locKm[t.id] = t.mileage;
+  if(t !== L) return;
+  const seg = DT.segFrom[prev.loc];
+  const name = DT.names[now.loc] || now.loc;
+  if(prev.loc === 'DEPOT' && now.loc !== 'DEPOT'){
+    showEditError(`Depot run counted: ${measured.toFixed(2)} km added to ${dispId(t)}`, true);
+  } else if(seg && seg.to === now.loc && measured > 0){
+    const exp = seg.length_m * (DT.scale || 1000) / 1000;
+    showEditError(`${dispId(t)} at ${name}: measured ${measured.toFixed(2)} km, track ${exp.toFixed(2)} km (${Math.round(measured / exp * 100)}%)`, true);
+  }
+  if(now.loc === 'DEPOT'){
+    if(SC.withdrawAtNext === t.id) SC.withdrawAtNext = null;
+    if(scDueList(t).length) scCardSignoff(t);
+  } else if(SC.withdrawAtNext === t.id){
+    SC.withdrawAtNext = null;
+    scCardOver(t, `Arrived at ${name}. Swap it out now.`);
+  }
+}
+
+function scOnPmChange(t, status){
+  if(t !== scLive()) return;
+  if(status === 'ok'){ if(SC.dec && SC.dec.trainId === t.id) scCloseDecision(); return; }
+  if(SC.deferred[t.id] === status) return;
+  if(t.liveLocation === 'DEPOT'){ scCardSignoff(t); return; }
+  if(status === 'soon' && !SC.booked[t.id]) scCardSoon(t);
+  if(status === 'over') scCardOver(t);
+}
+
+// Restart recovery + any step whose condition is not a train update (selection, time)
+function scTick(){
+  if(MODE !== 'demo') return;
+  const nowMs = Date.now();
+  if(nowMs - (SC.cardsAt || 0) > 2000){
+    SC.cardsAt = nowMs;
+    const sig = demoTrains().map(t => scDevText(t.liveDevice)).join();
+    if(sig !== SC.devSig){ SC.devSig = sig; renderDemoTrack(); }
+  }
+  if(!SC.cur || SC.busy) return;
+  const L = scLive();
+  if(SC.cur.id === 'D2' && L && !SC.flags.wentOff && scDevText(L.liveDevice) !== 'online'){
+    SC.flags.wentOff = true; SC.flags.kmOff = L.mileage;
+  }
+  scEvaluate();
+}
+
+function scEvaluate(){
+  if(!SC.cur || SC.busy) return;
+  const L = scLive();
+  if(!L) return;
+  const c = {L, S: scStandby(), base: SC.base, turn: scTurnKm(L)};
+  let moved = false;
+  while(SC.step < SC.cur.steps.length){
+    const st = SC.cur.steps[SC.step];
+    if(!st.done || !st.done(c)) break;
+    SC.step++; moved = true;
+  }
+  if(moved) scRenderCue();
+}
+
+// ---------- decisions ----------
+function scDueList(t){
+  return (t.liveCycles || []).filter(c => c.status !== 'ok').sort((a, b) => b.cycle - a.cycle);
+}
+function scBundleLine(due){
+  if(due.length < 2) return '';
+  return `<br><b>${due.map(d => d.label).join(' and ')}</b> are due together. One ${due[0].label} check covers ${due.length > 2 ? 'all of them' : 'both'}.`;
+}
+function scTimeLeft(remKm){
+  const h = remKm / (SC_KM_PER_DAY / SC_SERVICE_HOURS);
+  if(h < 1) return 'less than an hour of service';
+  if(h < SC_SERVICE_HOURS) return `about ${Math.round(h)} h of service`;
+  return `about ${Math.round(remKm / SC_KM_PER_DAY)} service days`;
+}
+function scLog(text){
+  SC.log.unshift({at: scNow(), text});
+  SC.log = SC.log.slice(0, 40);
+  scRenderDrawer();
+}
+
+function scShowDecision(d){
+  SC.dec = d;
+  const el = document.getElementById('scDec');
+  el.className = 'sc-dec show ' + (d.kind || '');
+  el.innerHTML = `<button class="sc-dec-x" title="Close" onclick="scCloseDecision()">✕</button>
+    <div class="sc-dec-k">${d.k}</div><div class="sc-dec-t">${d.t}</div><div class="sc-dec-b">${d.body}</div>
+    ${d.input ? `<input class="sc-dec-in" id="scDecIn" placeholder="${dsEsc(d.input.ph)}" value="${dsEsc(d.input.value || '')}">` : ''}
+    <div class="sc-dec-acts">${d.acts.map((a, i) => `<button class="sc-act ${a.primary ? 'primary' : ''}" ${a.disabled ? 'disabled' : ''} onclick="scAct(${i})">${a.label}${a.sub ? `<span>${a.sub}</span>` : ''}</button>`).join('')}</div>`;
+}
+function scCloseDecision(){
+  SC.dec = null;
+  const el = document.getElementById('scDec');
+  if(el){ el.className = 'sc-dec'; el.innerHTML = ''; }
+}
+async function scAct(i){
+  const d = SC.dec;
+  if(!d || !d.acts[i] || d.acts[i].disabled) return;
+  const input = document.getElementById('scDecIn');
+  const val = input ? input.value.trim() : '';
+  document.querySelectorAll('#scDec .sc-act').forEach(b => b.disabled = true);
+  try{ await d.acts[i].fn(val); }
+  catch(e){ showEditError(e.message); if(SC.dec === d) scShowDecision(d); }
+}
+
+function scCardSoon(t){
+  const due = scDueList(t), top = due[0];
+  if(!top) return;
+  const book = slot => async () => {
+    SC.booked[t.id] = slot; SC.flags.decided = true;
+    scLog(`<b>${dispId(t)}</b> ${top.label} check booked for ${slot}`);
+    scCloseDecision(); LIVE.dirty = true; renderDemoTrack(); scEvaluate();
+    showEditError(`${dispId(t)}: ${top.label} check booked for ${slot}`, true);
+  };
+  scShowDecision({trainId: t.id, kind: '', k: 'PM DUE SOON', t: `${dispId(t)} ${top.label} check`,
+    body: `<b>${scKm(Math.max(0, top.remaining))} km</b> left, ${scTimeLeft(Math.max(0, top.remaining))}.${scBundleLine(due)}`,
+    acts: [
+      {label: 'Book tonight', sub: '01:00, after last train', primary: true, fn: book('tonight 01:00')},
+      {label: 'Book next off-peak', sub: '09:30, after AM peak', fn: book('off-peak 09:30')},
+      {label: 'Remind me later', sub: 'hide for now', fn: async () => { SC.deferred[t.id] = 'soon'; scCloseDecision(); }}
+    ]});
+}
+
+function scCardOver(t, lead){
+  const due = scDueList(t), top = due[0];
+  if(!top) return;
+  const S = scStandby();
+  const sOk = S && pmOf(S).status !== 'over' && S.liveLocation === 'DEPOT';
+  scShowDecision({trainId: t.id, kind: 'crit', k: 'PM OVERDUE', t: `${dispId(t)} ${top.label} check`,
+    body: `${lead ? lead + '<br>' : ''}<b>${scKm(Math.max(0, -top.remaining))} km</b> past the limit at ${DT.names[t.liveLocation] || t.liveLocation || 'Depot'}.${scBundleLine(due)}`,
+    acts: [
+      {label: 'Recall now', sub: sOk ? `swap with ${dispId(S)} from depot` : 'no standby train in depot', primary: true,
+       disabled: !sOk, fn: () => scRecall(t, top.label)},
+      {label: 'Withdraw at next station', sub: 'finish this trip first', fn: async () => {
+        SC.withdrawAtNext = t.id; SC.flags.decided = true;
+        scLog(`<b>${dispId(t)}</b> to be withdrawn at the next station`);
+        scCloseDecision(); renderDemoTrack(); scEvaluate();
+      }},
+      {label: 'Defer', sub: 'needs a reason', fn: async () => scCardDefer(t, top.label)}
+    ]});
+}
+
+function scCardDefer(t, label){
+  scShowDecision({trainId: t.id, kind: 'crit', k: 'DEFER CHECK', t: `${dispId(t)} ${label} check`,
+    body: 'Deferring an overdue check is logged with your reason.',
+    input: {ph: 'Reason, e.g. no depot slot until 01:00'},
+    acts: [
+      {label: 'Confirm defer', primary: true, fn: async reason => {
+        if(!reason){ showEditError('Type a reason first'); scCardDefer(t, label); return; }
+        SC.deferred[t.id] = 'over'; SC.flags.decided = true;
+        scLog(`<b>${dispId(t)}</b> ${label} check deferred: ${dsEsc(reason)}`);
+        scCloseDecision(); renderDemoTrack(); scEvaluate();
+      }},
+      {label: 'Back', fn: async () => scCardOver(t)}
+    ]});
+}
+
+async function scRecall(t, label){
+  const S = scStandby();
+  if(!S) throw new Error('No standby train');
+  const at = t.liveLocation && t.liveLocation !== 'DEPOT' ? t.liveLocation : 'ST1';
+  const deployAt = at === 'ST1' ? 'ST2' : 'ST1';
+  await liveSend('POST', '/api/stockchange', {withdrawn_train_id: t.id, replacement_train_id: S.id,
+    station: at, reason: `${label} PM overdue`});
+  await liveSend('PATCH', '/api/trains/' + encodeURIComponent(S.id), {location: deployAt});
+  SC.flags.recalled = true; SC.flags.decided = true;
+  scLog(`Stock change: <b>${dispId(S)}</b> into service at ${DT.names[deployAt] || deployAt}, <b>${dispId(t)}</b> withdrawn`);
+  scShowDecision({trainId: t.id, kind: 'ok', k: 'STOCK CHANGE DONE', t: `${dispId(S)} in service`,
+    body: `${dispId(S)} takes over at ${DT.names[deployAt] || deployAt}.<br>Drive <b>${dispId(t)}</b> back to the depot and tap the DEPOT card.`,
+    acts: [{label: 'OK', fn: async () => scCloseDecision()}]});
+  scEvaluate();
+}
+
+function scCardSignoff(t){
+  const due = scDueList(t), top = due[0];
+  if(!top) return;
+  scShowDecision({trainId: t.id, kind: '', k: 'IN DEPOT', t: `${dispId(t)} ${top.label} check`,
+    body: `Mileage <b>${scKm(t.mileage)} km</b>, read automatically. No hubometer reading needed.${scBundleLine(due)}`,
+    input: {ph: 'Technician name', value: ''},
+    acts: [
+      {label: `Sign off ${top.label} check`, primary: true, fn: async name => {
+        const km = t.mileage;
+        await liveSend('POST', '/api/pm', {train_id: t.id, pm_type: top.label, technician: name || null,
+          notes: 'signed off on the dashboard'});
+        SC.flags.signed = true; SC.deferred[t.id] = null;
+        scLog(`<b>${dispId(t)}</b> ${top.label} check signed off${name ? ' by ' + dsEsc(name) : ''} at ${scKm(km)} km`);
+        scShowDecision({trainId: t.id, kind: 'ok', k: 'CHECK DONE', t: `${dispId(t)} ready for service`,
+          body: `Next ${top.label} check due at <b>${formatKm0(km + top.cycle)} km</b>.`,
+          acts: [{label: 'OK', fn: async () => scCloseDecision()}]});
+        scEvaluate();
+      }},
+      {label: 'Later', fn: async () => { SC.deferred[t.id] = pmOf(t).status; scCloseDecision(); }}
+    ]});
+}
+
+// Extra line on the demo train card (plans made on the decision cards)
+function scnCardExtra(t){
+  try{
+    if(MODE !== 'demo') return '';
+    const chips = [];
+    if(SC.booked[t.id]) chips.push(`<span class="sc-tagchip">PM BOOKED ${dsEsc(SC.booked[t.id].toUpperCase())}</span>`);
+    if(SC.withdrawAtNext === t.id) chips.push('<span class="sc-tagchip amber">WITHDRAW AT NEXT STATION</span>');
+    if(SC.deferred[t.id] === 'over') chips.push('<span class="sc-tagchip amber">CHECK DEFERRED</span>');
+    return chips.length ? `<div class="sc-chipline"><span>Plan</span><span>${chips.join(' ')}</span></div>` : '';
+  }catch(e){ return ''; }
+}
+
+// ---------- UI ----------
+function scMsg(text, kind){
+  SC.msg = {text, kind: kind || ''};
+  const el = document.getElementById('scMsg');
+  if(el){ el.textContent = text; el.className = 'sc-msg ' + (kind || ''); }
+}
+
+function scRenderAll(busyId){ scRenderDrawer(busyId); scRenderBanner(); scRenderCue(); }
+
+function scRenderDrawer(busyId){
+  const body = document.getElementById('scBody');
+  if(!body) return;
+  body.innerHTML = SC_SECTIONS.map(sec => `<div class="sc-sec">
+      <div class="sc-sec-h"><span class="sc-sec-n">${sec.name}</span><span class="sc-sec-s">${sec.sub}</span></div>
+      ${SC_LIST.filter(s => s.sec === sec.id).map(s => `<button class="sc-card ${SC.cur === s ? 'cur' : ''} ${busyId === s.id ? 'busy' : ''}"
+          onclick="scLoad('${s.id}')" onmouseenter="scTipShow(event,'${s.id}')" onmouseleave="scTipHide()">
+          <span class="sc-card-c">${s.code}</span><span class="sc-card-t">${s.title}</span></button>`).join('')}
+    </div>`).join('') +
+    `<button class="sc-reset" onclick="scLoad('RESET')" onmouseenter="scTipShow(event,'RESET')" onmouseleave="scTipHide()">↺ CLEAN START</button>
+     <div class="sc-msg ${SC.msg ? SC.msg.kind : ''}" id="scMsg">${SC.msg ? dsEsc(SC.msg.text) : ''}</div>
+     <div class="sc-log"><div class="sc-sec-h"><span class="sc-sec-n">DECISION LOG</span></div>
+       ${SC.log.length ? SC.log.map(l => `<div class="sc-log-i">${l.at} · ${l.text}</div>`).join('') : '<div class="sc-log-i">No decisions yet.</div>'}</div>`;
+}
+
+function scRenderBanner(){
+  const el = document.getElementById('scBanner');
+  if(!el) return;
+  const sc = SC.cur;
+  if(!sc || MODE !== 'demo'){ el.classList.remove('show'); return; }
+  const sec = SC_SECTIONS.find(x => x.id === sc.sec);
+  const i = SC_LIST.indexOf(sc);
+  el.innerHTML = `<span class="sc-chip ${sec.cls}" ondblclick="scToggleCue()">${sec.name}</span>
+    <span class="sc-btitle">${sc.title}</span>
+    <button class="sc-bbtn" title="Previous case" onclick="scStep(-1)" ${i <= 0 ? 'disabled' : ''}>‹</button>
+    <button class="sc-bbtn" title="Run this case again" onclick="scLoad('${sc.id}')">↻</button>
+    <button class="sc-bbtn" title="Next case" onclick="scStep(1)" ${i >= SC_LIST.length - 1 ? 'disabled' : ''}>›</button>`;
+  el.classList.add('show');
+}
+
+function scRenderCue(){
+  const el = document.getElementById('scCue');
+  if(!el) return;
+  const sc = SC.cur;
+  const head = el.parentElement;
+  if(!sc || !SC.cue || MODE !== 'demo'){ el.classList.remove('show'); if(head) head.classList.remove('cue-on'); return; }
+  if(head) head.classList.add('cue-on');
+  const st = sc.steps[Math.min(SC.step, sc.steps.length - 1)];
+  const finished = SC.step >= sc.steps.length;
+  el.innerHTML = `<div class="sc-cue-row"><span class="sc-cue-k">SAY</span><span>${finished ? 'Done. Click › for the next case.' : st.say}</span></div>
+    <div class="sc-cue-row"><span class="sc-cue-k">DO</span><span>${finished ? '' : st.do}</span></div>
+    <div class="sc-cue-steps">${sc.steps.map((s, i) => `<span class="sc-cue-step ${i < SC.step ? 'done' : i === SC.step ? 'cur' : ''}">${i < SC.step ? '✓' : i + 1} ${s.do}</span>`).join('')}</div>`;
+  el.classList.add('show');
+}
+
+function scToggleCue(){
+  SC.cue = !SC.cue;
+  scRenderCue();
+}
+
+function scOpenDrawer(){
+  document.getElementById('scDrawer').classList.toggle('show');
+  scRenderDrawer();
+}
+function scCloseDrawer(){
+  const d = document.getElementById('scDrawer');
+  if(d) d.classList.remove('show');
+  scTipHide();
+}
+
+function scTipShow(ev, id){
+  clearTimeout(SC.tipTimer);
+  const s = id === 'RESET'
+    ? {title:'Clean start', what:'Both trains healthy and in the depot. Use between visitors.', setup:'Clears booked slots and plans. Keeps the decision log, devices, tags and wheel sizes.', todo:'Nothing. Pick a case next.'}
+    : SC_LIST.find(x => x.id === id);
+  if(!s) return;
+  const r = ev.currentTarget.getBoundingClientRect();
+  SC.tipTimer = setTimeout(() => {
+    const tip = document.getElementById('scTip');
+    tip.innerHTML = `<div class="sc-tip-h">${s.code ? s.code + ' ' : ''}${s.title}</div>${s.what}
+      <div class="sc-tip-r"><span class="sc-tip-k">SETUP</span>${s.setup}</div>
+      <div class="sc-tip-r"><span class="sc-tip-k">YOU DO</span>${s.todo}</div>
+      ${s.ask ? `<div class="sc-tip-r"><span class="sc-tip-k">WHY</span>${s.ask}</div>` : ''}`;
+    tip.classList.add('show');
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, r.left - w - 10) + 'px';
+    tip.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, r.top)) + 'px';
+  }, 250);
+}
+function scTipHide(){
+  clearTimeout(SC.tipTimer);
+  const tip = document.getElementById('scTip');
+  if(tip) tip.classList.remove('show');
+}
+
+function scVisibility(){
+  const on = MODE === 'demo';
+  const b = document.getElementById('scOpen');
+  if(b) b.classList.toggle('show', on);
+  if(!on){ scCloseDrawer(); scCloseDecision(); }
+  scRenderBanner(); scRenderCue();
+}
+
+(function scInit(){
+  SC.cue = false;   // notes always start hidden, so they never show by accident on the day
+  document.addEventListener('keydown', e => {
+    const tag = (e.target && e.target.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+    if(e.key === '`' && MODE === 'demo'){ e.preventDefault(); scToggleCue(); }
+    if(e.key === 'Escape') scCloseDrawer();
+  });
+  SC.timer = setInterval(() => scnSafe(scTick), 700);
+})();
+
 </script>
 </body>
 </html>

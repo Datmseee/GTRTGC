@@ -105,8 +105,15 @@ header::before{
 .dt-sta.depot .halo,.dt-sta.depot .core{stroke:var(--txt1)}
 .dt-sta.depot .halo{fill:var(--txt2)}
 .dt-overlay{position:absolute;inset:0;pointer-events:none}
-.dt-sta-label{position:absolute;transform:translate(-50%,calc(-100% - 40px));pointer-events:none;white-space:nowrap !important}
+.dt-sta-label{position:absolute;transform:translate(-50%,calc(-100% - var(--dt-lbl-off, 40px)));pointer-events:none;white-space:nowrap !important}
 .dt-sta-label.depot{transform:translate(32px,-50%)}
+/* Demo-track labels are static: the generic .sta-label hover (scale + glow) would replace the
+   positioning transform above, so the label jumps off the cursor and back in a loop */
+.sta-label.dt-sta-label{pointer-events:none !important;cursor:default !important;transition:none !important}
+.sta-label.dt-sta-label:hover{transform:translate(-50%,calc(-100% - var(--dt-lbl-off, 40px)));animation:none;
+  border-color:rgba(36,62,88,0.95) !important;background:rgba(5,8,15,0.95) !important;
+  box-shadow:0 4px 16px rgba(0,0,0,0.6),0 0 20px rgba(0,212,232,0.15) !important}
+.sta-label.dt-sta-label.depot:hover{transform:translate(32px,-50%)}
 .dt-tm{position:absolute;width:0;height:0;pointer-events:auto;z-index:5}
 .dt-tm .train-dot{position:absolute;left:0;top:0}
 .dt-legend{z-index:6;left:auto !important;right:12px}
@@ -850,6 +857,160 @@ body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
   outline:none;transition:border-color 0.2s}
 .search-input::placeholder{color:var(--txt2)}
 .search-input:focus{border-color:var(--cyan);box-shadow:0 0 8px rgba(0,212,232,0.15)}
+
+/* ══════════════════════════════════════════════════════════
+   DEMO MODE: projector sizes (watched from a few metres away)
+   Everything below is scoped to body.demo-mode or to Demo-only
+   elements, so Simulation mode keeps its original look.
+   ══════════════════════════════════════════════════════════ */
+/* demo train cards: what matters first, in big type */
+.dt-cards{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.dt-card{padding:12px 18px 14px;border-radius:12px}
+.dt-card-top{gap:4px 12px;flex-wrap:wrap}
+.dt-card-id{font-size:28px;line-height:1.15;white-space:nowrap}
+.dt-card-type{font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:0.1em;color:var(--txt1);margin-left:12px}
+.dt-card-dev{font-size:17px;gap:8px;white-space:nowrap}
+.dt-card-dev .dt-dot{width:12px;height:12px}
+.dt-card-st{font-weight:700;letter-spacing:0.12em;text-transform:uppercase}
+.dt-card-where{font-size:24px;font-weight:700;margin-top:4px;line-height:1.25}
+.dt-where-sub{font-family:var(--mono);font-size:15px;font-weight:400;color:var(--txt1);margin-left:6px}
+.dt-moving{font-size:15px;padding:2px 10px;margin-left:10px;vertical-align:middle}
+.dt-card-kmrow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:2px 0 6px}
+.dt-card-km{font-size:48px;font-weight:300;line-height:1.1;margin:0;letter-spacing:-0.01em;white-space:nowrap}
+.dt-unit{font-size:20px;color:var(--txt1)}
+.dt-flash{font-family:var(--mono);font-size:36px;font-weight:600;color:var(--green);text-shadow:0 0 18px rgba(0,232,136,0.55);white-space:nowrap;opacity:0;transform-origin:right center;pointer-events:none}
+.dt-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dt-health{font-family:var(--sans);font-size:20px;font-weight:700;letter-spacing:0.02em;padding:5px 16px;border-radius:20px;border:1px solid}
+.dt-health.ok{color:var(--green);border-color:rgba(0,232,136,0.45);background:rgba(0,232,136,0.1)}
+.dt-health.soon{color:var(--amber);border-color:rgba(255,176,32,0.55);background:rgba(255,176,32,0.12)}
+.dt-health.over{color:var(--red);border-color:rgba(255,58,92,0.6);background:rgba(255,58,92,0.14)}
+.dt-health.dt-editable:hover{border-bottom-color:currentColor}
+.dt-more{background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--txt1);font-family:var(--sans);font-size:15px;font-weight:700;letter-spacing:0.08em;padding:6px 12px;cursor:pointer}
+.dt-more:hover{border-color:var(--cyan);color:var(--cyan)}
+.dt-details{display:none;margin-top:10px;padding-top:6px;border-top:1px dashed var(--border2)}
+.dt-card.open .dt-details{display:block}
+.dt-card-row{font-size:15px;margin-top:6px;gap:4px 14px;flex-wrap:wrap}
+.dt-done{font-size:15px;padding:2px 10px;margin-left:8px}
+.dt-card .sc-chipline{font-size:15px;margin-top:8px;gap:10px}
+.dt-card .sc-tagchip{font-size:15px;padding:2px 10px}
+.dt-empty{font-size:16px}
+/* virtual knob panel (docked to the right of the demo track) */
+:root{--kn-w:clamp(290px,22vw,360px)}
+.kn-panel{display:none;position:absolute;top:0;right:0;bottom:0;width:var(--kn-w);z-index:1300;flex-direction:column;background:var(--bg1);border-left:1px solid var(--border2);box-shadow:-10px 0 30px var(--bg0)}
+body.kn-on .kn-panel{display:flex}
+body.kn-on .demo-track{right:var(--kn-w)}
+.kn-head{display:flex;align-items:center;gap:10px;padding:12px 14px 6px}
+.kn-title{font-family:var(--sans);font-size:17px;font-weight:700;letter-spacing:0.14em;color:var(--txt0)}
+.kn-state{margin-left:auto;font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:0.1em;white-space:nowrap}
+.kn-hint{padding:0 14px;font-family:var(--sans);font-size:15px;color:var(--txt1);line-height:1.35}
+.kn-warn{margin:8px 14px 0;padding:6px 10px;border-left:3px solid var(--amber);font-family:var(--sans);font-size:14px;color:var(--txt1);line-height:1.35;background:var(--bg2);border-radius:0 6px 6px 0}
+.kn-warn.bad{border:1px solid var(--red);border-left-width:3px;color:var(--red);background:rgba(255,58,92,0.1)}
+.kn-frame{flex:1;min-height:0;margin-top:4px}
+.kn-frame iframe{display:block;width:100%;height:100%;border:0}
+#knOpen.on{background:var(--cyan-dim)}
+/* header + KPI strip */
+body.demo-mode .hlogo-title{font-size:17px}
+body.demo-mode .hlogo-sub{font-size:12px}
+body.demo-mode .hdr-live-txt{font-size:13px}
+body.demo-mode .mode-sw button{font-size:13px;padding:5px 14px}
+body.demo-mode .hclock-time{font-size:26px}
+body.demo-mode .hclock-date{font-size:12px}
+body.demo-mode .help-btn,body.demo-mode .tut-btn{font-size:13px}
+body.demo-mode .hs{padding:8px 18px}
+body.demo-mode .hs-lbl{font-size:15px;letter-spacing:0.1em}
+body.demo-mode .hs-val{font-size:34px}
+/* demo track header, buttons, labels, legend */
+body.demo-mode .dt-title{font-size:20px}
+body.demo-mode .dt-sub{font-size:15px;color:var(--txt1);margin-top:2px}
+body.demo-mode .ds-open{font-size:14px;padding:8px 16px}
+body.demo-mode .dt-sta-label .sta-name-small{font-size:13px}
+body.demo-mode .dt-tm .train-label{font-size:15px}
+body.demo-mode .dt-legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:8px 14px;max-width:calc(100% - 24px)}
+body.demo-mode .dt-legend .leg-row{font-size:15px;margin:0}
+body.demo-mode .dt-edit-err{font-size:15px;padding:8px 12px}
+/* keep the track clear of the scenario banner (top) and the legend (bottom). Labels and trains are
+   placed from the svg box into the overlay, so both share the same top edge. */
+body.demo-mode .dt-svg{top:var(--dt-top,0px);height:calc(100% - var(--dt-top,0px) - var(--dt-bot,0px))}
+body.demo-mode .dt-overlay{top:var(--dt-top,0px)}
+body.demo-mode .dt-stage:has(.sc-banner.show){--dt-top:66px}
+/* a short stage (1366 x 768, Details open) has no room for the legend without covering the track */
+body.demo-mode .dt-stage{container-type:size}
+@container (max-height: 400px){ body.demo-mode .dt-legend{display:none} }
+@container (min-height: 401px){ body.demo-mode .dt-svg{--dt-bot:54px} }
+/* help / tutorial button: out of the way of the bigger mode switch */
+body.demo-mode .help-btn,body.demo-mode .tut-btn{left:auto;right:200px;transform:none}
+/* right panel: Fleet / Alerts / Detail */
+body.demo-mode .side{width:360px}
+body.demo-mode .tab{font-size:16px;padding:11px 4px}
+body.demo-mode .search-input{font-size:16px;padding:10px 12px}
+body.demo-mode .flt-btn{font-size:15px;padding:7px 14px}
+/* fleet rows on two lines (ID + mileage, then type + place) so the bigger type never collides */
+body.demo-mode .fi{display:grid;grid-template-columns:14px auto 1fr auto;column-gap:10px;row-gap:2px;align-items:baseline;padding:12px 12px}
+body.demo-mode .fi-dot{width:12px;height:12px;grid-column:1;grid-row:1 / 3;align-self:center}
+body.demo-mode .fi-id{font-size:18px;min-width:0;grid-column:2;grid-row:1}
+body.demo-mode .fi-mi{font-size:18px;min-width:0;grid-column:4;grid-row:1;color:var(--txt0);white-space:nowrap}
+body.demo-mode .fi-type{font-size:15px;grid-column:2;grid-row:2}
+body.demo-mode .fi-loop{font-size:15px;min-width:0;grid-column:3 / 5;grid-row:2;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.demo-mode .alert-card{padding:14px 16px}
+body.demo-mode .ac-title{font-size:18px;margin-bottom:6px}
+body.demo-mode .ac-body{font-size:15px}
+body.demo-mode .ac-time{font-size:15px}
+body.demo-mode .det-nosel{font-size:15px;line-height:1.9}
+body.demo-mode .det-badge-id{font-size:22px}
+body.demo-mode .det-badge-type{font-size:15px}
+body.demo-mode .drow{font-size:15px;padding:7px 0}
+body.demo-mode .dlbl{font-size:15px}
+body.demo-mode .sbadge{font-size:14px}
+body.demo-mode .sec-title{font-size:15px}
+body.demo-mode .mi-big{font-size:40px}
+body.demo-mode .mi-unit,body.demo-mode .mi-sub{font-size:15px}
+body.demo-mode .pm-hdr,body.demo-mode .pm-due{font-size:15px}
+body.demo-mode .nxt-sta-lbl,body.demo-mode .nxt-sta-code{font-size:15px}
+body.demo-mode .nxt-sta-name{font-size:18px}
+/* bottom ticker */
+body.demo-mode .alert-strip{height:44px}
+body.demo-mode .as-lbl{font-size:13px}
+body.demo-mode .as-item{font-size:16px}
+/* scenarios: banner, decision card, drawer, hover tips, rehearsal notes */
+body.demo-mode .sc-chip{font-size:14px;padding:4px 9px}
+body.demo-mode .sc-btitle{font-size:26px}
+body.demo-mode .sc-bbtn{font-size:16px;padding:5px 11px}
+body.demo-mode .sc-dec{width:420px;overflow:auto;padding:14px 16px}
+.map-legend.dt-legend.dt-leg-left{left:12px !important;right:auto}
+.map-legend.dt-legend.dt-leg-hide{visibility:hidden}
+body.demo-mode .sc-dec-k{font-size:14px}
+body.demo-mode .sc-dec-t{font-size:22px}
+body.demo-mode .sc-dec-b{font-size:15px}
+body.demo-mode .sc-act{font-size:17px;padding:9px 12px}
+body.demo-mode .sc-act span{font-size:15px}
+body.demo-mode .sc-dec-in{font-size:16px;padding:8px 10px}
+body.demo-mode .sc-dec-x{font-size:18px}
+body.demo-mode .sc-cue{font-size:15px}
+body.demo-mode .sc-cue-k{font-size:13px;flex-basis:40px}
+body.demo-mode .sc-cue-step{font-size:13px}
+body.demo-mode .sc-drawer{width:440px}
+body.demo-mode .sc-dh-t{font-size:18px}
+body.demo-mode .sc-sec-n,body.demo-mode .sc-sec-s{font-size:15px}
+body.demo-mode .sc-card{padding:11px 12px}
+body.demo-mode .sc-card-c{font-size:15px;flex-basis:34px}
+body.demo-mode .sc-card-t{font-size:18px}
+body.demo-mode .sc-reset{font-size:15px;padding:10px}
+body.demo-mode .sc-msg,body.demo-mode .sc-log-i{font-size:15px}
+body.demo-mode .sc-tip{width:380px;font-size:15px}
+body.demo-mode .sc-tip-h{font-size:20px}
+body.demo-mode .sc-tip-k{font-size:13px}
+@media (max-width: 1500px){
+  body.demo-mode .side{width:330px}
+  body.demo-mode .hs{padding:6px 14px}
+  body.demo-mode .hs-val{font-size:28px}
+  body.demo-mode .dt-sub{display:none}
+  body.demo-mode .dt-card{padding:10px 14px 12px}
+  body.demo-mode .dt-card-km{font-size:42px}
+  body.demo-mode .dt-card-id{font-size:26px}
+  body.demo-mode .dt-card-where{font-size:22px}
+  body.demo-mode .dt-health{font-size:18px;padding:4px 14px}
+}
+body.demo-mode.kn-on .dt-sub{display:none}
 </style>
 </head>
 <body>
@@ -912,13 +1073,13 @@ body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
       <div class="dt-head">
         <button class="ds-open" id="dsOpen" onclick="openDemoSettings()" title="Demo settings: trains, station distances, wheel, simulator">⚙ DEMO SETTINGS</button>
         <button class="ds-open sc-open" id="scOpen" onclick="scOpenDrawer()" title="Ready-made demo cases">▶ SCENARIOS</button>
+        <button class="ds-open sc-open" id="knOpen" onclick="knToggle()" title="Drive a demo train without the ESP32: wheel + track tags in a side panel">◎ VIRTUAL KNOB</button>
         <div class="dt-title">DEMO TRACK</div>
-        <div class="dt-sub">Live positions from track RFID tags read by the train + axle-encoder distance (hardware and simulator page). Double-click any value to edit it: mileage, location, device, wheel, Next PM levels, distances, station / tag markers, calibration zone.</div>
+        <div class="dt-sub">Live from the train's wheel encoder and track RFID tags · double-click a value to edit it</div>
         <div class="sc-cue" id="scCue"></div>
       </div>
       <div class="dt-stage" id="dtStage">
         <div class="sc-banner" id="scBanner"></div>
-        <div class="sc-dec" id="scDec"></div>
         <svg class="dt-svg" id="dtSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-label="Demo track">
           <defs><pattern id="dtGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" class="dt-grid"/></pattern></defs>
           <rect x="-3000" y="-3000" width="7000" height="7000" fill="url(#dtGrid)"/>
@@ -965,6 +1126,14 @@ body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
       </div>
       <div class="dt-cards" id="dtCards"></div>
     </div>
+    <!-- decision card: lives outside the track stage so it can use the full height (placed by dtPlaceOverlays) -->
+    <div class="sc-dec" id="scDec"></div>
+    <aside class="kn-panel" id="knPanel" aria-label="Virtual knob">
+      <div class="kn-head"><span class="kn-title">VIRTUAL KNOB</span><span class="kn-state" id="knState"></span><button class="sc-bbtn" onclick="knClose()" title="Close">✕</button></div>
+      <div class="kn-hint">Drag the wheel in a circle to drive the train. Tap a track tag when it reaches a station.</div>
+      <div class="kn-warn" id="knWarn">Keep the /simulator page closed while this panel is open: both drive the same counter.</div>
+      <div class="kn-frame"><iframe id="knFrame" title="Virtual knob"></iframe></div>
+    </aside>
     <div class="sys-label" id="lbl-sk">SENGKANG LRT</div>
     <div class="sys-label" id="lbl-pg">PUNGGOL LRT</div>
     <div id="tooltip">
@@ -2793,6 +2962,7 @@ function setTrainState(t, s){
   if((s.location || null) !== t.liveLocation) LIVE.tickerDirty = true;
   t.liveLocation = s.location || null;
   t.liveSince = s.since_station_km != null ? s.since_station_km : null;
+  t.liveSessionKm = s.session_km != null ? s.session_km : null;   // encoder km only, 3 decimals (mileage is sent to 0.1 km)
   t.liveDevice = s.device || null;
   t.liveWheel = s.wheel || null;
   t.liveMarker = s.last_marker || null;
@@ -3016,6 +3186,7 @@ function setMode(m){
 
 function updateModeUI(){
   document.body.classList.toggle('demo-edit', MODE === 'demo');
+  document.body.classList.toggle('demo-mode', MODE === 'demo');   // scopes the projector-size styles
   const sim = document.getElementById('modeBtnSim'), demo = document.getElementById('modeBtnDemo');
   if(!sim || !demo) return;
   sim.classList.toggle('active', MODE === 'sim');
@@ -3080,6 +3251,8 @@ function liveInit(){
 // ═══════════════════════════════════════════════════════
 // Names on the 3D-printed props and the floor mat (display only; backend IDs stay ST1 / ST2 / DEPOT)
 const DT_PROP_NAMES = {ST1:'Sengkang', ST2:'Punggol', DEPOT:'Sengkang Depot'};
+const DT_FLASH_MS = 2600;   // the "+x km" flash stays this long after the last encoder step
+const KN = {open: false};   // virtual knob panel (see VIRTUAL KNOB below); here because liveInit() runs first
 const DT = {
   scale: 1000,
   segFrom: {
@@ -3095,6 +3268,9 @@ const DT = {
   // track tags part-way along a segment: the train is never shown past one until it has read it
   segTags: { DEPOT: [{id:'CAL0', x:368.7, y:351.9}, {id:'CAL100', x:311.3, y:408.8}] },
   markers: {},        // train id -> {g, x, y, tx, ty}
+  flash: {},          // train id -> {km, at}: distance just driven, shown big on the card
+  details: {},        // train id -> true when the card's Details section is open
+  cardsHtml: '',      // last card markup, so the cards are only rebuilt when something changed
   editing: false,
   loaded: false,
   animating: false
@@ -3205,7 +3381,8 @@ function updateDemoTrackVisibility(){
   const showTrack = MODE === 'demo';
   document.getElementById('demoTrack').classList.toggle('show', showTrack);
   document.getElementById('dsOpen').classList.toggle('show', showTrack);
-  if(!showTrack) closeDemoSettings();
+  document.getElementById('knOpen').classList.toggle('show', showTrack);
+  if(!showTrack){ closeDemoSettings(); knClose(); }
   if(showTrack){ renderDemoTrack(); startDemoTrackAnim(); }
   scnSafe(scVisibility);
 }
@@ -3226,9 +3403,11 @@ function renderDemoTrack(){
     const tg = demoTrainTarget(t);
     if(tg.frac === 0){
       const n = atStation[tg.loc] = (atStation[tg.loc] || 0) + 1;
+      // angle is a compass heading (0 = up), so "ahead" is (sin, -cos). Stacking along the track keeps
+      // each train's label (drawn across the track) clear of the next train's label.
       const a = (tg.angle || 0) * Math.PI / 180;
-      tg.x += Math.cos(a) * (n - 1) * 42;
-      tg.y += Math.sin(a) * (n - 1) * 42;
+      tg.x += Math.sin(a) * (n - 1) * 52;
+      tg.y -= Math.cos(a) * (n - 1) * 52;
     }
     return [t, tg];
   });
@@ -3253,6 +3432,18 @@ function renderDemoTrack(){
     }
     m.tx = tg.x; m.ty = tg.y; m.ta = tg.angle;
     if(t._dtLastKm !== t.mileage){ if(t._dtLastKm != null) t._dtMovedAt = now; t._dtLastKm = t.mileage; }
+    // "+0.28 km" on the card: add up the encoder km of one spin. session_km only grows with
+    // encoder data (scenario / manual mileage edits don't touch it) and has 3 decimals.
+    const sess = t.liveSessionKm;
+    if(sess != null && t._dtLastSess !== sess){
+      const d = t._dtLastSess != null ? sess - t._dtLastSess : 0, f = DT.flash[t.id];
+      if(d > 0){
+        t._dtMovedAt = now;
+        if(f && now - f.at < DT_FLASH_MS){ f.km += d; f.at = now; }
+        else DT.flash[t.id] = {km: d, at: now};
+      }
+      t._dtLastSess = sess;
+    }
     const moving = t._dtMovedAt && now - t._dtMovedAt < 2500;
     const color = getTrainColor(t);
     const isSel = !!(selectedTrain && selectedTrain.id === t.id);
@@ -3273,7 +3464,8 @@ function renderDemoTrack(){
   // info cards (not while a value is being edited)
   if(DT.editing) return;
   const fmtM = m => m < 10 ? m.toFixed(2) + ' m' : m.toFixed(1) + ' m';
-  document.getElementById('dtCards').innerHTML = trains.length ? trains.map(t => {
+  const nm = id => DT.short[id] || DT.names[id] || id;
+  const html = trains.length ? trains.map(t => {
     const tg = t._dtTarget || demoTrainTarget(t);
     const pm = pmOf(t);
     const pmColor = pm.status === 'over' ? 'var(--red)' : pm.status === 'soon' ? 'var(--amber)' : 'var(--green)';
@@ -3282,51 +3474,116 @@ function renderDemoTrack(){
     const dev = t.liveDevice || {};
     const tagName = id => ({CAL0:'CAL 0 m', CAL100:'CAL END'})[id] || DT.short[id] || id;
     const where = tg.frac > 0 && tg.seg
-      ? `${DT.short[tg.loc] || tg.loc} → ${DT.short[tg.seg.to] || tg.seg.to} <span class="dt-dim">${Math.round(tg.frac * 100)}%` +
+      ? `${nm(tg.loc)} → ${nm(tg.seg.to)} <span class="dt-where-sub">${Math.round(tg.frac * 100)}%` +
         (tg.waiting && DT.segTags[tg.loc] && tg.waiting !== tg.seg.to ? ` · waiting for ${tagName(tg.waiting)} tag` : tg.passed ? ` · passed ${tagName(tg.passed)}` : '') + `</span>`
       : `At ${DT.names[tg.loc] || tg.loc}`;
-    return `<div class="dt-card ${selectedTrain && selectedTrain.id === t.id ? 'sel' : ''}" onclick="selectTrainById('${t.id}')">
+    // the one health line: next check, coloured by status
+    const st = pm.status === 'over' ? 'over' : pm.status === 'soon' ? 'soon' : 'ok';
+    const health = st === 'over' ? `${pmLbl} check OVERDUE · ${formatKm(-pm.remaining)} km over`
+      : pm.remaining < 0 ? `${pmLbl} check due now · ${formatKm(-pm.remaining)} km past`
+      : st === 'soon' ? `${pmLbl} check due in ${formatKm(pm.remaining)} km`
+      : `${pmLbl} check in ${formatKm0(pm.remaining)} km`;
+    const open = !!DT.details[t.id];
+    return `<div class="dt-card ${selectedTrain && selectedTrain.id === t.id ? 'sel' : ''} ${open ? 'open' : ''}" data-id="${t.id}" onclick="selectTrainById('${t.id}')">
       <div class="dt-card-top">
-        <span class="dt-card-id">${dispId(t)}</span>
-        <span class="dt-card-dev"><span class="dt-dot" style="background:${scDevColor(dev)}"></span><span class="dt-editable" title="Double-click to change the on-board device" ondblclick="editDevice(event,'${t.id}')">${dev.id || ''}</span> ${scDevText(dev)}</span>
+        <span class="dt-card-id">${dispId(t)}<span class="dt-card-type">${dispType(t)}</span></span>
+        <span class="dt-card-dev"><span class="dt-dot" style="background:${scDevColor(dev)}"></span><span class="dt-editable" title="Double-click to change the on-board device" ondblclick="editDevice(event,'${t.id}')">${dev.id || ''}</span> <span class="dt-card-st" style="color:${scDevColor(dev)}">${scDevText(dev)}</span></span>
       </div>
       <div class="dt-card-where"><span class="dt-editable" title="Double-click to set the station" ondblclick="editLocation(event,'${t.id}')">${where}</span>${t._dtMoving ? ' <span class="dt-moving">MOVING</span>' : ''}</div>
-      <div class="dt-card-km"><span class="dt-editable" title="Double-click to edit the mileage" ondblclick="editMileage(event,'${t.id}')">${formatKm(t.mileage)}</span><span class="dt-dim"> km</span></div>
+      <div class="dt-card-kmrow">
+        <div class="dt-card-km"><span class="dt-editable" title="Double-click to edit the mileage" ondblclick="editMileage(event,'${t.id}')">${formatKm(t.mileage)}</span><span class="dt-unit"> km</span></div>
+        <div class="dt-flash" data-id="${t.id}"></div>
+      </div>
+      <div class="dt-card-foot">
+        <span class="dt-health ${st} dt-editable" title="Double-click to set how far the train is from this check" ondblclick="editPmRemaining(event,'${t.id}','${pmLbl}')">${health}</span>
+        <button class="dt-more" aria-expanded="${open}" onclick="dtToggleDetails(event,'${t.id}')">Details ${open ? '▴' : '▾'}</button>
+      </div>
+      ${scnCardExtra(t)}
+      <div class="dt-details">
       <div class="dt-card-row"><span>Since last station</span><span>${fmtM(tg.toyM)} · ${(t.liveSince || 0).toFixed(3)} km</span></div>
       <div class="dt-card-row"><span>Wheel</span><span class="dt-editable" title="Measured by the 100 m test. Double-click to set it by hand" ondblclick="editWheel(event,'${t.id}')">${wheelText(t)}</span></div>
       <div class="dt-card-row"><span>Next check</span><span class="dt-editable" title="Double-click to change the mileage this check is due at" ondblclick="editPmDue(event,'${t.id}','${pmLbl}')">${pm.name} at ${pm.due_at != null ? formatKm0(pm.due_at) : '—'} km</span></div>
       <div class="dt-card-row"><span>Distance to check</span><span class="dt-editable" title="Double-click to set how far the train is from this check" ondblclick="editPmRemaining(event,'${t.id}','${pmLbl}')" style="color:${pmColor}">${pm.remaining >= 0 ? formatKm(pm.remaining) + ' km left' : formatKm(-pm.remaining) + ' km OVER'}</span></div>
       <div class="dt-card-row"><span>Status <button class="dt-done" title="Maintenance crew finished this check: next ${pm.name} due ${pmCycle ? formatKm0(pmCycle) : ''} km from now" onclick="markPmDone(event,'${t.id}','${pmLbl}')">Mark ${pmLbl} done</button></span><span class="dt-editable" title="Double-click to change the warning levels" ondblclick="editPmLevels(event)"><span style="color:${pmColor}">${pm.status === 'over' ? 'OVERDUE' : pm.status === 'soon' ? 'DUE SOON' : 'OK'}</span> <span class="dt-dim">· amber under ${pmCycle ? formatKm0(pmCycle * (DT.pmSoonPct != null ? DT.pmSoonPct : 8) / 100) : '—'} km · red ${(DT.pmGrace || 0) > 0 ? formatKm0(DT.pmGrace) + ' km over' : 'when due'}</span></span></div>
-      ${scnCardExtra(t)}
+      </div>
     </div>`;
   }).join('') : `<div class="dt-empty">Waiting for data from the demo LRVs…</div>`;
+  // Rebuilding on every 500 ms tick would swap the elements under the mouse and swallow clicks
+  if(html !== DT.cardsHtml){ DT.cardsHtml = html; document.getElementById('dtCards').innerHTML = html; }
+}
+
+// Decision card: top-right of the track, under the scenario banner when the track is too narrow for
+// both side by side, and allowed to run past the track so its buttons never scroll out of sight.
+// The legend steps aside (left, else hidden) while a card covers it.
+function dtPlaceOverlays(){
+  const dec = document.getElementById('scDec');
+  const leg = document.querySelector('.dt-legend');
+  if(leg) leg.classList.remove('dt-leg-left', 'dt-leg-hide');
+  if(!dec.classList.contains('show')) return;
+  const panel = dec.parentElement.getBoundingClientRect();
+  const stage = document.getElementById('dtStage').getBoundingClientRect();
+  const ban = document.getElementById('scBanner');
+  let top = stage.top + 12;
+  if(ban.classList.contains('show')){
+    const b = ban.getBoundingClientRect();
+    if(b.right + 12 > stage.right - 14 - dec.offsetWidth) top = b.bottom + 10;
+  }
+  dec.style.right = (panel.right - stage.right + 14) + 'px';
+  dec.style.top = (top - panel.top) + 'px';
+  dec.style.maxHeight = Math.max(160, panel.bottom - top - 12) + 'px';
+  if(!leg) return;
+  const d = dec.getBoundingClientRect();
+  const hit = () => { const r = leg.getBoundingClientRect(); return !(r.right <= d.left || d.right <= r.left || r.bottom <= d.top || d.bottom <= r.top); };
+  if(hit()){ leg.classList.add('dt-leg-left'); if(hit()){ leg.classList.remove('dt-leg-left'); leg.classList.add('dt-leg-hide'); } }
+}
+
+function dtToggleDetails(ev, id){
+  ev.stopPropagation();
+  DT.details[id] = !DT.details[id];
+  renderDemoTrack();
 }
 
 function startDemoTrackAnim(){
   if(DT.animating) return;
   DT.animating = true;
-  const step = () => {
+  let lastT = performance.now();
+  const step = now => {
     if(!document.getElementById('demoTrack').classList.contains('show')){ DT.animating = false; return; }
+    // The encoder reports about once a second: glide over ~1 s instead of jumping and stopping
+    const dt = Math.min(100, Math.max(0, now - lastT)); lastT = now;
+    const ease = 1 - Math.exp(-dt / 320);
     // SVG viewBox (1000 x 560, centred) -> pixels in the stage
     const r = document.getElementById('dtSvg').getBoundingClientRect();
     const k = Math.min(r.width / 1000, r.height / 560);
     const ox = (r.width - 1000 * k) / 2, oy = (r.height - 560 * k) / 2;
     const px = (x, y) => [ox + x * k, oy + y * k];
+    // station labels sit just above the station ring, whatever size the track is drawn at
+    document.getElementById('dtOverlay').style.setProperty('--dt-lbl-off', (24 * k + 14).toFixed(1) + 'px');
     document.querySelectorAll('.dt-sta-label').forEach(el => {
       const [x, y] = px(+el.dataset.x, +el.dataset.y);
       el.style.left = x + 'px'; el.style.top = y + 'px';
     });
     Object.values(DT.markers).forEach(m => {
       if(m.tx == null) return;
-      m.x += (m.tx - m.x) * 0.15;
-      m.y += (m.ty - m.y) * 0.15;
+      m.x += (m.tx - m.x) * ease;
+      m.y += (m.ty - m.y) * ease;
       let d = ((m.ta - m.a + 540) % 360) - 180;          // turn the shortest way round
-      m.a += d * 0.15;
+      m.a += d * ease;
       const [x, y] = px(m.x, m.y);
       m.wrap.style.left = x.toFixed(1) + 'px';
       m.wrap.style.top = y.toFixed(1) + 'px';
       m.el.style.transform = `translate(-50%,-50%) rotate(${m.a.toFixed(1)}deg)`;
     });
+    // "+0.28 km" flash on the cards: pops in, holds while the wheel turns, then fades
+    document.querySelectorAll('.dt-flash').forEach(el => {
+      const f = DT.flash[el.dataset.id];
+      const age = f ? now - f.at : Infinity;
+      if(age >= DT_FLASH_MS){ if(f) delete DT.flash[el.dataset.id]; el.style.opacity = 0; return; }
+      el.textContent = '+' + f.km.toFixed(2) + ' km';
+      el.style.opacity = Math.min(1, (DT_FLASH_MS - age) / 600).toFixed(2);
+      el.style.transform = `scale(${(1 + 0.25 * Math.max(0, 1 - age / 260)).toFixed(3)})`;
+    });
+    dtPlaceOverlays();
     requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
@@ -4485,6 +4742,51 @@ function scVisibility(){
   if(!on){ scCloseDrawer(); scCloseDecision(); }
   scRenderBanner(); scRenderCue();
 }
+
+// ═══════════════════════════════════════════════════════
+// VIRTUAL KNOB  (Demo mode: the hardware simulator page, docked in a side panel)
+// The panel just embeds /simulator?embed=1, so there is ONE wheel implementation and it sends
+// exactly what the full simulator page sends. The iframe is created on open and dropped on close:
+// the backend keeps one simulator counter per LRV, so only one simulator may run at a time.
+// ═══════════════════════════════════════════════════════
+function knToggle(){ KN.open ? knClose() : knOpenPanel(); }
+function knOpenPanel(){
+  if(MODE !== 'demo') return;
+  if(!LIVE.api){ showEditError('Wait until the dashboard shows LIVE, then open the virtual knob'); return; }
+  KN.open = true;
+  document.body.classList.add('kn-on');
+  document.getElementById('knOpen').classList.add('on');
+  knState('CONNECTING', 'var(--amber)');
+  knWarn(0);
+  document.getElementById('knFrame').src = LIVE.api + '/simulator?embed=1';
+}
+function knClose(){
+  if(!KN.open) return;
+  KN.open = false;
+  document.body.classList.remove('kn-on');
+  document.getElementById('knOpen').classList.remove('on');
+  document.getElementById('knFrame').src = 'about:blank';   // stops this simulator's counter
+}
+function knState(text, color){
+  const el = document.getElementById('knState');
+  el.textContent = '● ' + text; el.style.color = color;
+}
+function knWarn(peers){
+  const el = document.getElementById('knWarn');
+  el.classList.toggle('bad', peers > 0);
+  el.textContent = peers > 0
+    ? 'Another simulator page is open. Close it: both drive the same counter.'
+    : 'Keep the /simulator page closed while this panel is open: both drive the same counter.';
+}
+window.addEventListener('message', e => {
+  const f = document.getElementById('knFrame');
+  const m = e.data;
+  if(!f || e.source !== f.contentWindow || !m || m.type !== 'splrt-sim') return;
+  if(m.conn === 'ok') knState('SENDING', 'var(--green)');
+  else if(m.conn === 'blocked') knState('SIMULATOR INPUT OFF', 'var(--amber)');
+  else if(m.conn === 'down') knState('NO BACKEND', 'var(--red)');
+  knWarn(+m.peers || 0);
+});
 
 (function scInit(){
   SC.cue = false;   // notes always start hidden, so they never show by accident on the day

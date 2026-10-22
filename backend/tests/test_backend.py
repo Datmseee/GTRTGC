@@ -476,3 +476,104 @@ def test_low_mileage_train_can_be_made_due_soon(client):
     c = r.json()["pm_cycles"][0]
     assert abs(c["due_at"] - 115.1) < 0.1 and c["status"] == "soon"
     assert client.put("/api/pm/last", json={"train_id": "810D-001", "pm_type": "2K", "last_pm_km": -2500}).status_code == 400
+
+
+# ---------------------------------------------------------------- history / analytics
+
+def _drive(client, *pulses, source="http"):
+    for p in pulses:
+        client.post("/api/ingest/odometer", json={"device_id": "LRV01", "pulses": p, "source": source})
+
+
+def test_history_series_buckets_and_leaves_out_manual_edits(client):
+    _drive(client, 0, 4096, 8192)                                   # two wheel turns from the "ESP32"
+    _drive(client, 0, 4096, source="simulator")                     # one turn from the simulator
+    client.patch("/api/trains/810D-001", json={"mileage": 200000})  # manual edit: a jump, not driving
+    turn = 4096 * km_per_pulse()
+
+    s = client.get("/api/history/series", params={"train_id": "810D-001", "bucket": "1h"}).json()
+    pts = s["trains"]["810D-001"]
+    assert len(pts) == 1 and pts[0]["driven"] == pytest.approx(3 * turn, abs=1e-3)
+    assert pts[0]["km"] < 200000                                    # manual jump left out by default
+
+    no_sim = client.get("/api/history/series", params={"train_id": "810D-001", "bucket": "1h", "sim": "false"}).json()
+    assert no_sim["trains"]["810D-001"][0]["driven"] == pytest.approx(2 * turn, abs=1e-3)
+    with_manual = client.get("/api/history/series", params={"train_id": "810D-001", "manual": "true"}).json()
+    assert with_manual["trains"]["810D-001"][-1]["km"] == pytest.approx(200000)
+
+    raw = client.get("/api/history/series", params={"train_id": "810D-001"}).json()["trains"]["810D-001"]
+    assert all(a["t"] < b["t"] for a, b in zip(raw, raw[1:]))      # strictly increasing time for the chart
+    future = client.get("/api/history/series", params={"from": "2099-01-01T00:00:00+08:00"}).json()
+    assert future["trains"] == {} and future["events"] == []
+    assert client.get("/api/history/series", params={"bucket": "5m"}).status_code == 400
+    assert client.get("/api/history/series", params={"from": "yesterday"}).status_code == 400
+
+
+def test_history_events_station_reads_and_signoffs(client):
+    client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV01", "tag": "5A000001", "pulses": 0})
+    client.post("/api/pm", json={"train_id": "810D-001", "pm_type": "2K", "technician": "Tan",
+                                 "defects_found": True, "component": "Saloon doors"})
+    ev = client.get("/api/history/series", params={"train_id": "810D-001"}).json()["events"]
+    kinds = {e["kind"] for e in ev}
+    assert "station" in kinds and "pm" in kinds
+    pm_ev = next(e for e in ev if e["kind"] == "pm")
+    assert pm_ev["technician"] == "Tan" and pm_ev["defects_found"] == 1 and pm_ev["component"] == "Saloon doors"
+    assert all(e.get("technician") != "seed" for e in ev)           # seed records are not maintenance events
+
+
+def test_history_export_csv_and_zip(client):
+    import csv as _csv
+    import io as _io
+    import zipfile as _zip
+    _drive(client, 0, 4096)
+    r = client.get("/api/history/export", params={"table": "mileage", "train_id": "810D-001"})
+    assert r.status_code == 200 and r.headers["content-type"].startswith("text/csv")
+    assert "attachment" in r.headers["content-disposition"]
+    rows = list(_csv.DictReader(_io.StringIO(r.text)))
+    assert list(rows[0].keys()) == ["recorded_at_utc", "recorded_at_sgt", "date_sgt", "hour_sgt", "weekday_sgt",
+                                    "train_id", "km_reading", "delta_km", "source", "seconds_since_prev",
+                                    "speed_kmh", "after_gap"]
+    assert rows[-1]["train_id"] == "810D-001" and rows[-1]["source"] == "http"
+    assert rows[-1]["recorded_at_sgt"].endswith("+08:00")
+
+    client.post("/api/pm", json={"train_id": "810D-001", "pm_type": "2K", "technician": "Lim"})   # outcome optional
+    client.post("/api/pm", json={"train_id": "810D-001", "pm_type": "2K", "technician": "Tan",
+                                 "defects_found": False, "parts_replaced": "none"})
+    pm_rows = list(_csv.DictReader(_io.StringIO(client.get("/api/history/export", params={"table": "pm"}).text)))
+    signoffs = [p for p in pm_rows if p["record_type"] == "sign-off"]
+    assert [p["defects_found"] for p in signoffs[-2:]] == ["", "0"] and signoffs[-1]["parts_replaced"] == "none"
+    assert any(p["record_type"] == "seed" for p in pm_rows)
+
+    z = client.get("/api/history/export", params={"table": "all"})
+    assert z.headers["content-type"] == "application/zip"
+    assert sorted(_zip.ZipFile(_io.BytesIO(z.content)).namelist()) == [
+        "splrt_mileage.csv", "splrt_pm.csv", "splrt_rfid.csv", "splrt_stock.csv"]
+    assert client.get("/api/history/export", params={"table": "nope"}).status_code == 400
+
+
+def test_history_clear_needs_confirm_backs_up_and_keeps_setup(client):
+    _drive(client, 0, 4096, 8192)
+    client.post("/api/ingest/lrv_rfid", json={"device_id": "LRV01", "tag": "5A000001", "pulses": 8192})
+    before = {"devices": client.get("/api/devices").json(), "tags": client.get("/api/station_tags").json(),
+              "track": client.get("/api/track").json(), "km": client.get("/api/trains/810D-001").json()["mileage"],
+              "pm": len(client.get("/api/history/810D-001", params={"limit": 1000}).json()["pm_history"])}
+    assert client.get("/api/history/summary").json()["tables"]["mileage_log"]["rows"] > 0
+
+    assert client.post("/api/history/clear", json={"confirm": "clear"}).status_code == 400
+    assert client.post("/api/history/clear", json={"confirm": "CLEAR", "tables": ["pm_history"]}).status_code == 400
+    r = client.post("/api/history/clear", json={"confirm": "CLEAR"}).json()
+    assert r["deleted"]["mileage_log"] > 0 and r["deleted"]["rfid_events"] > 0
+    assert os.path.exists(r["backup"]) and os.path.getsize(r["backup"]) > 0
+
+    s = client.get("/api/history/summary").json()["tables"]
+    assert s["mileage_log"]["rows"] == 0 and s["rfid_events"]["rows"] == 0
+    assert client.get("/api/devices").json() == before["devices"]
+    assert client.get("/api/station_tags").json() == before["tags"]
+    assert client.get("/api/track").json() == before["track"]
+    assert client.get("/api/trains/810D-001").json()["mileage"] == before["km"]
+    assert len(client.get("/api/history/810D-001", params={"limit": 1000}).json()["pm_history"]) == before["pm"]
+
+
+def test_history_backup_download(client):
+    r = client.get("/api/history/backup")
+    assert r.status_code == 200 and r.content[:16] == b"SQLite format 3\x00"

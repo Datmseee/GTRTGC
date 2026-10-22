@@ -878,7 +878,6 @@ body.demo-edit .hs.ed:hover .hs-val{text-decoration:underline dotted}
 .dt-card-kmrow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:2px 0 6px}
 .dt-card-km{font-size:48px;font-weight:300;line-height:1.1;margin:0;letter-spacing:-0.01em;white-space:nowrap}
 .dt-unit{font-size:20px;color:var(--txt1)}
-.dt-flash{font-family:var(--mono);font-size:36px;font-weight:600;color:var(--green);text-shadow:0 0 18px rgba(0,232,136,0.55);white-space:nowrap;opacity:0;transform-origin:right center;pointer-events:none}
 .dt-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .dt-health{font-family:var(--sans);font-size:20px;font-weight:700;letter-spacing:0.02em;padding:5px 16px;border-radius:20px;border:1px solid}
 .dt-health.ok{color:var(--green);border-color:rgba(0,232,136,0.45);background:rgba(0,232,136,0.1)}
@@ -999,6 +998,106 @@ body.demo-mode .sc-msg,body.demo-mode .sc-log-i{font-size:15px}
 body.demo-mode .sc-tip{width:380px;font-size:15px}
 body.demo-mode .sc-tip-h{font-size:20px}
 body.demo-mode .sc-tip-k{font-size:13px}
+/* view tabs: DEMO TRACK | ANALYTICS (replace the plain title) */
+.vt-row{display:flex;align-items:center}
+.vt{background:none;border:0;border-bottom:2px solid transparent;padding:2px 0;margin-right:22px;font-family:var(--sans);font-size:20px;font-weight:700;letter-spacing:0.14em;color:var(--txt2);cursor:pointer}
+.vt.on{color:var(--txt0);border-bottom-color:var(--cyan);cursor:default}
+.vt:not(.on):hover{color:var(--cyan)}
+/* INPUT switch: ESP32 ONLY / + VIRTUAL KNOB */
+.kn-sw{float:right;display:flex;align-items:center;margin-left:10px;border:1px solid var(--border2);border-radius:20px;overflow:hidden;background:var(--bg2)}
+.kn-sw-l{padding:0 8px 0 14px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.14em;color:var(--txt2)}
+.kn-sw button{background:none;border:0;border-left:1px solid var(--border);padding:8px 13px;font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:0.1em;color:var(--txt2);cursor:pointer}
+.kn-sw button:hover:not(.on){color:var(--txt0)}
+#knSwOff.on{background:rgba(0,232,136,0.14);color:var(--green)}
+#knSwOn.on{background:rgba(255,176,32,0.14);color:var(--amber)}
+body:not(.kn-allowed) #knOpen,body.kn-on #knOpen{display:none !important}
+/* Analytics view */
+.an-view{position:absolute;inset:0;z-index:860;display:none;flex-direction:column;gap:10px;padding:16px 18px 14px;background:var(--bg0);overflow:hidden}
+.an-view.show{display:flex}
+body.kn-on .an-view{right:var(--kn-w)}
+.an-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.an-actions{display:flex;gap:10px;align-items:center}
+.an-btn{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:8px 16px;font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:0.12em;color:var(--txt0);cursor:pointer}
+.an-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.an-btn.an-danger{color:var(--red);border-color:rgba(255,58,92,0.45)}
+.an-btn.an-danger:hover{background:rgba(255,58,92,0.1);border-color:var(--red);color:var(--red)}
+.an-dl{position:relative}
+.an-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:20;width:320px;background:var(--bg1);border:1px solid var(--border2);border-radius:10px;padding:6px;box-shadow:0 10px 40px var(--bg0)}
+.an-menu.show{display:block}
+.an-menu button{display:flex;justify-content:space-between;width:100%;background:none;border:0;border-radius:6px;padding:9px 10px;font-family:var(--sans);font-size:16px;font-weight:600;color:var(--txt0);cursor:pointer;text-align:left}
+.an-menu button span{font-family:var(--mono);font-size:13px;color:var(--txt1)}
+.an-menu button:hover{background:var(--cyan-dim);color:var(--cyan)}
+.an-menu-note{padding:8px 10px 4px;font-family:var(--sans);font-size:14px;color:var(--txt1);line-height:1.35;border-top:1px solid var(--border);margin-top:4px}
+.an-sub{font-family:var(--mono);font-size:15px;color:var(--txt1)}
+.an-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.an-group{display:flex;flex-wrap:wrap;gap:6px}
+.an-chip{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border2);border-radius:20px;padding:6px 14px;font-family:var(--mono);font-size:15px;font-weight:600;color:var(--txt1);cursor:pointer}
+.an-chip i{width:12px;height:12px;border-radius:50%;opacity:0.35}
+.an-chip.on{border-color:var(--cyan);color:var(--txt0);background:var(--cyan-dim)}
+.an-chip.on i{opacity:1}
+.an-chk{display:flex;align-items:center;gap:7px;font-family:var(--sans);font-size:15px;color:var(--txt0);cursor:pointer}
+.an-chk input{width:17px;height:17px;accent-color:var(--cyan)}
+.an-stats{display:flex;flex-wrap:wrap;gap:10px}
+.an-stat{display:flex;align-items:center;gap:14px;background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-family:var(--sans);font-size:15px;color:var(--txt1)}
+.an-stat i{width:12px;height:12px;border-radius:50%}
+.an-stat b{font-family:var(--mono);font-size:18px;color:var(--txt0)}
+.an-stat em{font-style:normal;font-family:var(--mono);font-size:17px;color:var(--txt0)}
+.an-stat-db{margin-left:auto}
+.an-warn{color:var(--amber)}
+.an-charts{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;position:relative}
+.an-panel{display:flex;flex-direction:column;background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:8px 10px 6px;min-height:0;min-width:0;flex:1}
+.an-main{flex:1.6}
+.an-row{flex:1;display:flex;gap:10px;min-height:0}
+.an-hod{flex:0 0 38%}
+.an-ptitle{font-family:var(--sans);font-size:16px;font-weight:700;letter-spacing:0.06em;color:var(--txt0);margin:0 2px 4px}
+.an-pnote{font-family:var(--mono);font-size:13px;font-weight:400;letter-spacing:0;color:var(--txt2);margin-left:8px}
+.an-chart{flex:1;min-height:0;position:relative}
+.an-empty{display:none;position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);max-width:560px;text-align:center;background:var(--bg1);border:1px dashed var(--border2);border-radius:10px;padding:14px 18px;font-family:var(--sans);font-size:16px;color:var(--txt1);line-height:1.4;z-index:5}
+.an-empty.show{display:block}
+/* clear-history dialog */
+.hmodal-inner.an-clear-inner{max-width:640px}
+.an-clear-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.an-clear-row{display:grid;grid-template-columns:22px 1fr;gap:2px 10px;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--sans);font-size:15px;color:var(--txt1);cursor:pointer}
+.an-clear-row input{width:17px;height:17px;accent-color:var(--red);grid-row:1 / 3}
+.an-clear-row b{color:var(--txt0)}
+.an-clear-row em{font-style:normal;font-family:var(--mono);color:var(--txt0)}
+.an-clear-keep{font-family:var(--sans);font-size:14px;color:var(--txt1);line-height:1.45;margin-top:6px}
+.an-clear-keep code{font-family:var(--mono);color:var(--txt0)}
+.an-confirm{display:flex;align-items:center;gap:12px;margin-top:16px;font-family:var(--sans);font-size:15px;color:var(--txt0)}
+.an-confirm b{color:var(--red);font-family:var(--mono)}
+.an-confirm input{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;color:var(--txt0);font-family:var(--mono);font-size:16px;letter-spacing:0.1em}
+.an-confirm input:focus{outline:none;border-color:var(--red)}
+.an-clear-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#anClear .hm-btn{font-size:15px;padding:9px 16px}
+.hm-btn.an-del{color:var(--red);border-color:var(--red);background:rgba(255,58,92,0.16)}
+.hm-btn.an-del:hover:not(:disabled){background:var(--red);color:var(--bg0)}
+.hm-btn.an-del:disabled{opacity:0.3;background:transparent;border-color:var(--border);cursor:not-allowed}
+#anClear .hm-close{flex-wrap:wrap;gap:10px}
+#anClear .ds-msg{font-size:14px;flex:1 1 100%}
+/* sign-off outcome fields on the decision card */
+.sc-dec-fields{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border2)}
+.sc-dec-fl{font-family:var(--sans);font-size:13px;color:var(--txt2);letter-spacing:0.04em}
+body.demo-mode .sc-dec-fl{font-size:15px}
+.sc-dec-fields select.sc-dec-in{appearance:auto}
+@media (max-width: 1500px){
+  .vt{font-size:17px;margin-right:16px}
+  .kn-sw-l{display:none}
+  .kn-sw button{padding:7px 10px;font-size:12px}
+  body.demo-mode .ds-open{font-size:13px;padding:7px 12px}
+  .an-hod{flex-basis:42%}
+  .an-stat-db{margin-left:0}
+  .an-view{gap:8px;padding:12px 16px 10px}
+  .an-sub{display:none}
+  .an-controls{gap:8px 14px}
+  .an-chip{padding:5px 12px}
+  .an-stat{padding:5px 12px;gap:12px}
+  .an-stat b{font-size:17px}
+  .an-panel{padding:6px 8px 4px}
+}
+@media (max-height: 820px){
+  .an-main{flex:2.2}
+  .an-ptitle{margin-bottom:2px}
+}
 @media (max-width: 1500px){
   body.demo-mode .side{width:330px}
   body.demo-mode .hs{padding:6px 14px}
@@ -1074,7 +1173,12 @@ body.demo-mode.kn-on .dt-sub{display:none}
         <button class="ds-open" id="dsOpen" onclick="openDemoSettings()" title="Demo settings: trains, station distances, wheel, simulator">⚙ DEMO SETTINGS</button>
         <button class="ds-open sc-open" id="scOpen" onclick="scOpenDrawer()" title="Ready-made demo cases">▶ SCENARIOS</button>
         <button class="ds-open sc-open" id="knOpen" onclick="knToggle()" title="Drive a demo train without the ESP32: wheel + track tags in a side panel">◎ VIRTUAL KNOB</button>
-        <div class="dt-title">DEMO TRACK</div>
+        <div class="kn-sw" id="knSw" title="Which data counts: only the real ESP32, or also the virtual knob (simulator page)">
+          <span class="kn-sw-l">INPUT</span>
+          <button id="knSwOff" onclick="knSetInput(false)">ESP32 ONLY</button>
+          <button id="knSwOn" onclick="knSetInput(true)">+ VIRTUAL KNOB</button>
+        </div>
+        <div class="dt-title vt-row"><button class="vt on" disabled>DEMO TRACK</button><button class="vt" onclick="anShow(true)" title="Mileage history from the database: charts, CSV download, clear">ANALYTICS</button></div>
         <div class="dt-sub">Live from the train's wheel encoder and track RFID tags · double-click a value to edit it</div>
         <div class="sc-cue" id="scCue"></div>
       </div>
@@ -1125,6 +1229,44 @@ body.demo-mode.kn-on .dt-sub{display:none}
         </div>
       </div>
       <div class="dt-cards" id="dtCards"></div>
+    </div>
+    <!-- Analytics view (Demo mode): mileage history from the backend database -->
+    <div class="an-view" id="anView">
+      <div class="an-head">
+        <div class="dt-title vt-row"><button class="vt" onclick="anShow(false)">DEMO TRACK</button><button class="vt on" disabled>ANALYTICS</button></div>
+        <div class="an-actions">
+          <div class="an-dl">
+            <button class="an-btn" onclick="anToggleMenu(event)">⤓ DOWNLOAD ▾</button>
+            <div class="an-menu" id="anMenu">
+              <button onclick="anDownload('mileage')">Mileage log <span>CSV</span></button>
+              <button onclick="anDownload('rfid')">Station reads <span>CSV</span></button>
+              <button onclick="anDownload('pm')">PM records + outcomes <span>CSV</span></button>
+              <button onclick="anDownload('stock')">Stock changes <span>CSV</span></button>
+              <button onclick="anDownload('all')">Everything <span>ZIP</span></button>
+              <button onclick="anDownload('db')">Full database backup <span>.db</span></button>
+              <div class="an-menu-note">CSV files cover the selected trains and time range. Times are in UTC and SGT.</div>
+            </div>
+          </div>
+          <button class="an-btn an-danger" onclick="anOpenClear()">CLEAR HISTORY…</button>
+        </div>
+      </div>
+      <div class="an-sub">From the backend database: every encoder step, station read, PM sign-off and stock change is stored with its time.</div>
+      <div class="an-controls">
+        <div class="an-group" id="anTrains"></div>
+        <div class="an-group" id="anRanges"></div>
+        <div class="an-group" id="anModes"></div>
+        <label class="an-chk"><input type="checkbox" id="anSim" checked onchange="anOpt()"> Virtual knob data</label>
+        <label class="an-chk"><input type="checkbox" id="anSta" onchange="anOpt()"> Station reads</label>
+      </div>
+      <div class="an-stats" id="anStats"></div>
+      <div class="an-charts">
+        <div class="an-panel an-main"><div class="an-ptitle"><span id="anKmTitle">Distance driven in this range</span> <span class="an-pnote">km · scroll to zoom, drag to pan, hover for the exact time</span></div><div class="an-chart" id="anChartKm"></div></div>
+        <div class="an-row">
+          <div class="an-panel"><div class="an-ptitle">km driven per <span id="anBucketLbl">minute</span></div><div class="an-chart" id="anChartDrv"></div></div>
+          <div class="an-panel an-hod"><div class="an-ptitle">km by hour of day <span class="an-pnote">SGT · usage pattern</span></div><div class="an-chart" id="anChartHod"></div></div>
+        </div>
+        <div class="an-empty" id="anEmpty"></div>
+      </div>
     </div>
     <!-- decision card: lives outside the track stage so it can use the full height (placed by dtPlaceOverlays) -->
     <div class="sc-dec" id="scDec"></div>
@@ -1223,6 +1365,22 @@ body.demo-mode.kn-on .dt-sub{display:none}
   <div class="sc-dbody" id="scBody"></div>
 </div>
 <div class="sc-tip" id="scTip"></div>
+<div class="hmodal" id="anClear" onclick="if(event.target===this)anCloseClear()">
+  <div class="hmodal-inner an-clear-inner">
+    <div class="hm-title">Clear history</div>
+    <div class="hm-sub">Deletes the stored logs you tick below. The dashboard can't undo this, but a full backup of the database is saved first.</div>
+    <div id="anClearBody"></div>
+    <label class="an-confirm">Type <b>CLEAR</b> to confirm<input id="anClearIn" autocomplete="off" spellcheck="false" oninput="anClearCheck()"></label>
+    <div class="hm-close">
+      <span class="ds-msg" id="anClearMsg"></span>
+      <div class="an-clear-btns">
+        <button class="hm-btn" onclick="anDownload('all')">⤓ Download everything first</button>
+        <button class="hm-btn" onclick="anCloseClear()">Close</button>
+        <button class="hm-btn an-del" id="anClearBtn" disabled onclick="anDoClear()">Delete history</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="hmodal" id="demoSettings" onclick="if(event.target===this)closeDemoSettings()">
   <div class="hmodal-inner ds-inner">
     <div class="hm-title">Demo settings</div>
@@ -3251,8 +3409,11 @@ function liveInit(){
 // ═══════════════════════════════════════════════════════
 // Names on the 3D-printed props and the floor mat (display only; backend IDs stay ST1 / ST2 / DEPOT)
 const DT_PROP_NAMES = {ST1:'Sengkang', ST2:'Punggol', DEPOT:'Sengkang Depot'};
-const DT_FLASH_MS = 2600;   // the "+x km" flash stays this long after the last encoder step
-const KN = {open: false};   // virtual knob panel (see VIRTUAL KNOB below); here because liveInit() runs first
+// State of the virtual knob panel and the Analytics view (see those sections below).
+// Declared here because liveInit() runs before those sections and already calls into them.
+const KN = {open: false, input: null};
+const AN = {open: false, trains: null, range: '24h', mode: 'driven', sim: true, stations: false, charts: null, timer: null,
+            fitNext: true, libPromise: null, loading: false};
 const DT = {
   scale: 1000,
   segFrom: {
@@ -3268,7 +3429,6 @@ const DT = {
   // track tags part-way along a segment: the train is never shown past one until it has read it
   segTags: { DEPOT: [{id:'CAL0', x:368.7, y:351.9}, {id:'CAL100', x:311.3, y:408.8}] },
   markers: {},        // train id -> {g, x, y, tx, ty}
-  flash: {},          // train id -> {km, at}: distance just driven, shown big on the card
   details: {},        // train id -> true when the card's Details section is open
   cardsHtml: '',      // last card markup, so the cards are only rebuilt when something changed
   editing: false,
@@ -3382,7 +3542,8 @@ function updateDemoTrackVisibility(){
   document.getElementById('demoTrack').classList.toggle('show', showTrack);
   document.getElementById('dsOpen').classList.toggle('show', showTrack);
   document.getElementById('knOpen').classList.toggle('show', showTrack);
-  if(!showTrack){ closeDemoSettings(); knClose(); }
+  if(!showTrack){ closeDemoSettings(); knClose(); anShow(false); }
+  else knSyncInput();
   if(showTrack){ renderDemoTrack(); startDemoTrackAnim(); }
   scnSafe(scVisibility);
 }
@@ -3432,16 +3593,11 @@ function renderDemoTrack(){
     }
     m.tx = tg.x; m.ty = tg.y; m.ta = tg.angle;
     if(t._dtLastKm !== t.mileage){ if(t._dtLastKm != null) t._dtMovedAt = now; t._dtLastKm = t.mileage; }
-    // "+0.28 km" on the card: add up the encoder km of one spin. session_km only grows with
-    // encoder data (scenario / manual mileage edits don't touch it) and has 3 decimals.
+    // MOVING: session_km only grows with encoder data (3 decimals; mileage is sent to 0.1 km),
+    // so it shows even a short spin, and scenario / manual edits don't count as driving
     const sess = t.liveSessionKm;
     if(sess != null && t._dtLastSess !== sess){
-      const d = t._dtLastSess != null ? sess - t._dtLastSess : 0, f = DT.flash[t.id];
-      if(d > 0){
-        t._dtMovedAt = now;
-        if(f && now - f.at < DT_FLASH_MS){ f.km += d; f.at = now; }
-        else DT.flash[t.id] = {km: d, at: now};
-      }
+      if(t._dtLastSess != null && sess > t._dtLastSess) t._dtMovedAt = now;
       t._dtLastSess = sess;
     }
     const moving = t._dtMovedAt && now - t._dtMovedAt < 2500;
@@ -3492,7 +3648,6 @@ function renderDemoTrack(){
       <div class="dt-card-where"><span class="dt-editable" title="Double-click to set the station" ondblclick="editLocation(event,'${t.id}')">${where}</span>${t._dtMoving ? ' <span class="dt-moving">MOVING</span>' : ''}</div>
       <div class="dt-card-kmrow">
         <div class="dt-card-km"><span class="dt-editable" title="Double-click to edit the mileage" ondblclick="editMileage(event,'${t.id}')">${formatKm(t.mileage)}</span><span class="dt-unit"> km</span></div>
-        <div class="dt-flash" data-id="${t.id}"></div>
       </div>
       <div class="dt-card-foot">
         <span class="dt-health ${st} dt-editable" title="Double-click to set how far the train is from this check" ondblclick="editPmRemaining(event,'${t.id}','${pmLbl}')">${health}</span>
@@ -3573,15 +3728,6 @@ function startDemoTrackAnim(){
       m.wrap.style.left = x.toFixed(1) + 'px';
       m.wrap.style.top = y.toFixed(1) + 'px';
       m.el.style.transform = `translate(-50%,-50%) rotate(${m.a.toFixed(1)}deg)`;
-    });
-    // "+0.28 km" flash on the cards: pops in, holds while the wheel turns, then fades
-    document.querySelectorAll('.dt-flash').forEach(el => {
-      const f = DT.flash[el.dataset.id];
-      const age = f ? now - f.at : Infinity;
-      if(age >= DT_FLASH_MS){ if(f) delete DT.flash[el.dataset.id]; el.style.opacity = 0; return; }
-      el.textContent = '+' + f.km.toFixed(2) + ' km';
-      el.style.opacity = Math.min(1, (DT_FLASH_MS - age) / 600).toFixed(2);
-      el.style.transform = `scale(${(1 + 0.25 * Math.max(0, 1 - age / 260)).toFixed(3)})`;
     });
     dtPlaceOverlays();
     requestAnimationFrame(step);
@@ -3843,6 +3989,7 @@ async function dsSaveWheel(quiet){
 async function dsSaveSim(on){
   try{
     await liveSend('PUT', '/api/config', {accept_simulator: on});
+    knApplyInput(on);   // same setting as the INPUT switch on the demo track
     dsMsg(on ? 'Simulator input ON' : 'Simulator input OFF - only real hardware is accepted', true);
   }catch(e){ dsMsg(e.message, false); }
 }
@@ -4522,6 +4669,9 @@ function scShowDecision(d){
   el.innerHTML = `<button class="sc-dec-x" title="Close" onclick="scCloseDecision()">✕</button>
     <div class="sc-dec-k">${d.k}</div><div class="sc-dec-t">${d.t}</div><div class="sc-dec-b">${d.body}</div>
     ${d.input ? `<input class="sc-dec-in" id="scDecIn" placeholder="${dsEsc(d.input.ph)}" value="${dsEsc(d.input.value || '')}">` : ''}
+    ${d.fields ? `<div class="sc-dec-fields"><div class="sc-dec-fl">${d.fieldsLabel || ''}</div>${d.fields.map(f => f.options
+        ? `<select class="sc-dec-in" id="${f.id}">${f.options.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>`
+        : `<input class="sc-dec-in" id="${f.id}" placeholder="${dsEsc(f.ph)}">`).join('')}</div>` : ''}
     <div class="sc-dec-acts">${d.acts.map((a, i) => `<button class="sc-act ${a.primary ? 'primary' : ''}" ${a.disabled ? 'disabled' : ''} onclick="scAct(${i})">${a.label}${a.sub ? `<span>${a.sub}</span>` : ''}</button>`).join('')}</div>`;
 }
 function scCloseDecision(){
@@ -4613,13 +4763,24 @@ function scCardSignoff(t){
   scShowDecision({trainId: t.id, kind: '', k: 'IN DEPOT', t: `${dispId(t)} ${top.label} check`,
     body: `Mileage <b>${scKm(t.mileage)} km</b>, read automatically. No hubometer reading needed.${scBundleLine(due)}`,
     input: {ph: 'Technician name', value: ''},
+    // outcome of the check: optional, stored with the PM record as labels for maintenance analytics
+    fieldsLabel: 'Outcome (optional, kept for maintenance analytics)',
+    fields: [
+      {id: 'scDecDefects', options: [['', 'Defects found? (not recorded)'], ['0', 'No defects found'], ['1', 'Defects found']]},
+      {id: 'scDecComp', ph: 'Component, e.g. saloon doors'},
+      {id: 'scDecParts', ph: 'Parts replaced, e.g. door seal'}
+    ],
     acts: [
       {label: `Sign off ${top.label} check`, primary: true, fn: async name => {
         const km = t.mileage;
+        const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+        const defects = val('scDecDefects'), comp = val('scDecComp'), parts = val('scDecParts');
         await liveSend('POST', '/api/pm', {train_id: t.id, pm_type: top.label, technician: name || null,
-          notes: 'signed off on the dashboard'});
+          notes: 'signed off on the dashboard', defects_found: defects === '' ? null : defects === '1',
+          component: comp || null, parts_replaced: parts || null});
         SC.flags.signed = true; SC.deferred[t.id] = null;
-        scLog(`<b>${dispId(t)}</b> ${top.label} check signed off${name ? ' by ' + dsEsc(name) : ''} at ${scKm(km)} km`);
+        const outcome = defects === '1' ? ` · defects found${comp ? ' (' + dsEsc(comp) + ')' : ''}` : defects === '0' ? ' · no defects' : '';
+        scLog(`<b>${dispId(t)}</b> ${top.label} check signed off${name ? ' by ' + dsEsc(name) : ''} at ${scKm(km)} km${outcome}`);
         scShowDecision({trainId: t.id, kind: 'ok', k: 'CHECK DONE', t: `${dispId(t)} ready for service`,
           body: `Next ${top.label} check due at <b>${formatKm0(km + top.cycle)} km</b>.`,
           acts: [{label: 'OK', fn: async () => scCloseDecision()}]});
@@ -4753,6 +4914,7 @@ function knToggle(){ KN.open ? knClose() : knOpenPanel(); }
 function knOpenPanel(){
   if(MODE !== 'demo') return;
   if(!LIVE.api){ showEditError('Wait until the dashboard shows LIVE, then open the virtual knob'); return; }
+  if(KN.input === false){ showEditError('INPUT is set to ESP32 ONLY. Switch it to + VIRTUAL KNOB first.'); return; }
   KN.open = true;
   document.body.classList.add('kn-on');
   document.getElementById('knOpen').classList.add('on');
@@ -4778,6 +4940,31 @@ function knWarn(peers){
     ? 'Another simulator page is open. Close it: both drive the same counter.'
     : 'Keep the /simulator page closed while this panel is open: both drive the same counter.';
 }
+// INPUT switch: ESP32 ONLY / + VIRTUAL KNOB. The backend setting accept_simulator is the single
+// source of truth (the Demo settings checkbox writes the same value). With ESP32 ONLY the backend
+// rejects every simulator message, so a forgotten /simulator tab can't add distance during a hardware test.
+function knApplyInput(on){
+  KN.input = on;
+  document.body.classList.toggle('kn-allowed', on);
+  document.getElementById('knSwOff').classList.toggle('on', !on);
+  document.getElementById('knSwOn').classList.toggle('on', on);
+  if(!on) knClose();
+}
+async function knSyncInput(){
+  if(MODE !== 'demo' || !LIVE.api) return;
+  try{ const cfg = await liveFetch('/api/config'); knApplyInput(cfg.accept_simulator !== false); }catch(e){}
+}
+async function knSetInput(on){
+  if(!demoEditable()) return;
+  try{
+    await liveSend('PUT', '/api/config', {accept_simulator: on});
+    knApplyInput(on);
+    showEditError(on ? 'Virtual knob allowed: simulator and ESP32 data are both counted'
+                     : 'ESP32 only: virtual knob and simulator data are now rejected', true);
+  }catch(e){ showEditError(e.message); }
+}
+setInterval(() => { if(MODE === 'demo' && LIVE.api) knSyncInput(); }, 3000);
+
 window.addEventListener('message', e => {
   const f = document.getElementById('knFrame');
   const m = e.data;
@@ -4788,13 +4975,292 @@ window.addEventListener('message', e => {
   knWarn(+m.peers || 0);
 });
 
+// ═══════════════════════════════════════════════════════
+// ANALYTICS  (Demo mode: mileage history from the backend database)
+// Charts are TradingView Lightweight Charts (served by the backend at /vendor/lightweight-charts.js,
+// so it works without internet). Data: GET /api/history/series, /summary, /export; POST /clear.
+// Times are UTC in the database; the charts show Singapore time (UTC+8).
+// ═══════════════════════════════════════════════════════
+const AN_COLORS = ['#00d4e8', '#7c9cff', '#00e888', '#c77dff', '#ffd166', '#4dd4ac', '#ff8fab', '#9ad1ff'];
+const AN_RANGES = [['1h', '1H', 3600], ['24h', '24H', 86400], ['7d', '7D', 604800], ['30d', '30D', 2592000], ['all', 'ALL', null]];
+const AN_BUCKET_LBL = {raw: 'record', '1m': 'minute', '1h': 'hour', '1d': 'day'};
+const SGT_S = 8 * 3600;
+
+function anColor(id){
+  const i = demoTrains().findIndex(t => t.id === id);
+  return AN_COLORS[(i < 0 ? 0 : i) % AN_COLORS.length];
+}
+
+function anShow(on){
+  on = !!on && MODE === 'demo';
+  AN.open = on;
+  document.getElementById('anView').classList.toggle('show', on);
+  clearInterval(AN.timer); AN.timer = null;
+  anCloseMenu();
+  if(!on) return;
+  const ids = demoTrains().map(t => t.id);
+  if(!AN.trains || !AN.trains.some(id => ids.includes(id))) AN.trains = ids;
+  AN.fitNext = true;
+  anRenderControls();
+  anLoadLib()
+    .then(() => { anEnsureCharts(); return anRefresh(); })
+    .catch(e => anEmpty(`Could not load the chart library (${e.message}). Check that the backend is running.`));
+  AN.timer = setInterval(() => { if(AN.open && !document.hidden) anRefresh(); }, 4000);
+}
+
+function anLoadLib(){
+  if(window.LightweightCharts) return Promise.resolve();
+  if(AN.libPromise) return AN.libPromise;
+  const load = src => new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve;
+    s.onerror = () => { s.remove(); reject(new Error('could not load ' + src)); };
+    document.head.appendChild(s);
+  });
+  // local copy first (event day may have no internet), the public CDN as a fallback
+  AN.libPromise = load(LIVE.api + '/vendor/lightweight-charts.js')
+    .catch(() => load('https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js'))
+    .catch(e => { AN.libPromise = null; throw e; });
+  return AN.libPromise;
+}
+
+function anEnsureCharts(){
+  if(AN.charts) return;
+  const LC = window.LightweightCharts;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const hhmm = t => { const d = new Date(t * 1000); return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
+  const base = () => ({
+    autoSize: true,
+    layout: {background: {type: LC.ColorType.Solid, color: css('--bg1')}, textColor: css('--txt1'),
+             fontFamily: "'IBM Plex Mono', monospace", fontSize: 14},
+    grid: {vertLines: {color: 'rgba(36,62,88,0.35)'}, horzLines: {color: 'rgba(36,62,88,0.35)'}},
+    rightPriceScale: {borderColor: css('--border2')},
+    timeScale: {borderColor: css('--border2'), timeVisible: true, secondsVisible: false},
+    crosshair: {mode: LC.CrosshairMode.Normal},
+    localization: {priceFormatter: v => v.toLocaleString('en-SG', {maximumFractionDigits: 2})}
+  });
+  const km = LC.createChart(document.getElementById('anChartKm'), base());
+  const drv = LC.createChart(document.getElementById('anChartDrv'), base());
+  // hour of day: 24 bars on a fixed day, labelled 00:00 ... 23:00
+  const hod = LC.createChart(document.getElementById('anChartHod'), Object.assign(base(), {
+    handleScroll: false, handleScale: false,
+    timeScale: {borderColor: css('--border2'), timeVisible: true, secondsVisible: false, tickMarkFormatter: hhmm,
+                fixLeftEdge: true, fixRightEdge: true},
+    localization: {timeFormatter: t => hhmm(t) + ' SGT', priceFormatter: v => v.toLocaleString('en-SG', {maximumFractionDigits: 3})}
+  }));
+  const hodSeries = hod.addHistogramSeries({color: css('--cyan'), priceFormat: {type: 'price', precision: 3, minMove: 0.001}});
+  // keep the two time charts on the same time window
+  let syncing = false;
+  const sync = (from, to) => r => {
+    if(syncing || !r) return;
+    syncing = true;
+    try{ to.timeScale().setVisibleRange(r); }catch(e){}
+    syncing = false;
+  };
+  km.timeScale().subscribeVisibleTimeRangeChange(sync(km, drv));
+  drv.timeScale().subscribeVisibleTimeRangeChange(sync(drv, km));
+  AN.charts = {km, drv, hod, hodSeries, line: {}, hist: {}};
+}
+
+function anRenderControls(){
+  const trains = demoTrains();
+  document.getElementById('anTrains').innerHTML = trains.map(t =>
+    `<button class="an-chip ${AN.trains.includes(t.id) ? 'on' : ''}" onclick="anToggleTrain('${t.id}')">
+       <i style="background:${anColor(t.id)}"></i>${dispId(t)}</button>`).join('');
+  document.getElementById('anRanges').innerHTML = AN_RANGES.map(([k, lbl]) =>
+    `<button class="an-chip ${AN.range === k ? 'on' : ''}" onclick="anSetRange('${k}')">${lbl}</button>`).join('');
+  // km driven (from zero at the start of the range, comparable between trains) or the odometer itself
+  document.getElementById('anModes').innerHTML = [['driven', 'KM DRIVEN'], ['odo', 'ODOMETER']].map(([k, lbl]) =>
+    `<button class="an-chip ${AN.mode === k ? 'on' : ''}" onclick="anSetMode('${k}')">${lbl}</button>`).join('');
+  document.getElementById('anKmTitle').textContent = AN.mode === 'driven' ? 'Distance driven in this range' : 'Odometer reading';
+  document.getElementById('anSim').checked = AN.sim;
+  document.getElementById('anSta').checked = AN.stations;
+}
+function anSetMode(k){ AN.mode = k; AN.fitNext = true; anRenderControls(); anRefresh(); }
+function anToggleTrain(id){
+  const on = AN.trains.includes(id);
+  if(on && AN.trains.length === 1) return;          // keep at least one train
+  AN.trains = on ? AN.trains.filter(x => x !== id) : [...AN.trains, id];
+  AN.fitNext = true; anRenderControls(); anRefresh();
+}
+function anSetRange(k){ AN.range = k; AN.fitNext = true; anRenderControls(); anRefresh(); }
+function anOpt(){
+  AN.sim = document.getElementById('anSim').checked;
+  AN.stations = document.getElementById('anSta').checked;
+  AN.fitNext = true; anRefresh();
+}
+
+// time window + bucket size for the current range preset (keeps every chart to a few thousand points)
+function anWindow(summary){
+  const preset = AN_RANGES.find(r => r[0] === AN.range);
+  const now = Date.now() / 1000;
+  let span = preset[2], from = null;
+  if(span) from = new Date((now - span) * 1000).toISOString();
+  else{
+    const first = summary && summary.tables.mileage_log.first;
+    span = first ? Math.max(60, now - Date.parse(first) / 1000) : 3600;
+  }
+  const bucket = span <= 2 * 3600 ? 'raw' : span <= 2 * 86400 ? '1m' : span <= 60 * 86400 ? '1h' : '1d';
+  return {from, bucket};
+}
+
+function anQuery(extra){
+  const q = new URLSearchParams(Object.assign({train_id: AN.trains.join(',')}, extra));
+  for(const [k, v] of [...q.entries()]) if(v === '' || v === 'null') q.delete(k);
+  return q.toString();
+}
+
+async function anRefresh(){
+  if(!AN.open || !AN.charts || AN.loading || !LIVE.api) return;
+  AN.loading = true;
+  try{
+    const summary = await liveFetch('/api/history/summary');
+    const w = anWindow(summary);
+    const data = await liveFetch('/api/history/series?' + anQuery({from: w.from || '', bucket: w.bucket,
+                                                                    sim: AN.sim, manual: false}));
+    anRender(data, summary, w);
+  }catch(e){
+    anEmpty('Could not read the history: ' + e.message);
+  }finally{ AN.loading = false; }
+}
+
+function anRender(data, summary, w){
+  const C = AN.charts;
+  const fmt2 = v => v.toLocaleString('en-SG', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  document.getElementById('anBucketLbl').textContent = AN_BUCKET_LBL[w.bucket];
+  // drop series of trains that are no longer selected
+  for(const id of Object.keys(C.line)) if(!AN.trains.includes(id)){
+    C.km.removeSeries(C.line[id]); C.drv.removeSeries(C.hist[id]); delete C.line[id]; delete C.hist[id];
+  }
+  const hod = new Array(24).fill(0);
+  const stats = [];
+  let anyPts = false;
+  AN.trains.forEach(id => {
+    const color = anColor(id);
+    if(!C.line[id]){
+      C.line[id] = C.km.addLineSeries({color, lineWidth: 3, priceFormat: {type: 'price', precision: 1, minMove: 0.1},
+                                       lastValueVisible: true, priceLineVisible: false});
+      C.hist[id] = C.drv.addHistogramSeries({color, priceFormat: {type: 'price', precision: 3, minMove: 0.001}});
+    }
+    const pts = data.trains[id] || [];
+    anyPts = anyPts || pts.length > 0;
+    let run = 0;
+    C.line[id].applyOptions({priceFormat: AN.mode === 'driven' ? {type: 'price', precision: 2, minMove: 0.01}
+                                                               : {type: 'price', precision: 1, minMove: 0.1}});
+    C.line[id].setData(pts.map(p => ({time: p.t + SGT_S, value: AN.mode === 'driven' ? +(run += p.driven).toFixed(4) : p.km})));
+    C.hist[id].setData(pts.map(p => ({time: p.t + SGT_S, value: p.driven})));
+    let driven = 0;
+    pts.forEach(p => { driven += p.driven; hod[Math.floor(((p.t + SGT_S) % 86400) / 3600)] += p.driven; });
+    // events as markers on the train's line, snapped to the nearest data point
+    const times = pts.map(p => p.t);
+    const near = t => { let lo = 0, hi = times.length - 1; while(lo < hi){ const m = (lo + hi) >> 1; if(times[m] < t) lo = m + 1; else hi = m; }
+                        return lo > 0 && Math.abs(times[lo - 1] - t) < Math.abs(times[lo] - t) ? times[lo - 1] : times[lo]; };
+    const markers = times.length ? data.events.filter(e => e.train_id === id && (e.kind !== 'station' || AN.stations)).map(e => (
+      e.kind === 'pm' ? {time: near(e.t) + SGT_S, position: 'belowBar', shape: 'arrowUp',
+                         color: e.defects_found === 1 ? css2('--red') : css2('--green'),
+                         text: `${e.label} PM${e.defects_found === 1 ? ' · defects' + (e.component ? ': ' + e.component : '') : ''}`}
+      : e.kind === 'stock' ? {time: near(e.t) + SGT_S, position: 'aboveBar', shape: 'square', color: css2('--amber'), text: e.label}
+      : {time: near(e.t) + SGT_S, position: 'inBar', shape: 'circle', color: css2('--txt1'), text: e.label}
+    )).sort((a, b) => a.time - b.time) : [];
+    C.line[id].setMarkers(markers);
+    const t = fleet.find(f => f.id === id);
+    stats.push(`<div class="an-stat"><i style="background:${color}"></i><b>${dispIdOf(id)}</b>
+      <span><em>${fmt2(driven)}</em> km driven</span><span>now <em>${t ? formatKm(t.mileage) : '—'}</em> km</span></div>`);
+  });
+  const base = Date.UTC(2000, 0, 1) / 1000;
+  C.hodSeries.setData(hod.map((v, h) => ({time: base + h * 3600, value: +v.toFixed(4)})));
+  const busiest = hod.some(v => v > 0) ? hod.indexOf(Math.max(...hod)) : null;
+  const tb = summary.tables;
+  stats.push(`<div class="an-stat an-stat-db"><span>Busiest hour <em>${busiest == null ? '—' : String(busiest).padStart(2, '0') + ':00 SGT'}</em></span>
+    <span>In database <em>${tb.mileage_log.rows.toLocaleString()}</em> mileage records · <em>${tb.rfid_events.rows.toLocaleString()}</em> station reads</span>
+    ${data.truncated ? '<span class="an-warn">Showing the latest points only: pick a shorter range for full detail</span>' : ''}</div>`);
+  document.getElementById('anStats').innerHTML = stats.join('');
+  anEmpty(anyPts ? '' : 'No driving recorded for these trains in this time range yet. Drive the train (or spin the virtual knob) and it appears here within a few seconds.');
+  if(AN.fitNext){
+    AN.fitNext = false;
+    C.km.timeScale().fitContent(); C.drv.timeScale().fitContent(); C.hod.timeScale().fitContent();
+  }
+}
+const css2 = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function anEmpty(msg){
+  const el = document.getElementById('anEmpty');
+  el.textContent = msg || '';
+  el.classList.toggle('show', !!msg);
+}
+
+// ---------- downloads ----------
+function anToggleMenu(ev){ ev.stopPropagation(); document.getElementById('anMenu').classList.toggle('show'); }
+function anCloseMenu(){ const m = document.getElementById('anMenu'); if(m) m.classList.remove('show'); }
+document.addEventListener('click', e => { if(!e.target.closest || !e.target.closest('.an-dl')) anCloseMenu(); });
+
+async function anDownload(kind){
+  anCloseMenu();
+  if(!LIVE.api){ showEditError('Backend not connected'); return; }
+  let url;
+  if(kind === 'db') url = LIVE.api + '/api/history/backup';
+  else{
+    let from = '';
+    try{ from = anWindow(await liveFetch('/api/history/summary')).from || ''; }catch(e){}
+    url = LIVE.api + '/api/history/export?' + anQuery({table: kind, from});
+  }
+  const a = document.createElement('a');
+  a.href = url; a.download = '';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// ---------- clear (with confirmation) ----------
+const AN_CLEAR_TABLES = [['mileage_log', 'Mileage log', 'every encoder step', true],
+                         ['rfid_events', 'Station reads', 'every RFID tag read', true],
+                         ['stock_changes', 'Stock changes', 'train swaps', false]];
+async function anOpenClear(){
+  if(!LIVE.api) return;
+  const fmtT = iso => iso ? new Date(iso).toLocaleString('en-SG', {timeZone: 'Asia/Singapore', dateStyle: 'medium', timeStyle: 'short'}) : '';
+  let s;
+  try{ s = await liveFetch('/api/history/summary'); }catch(e){ showEditError(e.message); return; }
+  document.getElementById('anClearBody').innerHTML = `<div class="an-clear-list">${AN_CLEAR_TABLES.map(([k, name, what, def]) => {
+      const t = s.tables[k];
+      return `<label class="an-clear-row"><input type="checkbox" data-table="${k}" ${def ? 'checked' : ''} onchange="anClearCheck()">
+        <span><b>${name}</b> · ${what}</span><span><em>${t.rows.toLocaleString()}</em> records${t.rows ? ` · ${fmtT(t.first)} → ${fmtT(t.last)}` : ''}</span></label>`;
+    }).join('')}</div>
+    <div class="an-clear-keep"><b>Always kept:</b> trains and their current mileage, devices, track tags, wheel sizes, settings,
+      and the ${s.pm_records_kept.toLocaleString()} PM records (they decide when each check is due).</div>
+    <div class="an-clear-keep">A full copy of the database is saved to <code>backend/backups/</code> before anything is deleted.</div>`;
+  document.getElementById('anClearIn').value = '';
+  document.getElementById('anClearMsg').textContent = '';
+  anClearCheck();
+  document.getElementById('anClear').classList.add('show');
+  setTimeout(() => document.getElementById('anClearIn').focus(), 50);
+}
+function anCloseClear(){ document.getElementById('anClear').classList.remove('show'); }
+function anClearTables(){ return [...document.querySelectorAll('#anClearBody input[data-table]:checked')].map(i => i.dataset.table); }
+function anClearCheck(){
+  document.getElementById('anClearBtn').disabled = document.getElementById('anClearIn').value !== 'CLEAR' || !anClearTables().length;
+}
+async function anDoClear(){
+  const tables = anClearTables();
+  const msg = document.getElementById('anClearMsg');
+  document.getElementById('anClearBtn').disabled = true;
+  try{
+    const r = await liveSend('POST', '/api/history/clear', {confirm: document.getElementById('anClearIn').value, tables});
+    const parts = Object.entries(r.deleted).map(([k, n]) => `${n.toLocaleString()} ${(AN_CLEAR_TABLES.find(x => x[0] === k) || [k, k])[1].toLowerCase()}`);
+    msg.textContent = `Deleted ${parts.join(', ')}. Backup: ${r.backup.split(/[\\/]/).slice(-2).join('/')}`;
+    msg.style.color = 'var(--green)';
+    document.getElementById('anClearIn').value = '';
+    AN.fitNext = true; anRefresh();
+  }catch(e){
+    msg.textContent = e.message; msg.style.color = 'var(--red)';
+    anClearCheck();
+  }
+}
+
 (function scInit(){
   SC.cue = false;   // notes always start hidden, so they never show by accident on the day
   document.addEventListener('keydown', e => {
     const tag = (e.target && e.target.tagName) || '';
     if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
     if(e.key === '`' && MODE === 'demo'){ e.preventDefault(); scToggleCue(); }
-    if(e.key === 'Escape') scCloseDrawer();
+    if(e.key === 'Escape'){ scCloseDrawer(); anCloseMenu(); anCloseClear(); }
   });
   SC.timer = setInterval(() => scnSafe(scTick), 700);
 })();

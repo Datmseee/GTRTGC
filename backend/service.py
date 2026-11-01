@@ -1,10 +1,14 @@
 """Core logic shared by MQTT and HTTP ingestion and by the REST API."""
+import csv
+import io
 import json
 import logging
 import math
 import threading
 import time
-from datetime import datetime, timezone
+import zipfile
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import config
 import db
@@ -577,6 +581,233 @@ def recent_events(limit=50):
         return [dict(r) for r in conn.execute("SELECT * FROM rfid_events ORDER BY id DESC LIMIT ?", (limit,))]
 
 
+# ---------------------------------------------------------------- history / analytics
+# Time-series reads, CSV export and clearing of the logs. Read-only towards everything else:
+# clearing never touches trains, devices, tags, wheels, settings or PM records.
+
+SGT = timezone(timedelta(hours=8))
+HISTORY_BUCKETS = {"raw": 0, "1m": 60, "1h": 3600, "1d": 86400}
+# Log tables that may be cleared, with their time column. PM records are not here: they decide
+# when each check is due, so deleting them would make every train look overdue.
+CLEARABLE = {"mileage_log": "recorded_at", "rfid_events": "recorded_at", "stock_changes": "changed_at"}
+GAP_S = 60   # first row this long after the previous one: distance caught up after a gap (WiFi drop)
+
+
+def _iso_utc(value, name):
+    """ISO date/time from the API -> the stored format (UTC, seconds). No zone given = SGT."""
+    if value in (None, ""):
+        return None
+    try:
+        dt = datetime.fromisoformat(str(value).strip().replace("Z", "+00:00"))
+    except ValueError:
+        raise ValueError(f"{name} must be an ISO date/time, e.g. 2026-10-24T09:00:00+08:00")
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=SGT)
+    return dt.astimezone(timezone.utc).isoformat(timespec="seconds")
+
+
+def _where(time_col, start, end, train_ids=None, train_col="train_id", excluded=(), extra=()):
+    w, p = list(extra), []
+    if start:
+        w.append(f"{time_col} >= ?"); p.append(start)
+    if end:
+        w.append(f"{time_col} <= ?"); p.append(end)
+    if train_ids:
+        w.append(f"{train_col} IN ({','.join('?' * len(train_ids))})"); p += list(train_ids)
+    if excluded:
+        w.append(f"COALESCE(source,'') NOT IN ({','.join('?' * len(excluded))})"); p += list(excluded)
+    return (" WHERE " + " AND ".join(w)) if w else "", p
+
+
+def _excluded_sources(include_sim, include_manual):
+    return ([] if include_sim else ["simulator"]) + ([] if include_manual else ["manual"])
+
+
+def history_series(train_ids=None, start=None, end=None, bucket="raw", include_sim=True,
+                   include_manual=False, max_points=20000):
+    """Mileage over time per train, plus station reads / PM sign-offs / stock changes as events.
+
+    bucket: raw | 1m | 1h | 1d. A bucket reports the last mileage reading in it and the km driven.
+    Manual edits (scenario loads, hand corrections) are left out by default: they are jumps, not driving.
+    """
+    if bucket not in HISTORY_BUCKETS:
+        raise ValueError(f"bucket must be one of {list(HISTORY_BUCKETS)}")
+    start, end = _iso_utc(start, "from"), _iso_utc(end, "to")
+    epoch = "CAST(strftime('%s', {}) AS INTEGER)"
+    with db.connect() as conn:
+        where, p = _where("recorded_at", start, end, train_ids,
+                          excluded=_excluded_sources(include_sim, include_manual))
+        b = HISTORY_BUCKETS[bucket]
+        if b:   # SQLite returns km_reading from the row with MAX(id): the last reading in the bucket
+            sql = (f"SELECT train_id, ({epoch.format('recorded_at')} / {b}) * {b} AS t, MAX(id) AS last_id,"
+                   f" km_reading AS km, SUM(COALESCE(delta_km, 0)) AS driven FROM mileage_log{where}"
+                   f" GROUP BY train_id, t ORDER BY t DESC LIMIT ?")
+        else:
+            sql = (f"SELECT train_id, {epoch.format('recorded_at')} AS t, km_reading AS km,"
+                   f" COALESCE(delta_km, 0) AS driven FROM mileage_log{where} ORDER BY id DESC LIMIT ?")
+        rows = conn.execute(sql, (*p, max_points + 1)).fetchall()
+        truncated = len(rows) > max_points
+        trains = {}
+        for r in reversed(rows[:max_points]):
+            pts = trains.setdefault(r["train_id"], [])
+            if pts and pts[-1]["t"] >= r["t"]:      # charts need strictly increasing time per train
+                pts[-1]["km"] = round(r["km"], 4)
+                pts[-1]["driven"] = round(pts[-1]["driven"] + r["driven"], 4)
+            else:
+                pts.append({"t": r["t"], "km": round(r["km"], 4), "driven": round(r["driven"], 4)})
+
+        events = []
+        w, p = _where("recorded_at", start, end, train_ids, extra=["train_id IS NOT NULL"])
+        for r in conn.execute(f"SELECT train_id, {epoch.format('recorded_at')} AS t, station_id, km_reading"
+                              f" FROM rfid_events{w} ORDER BY id DESC LIMIT 2000", p):
+            events.append({"t": r["t"], "train_id": r["train_id"], "kind": "station", "label": r["station_id"],
+                           "km": r["km_reading"]})
+        # real sign-offs only (not the seed data or due points set from the dashboard)
+        w, p = _where("performed_at", start, end, train_ids,
+                      extra=["COALESCE(technician,'') <> 'seed'", "COALESCE(notes,'') <> 'set from dashboard'"])
+        for r in conn.execute(f"SELECT train_id, {epoch.format('performed_at')} AS t, pm_type, mileage_at_pm,"
+                              f" technician, defects_found, component FROM pm_history{w} ORDER BY id DESC LIMIT 2000", p):
+            events.append({"t": r["t"], "train_id": r["train_id"], "kind": "pm", "label": r["pm_type"],
+                           "km": r["mileage_at_pm"], "technician": r["technician"],
+                           "defects_found": r["defects_found"], "component": r["component"]})
+        w, p = _where("changed_at", start, end)
+        for r in conn.execute(f"SELECT withdrawn_train_id, replacement_train_id, {epoch.format('changed_at')} AS t,"
+                              f" station, reason FROM stock_changes{w} ORDER BY id DESC LIMIT 2000", p):
+            for tid, role in ((r["withdrawn_train_id"], "withdrawn"), (r["replacement_train_id"], "into service")):
+                if not train_ids or tid in train_ids:
+                    events.append({"t": r["t"], "train_id": tid, "kind": "stock", "label": role,
+                                   "station": r["station"], "reason": r["reason"]})
+        events.sort(key=lambda e: e["t"])
+    return {"bucket": bucket, "from": start, "to": end, "truncated": truncated, "trains": trains, "events": events}
+
+
+def history_summary(start=None, end=None):
+    """Row counts and time span of each clearable log (shown before clearing)."""
+    start, end = _iso_utc(start, "from"), _iso_utc(end, "to")
+    with db.connect() as conn:
+        out = {}
+        for table, col in CLEARABLE.items():
+            w, p = _where(col, start, end)
+            n, first, last = conn.execute(f"SELECT COUNT(*), MIN({col}), MAX({col}) FROM {table}{w}", p).fetchone()
+            out[table] = {"rows": n, "first": first, "last": last}
+        kept = conn.execute("SELECT COUNT(*) FROM pm_history").fetchone()[0]
+    return {"tables": out, "pm_records_kept": kept}
+
+
+def _sgt(iso):
+    dt = datetime.fromisoformat(iso).astimezone(SGT)
+    return [dt.isoformat(timespec="seconds"), dt.strftime("%Y-%m-%d"), dt.hour, dt.strftime("%a")]
+
+
+def _csv_text(header, rows):
+    buf = io.StringIO()
+    w = csv.writer(buf, lineterminator="\n")
+    w.writerow(header)
+    w.writerows(rows)
+    return buf.getvalue()
+
+
+EXPORT_TABLES = ("mileage", "rfid", "pm", "stock")
+
+
+def export_csv(table, train_ids=None, start=None, end=None):
+    """One table as CSV text. Every row has UTC and SGT time plus date / hour / weekday (SGT),
+    so it can go straight into Excel or a model. The source column tells hardware from simulator / manual."""
+    if table not in EXPORT_TABLES:
+        raise ValueError(f"table must be one of {list(EXPORT_TABLES) + ['all']}")
+    start, end = _iso_utc(start, "from"), _iso_utc(end, "to")
+    t_cols = ["date_sgt", "hour_sgt", "weekday_sgt"]
+    with db.connect() as conn:
+        if table == "mileage":
+            w, p = _where("recorded_at", start, end, train_ids)
+            rows, prev = [], {}
+            for r in conn.execute(f"SELECT * FROM mileage_log{w} ORDER BY train_id, id", p):
+                ts = datetime.fromisoformat(r["recorded_at"]).timestamp()
+                last = prev.get(r["train_id"])
+                dt_s = None if last is None else ts - last
+                speed = (round(r["delta_km"] / dt_s * 3600, 3)
+                         if dt_s and dt_s > 0 and r["delta_km"] is not None else "")
+                gap = "" if dt_s is None else int(dt_s > GAP_S)
+                prev[r["train_id"]] = ts
+                rows.append([r["recorded_at"], *_sgt(r["recorded_at"]), r["train_id"], r["km_reading"],
+                             r["delta_km"] if r["delta_km"] is not None else "", r["source"],
+                             "" if dt_s is None else int(dt_s), speed, gap])
+            return _csv_text(["recorded_at_utc", "recorded_at_sgt", *t_cols, "train_id", "km_reading", "delta_km",
+                              "source", "seconds_since_prev", "speed_kmh", "after_gap"], rows)
+        if table == "rfid":
+            w, p = _where("recorded_at", start, end, train_ids)
+            rows = [[r["recorded_at"], *_sgt(r["recorded_at"]), r["station_id"], r["tag"], r["train_id"] or "",
+                     r["km_reading"] if r["km_reading"] is not None else "",
+                     r["segment_km"] if r["segment_km"] is not None else ""]
+                    for r in conn.execute(f"SELECT * FROM rfid_events{w} ORDER BY id", p)]
+            return _csv_text(["recorded_at_utc", "recorded_at_sgt", *t_cols, "station_id", "tag", "train_id",
+                              "km_reading", "segment_km"], rows)
+        if table == "pm":
+            w, p = _where("performed_at", start, end, train_ids)
+            rows = []
+            for r in conn.execute(f"SELECT * FROM pm_history{w} ORDER BY id", p):
+                kind = ("seed" if r["technician"] == "seed" else
+                        "due point set on dashboard" if r["notes"] == "set from dashboard" else "sign-off")
+                rows.append([r["performed_at"], *_sgt(r["performed_at"]), r["train_id"], r["pm_type"],
+                             r["mileage_at_pm"], kind, r["technician"] or "", r["notes"] or "",
+                             "" if r["defects_found"] is None else r["defects_found"],
+                             r["component"] or "", r["parts_replaced"] or ""])
+            return _csv_text(["performed_at_utc", "performed_at_sgt", *t_cols, "train_id", "pm_type", "mileage_at_pm",
+                              "record_type", "technician", "notes", "defects_found", "component", "parts_replaced"], rows)
+        w, p = _where("changed_at", start, end)
+        rows = [[r["changed_at"], *_sgt(r["changed_at"]), r["withdrawn_train_id"], r["replacement_train_id"],
+                 r["station"] or "", r["reason"] or ""]
+                for r in conn.execute(f"SELECT * FROM stock_changes{w} ORDER BY id", p)
+                if not train_ids or r["withdrawn_train_id"] in train_ids or r["replacement_train_id"] in train_ids]
+        return _csv_text(["changed_at_utc", "changed_at_sgt", *t_cols, "withdrawn_train_id", "replacement_train_id",
+                          "station", "reason"], rows)
+
+
+def export_zip(train_ids=None, start=None, end=None):
+    """All four tables as CSV files in one ZIP."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        for table in EXPORT_TABLES:
+            z.writestr(f"splrt_{table}.csv", export_csv(table, train_ids, start, end))
+    return buf.getvalue()
+
+
+def backup_now(tag="backup"):
+    """Copy of the whole database into backups/ next to it. Returns the file path."""
+    folder = Path(config.DB_PATH).resolve().parent / "backups"
+    folder.mkdir(exist_ok=True)
+    stamp = datetime.now(SGT).strftime("%Y%m%d-%H%M%S")
+    path, n = folder / f"splrt-{stamp}-{tag}.db", 1
+    while path.exists():
+        n += 1
+        path = folder / f"splrt-{stamp}-{tag}-{n}.db"
+    db.backup_to(path)
+    return path
+
+
+def clear_history(confirm, tables=None, before=None):
+    """Delete log rows (all, or older than `before`). Needs confirm == "CLEAR" and always backs up first."""
+    if confirm != "CLEAR":
+        raise ValueError('type CLEAR to confirm')
+    tables = list(tables or ["mileage_log", "rfid_events"])
+    bad = [t for t in tables if t not in CLEARABLE]
+    if bad:
+        raise ValueError(f"only {list(CLEARABLE)} can be cleared; PM records are kept because they set "
+                         "when each check is due")
+    before = _iso_utc(before, "before")
+    path = backup_now("before-clear")
+    deleted = {}
+    with db.connect() as conn:
+        for t in tables:
+            sql, p = f"DELETE FROM {t}", ()
+            if before:
+                sql, p = sql + f" WHERE {CLEARABLE[t]} < ?", (before,)
+            deleted[t] = conn.execute(sql, p).rowcount
+    log.warning("History cleared: %s (backup %s)", deleted, path)
+    emit({"type": "history_cleared", "deleted": deleted})
+    return {"deleted": deleted, "backup": str(path)}
+
+
 def devices():
     with db.connect() as conn:
         rows = conn.execute("SELECT * FROM devices WHERE kind <> 'sim' ORDER BY kind, id").fetchall()
@@ -591,14 +822,21 @@ def _require_train(conn, train_id):
         raise NotFound(f"train {train_id} not found")
 
 
-def record_pm(train_id, pm_type, technician=None, notes=None):
+def record_pm(train_id, pm_type, technician=None, notes=None,
+              defects_found=None, component=None, parts_replaced=None):
+    """PM sign-off. The optional outcome (defects found, component, parts replaced) is what a
+    maintenance-prediction model later learns from; mileage alone can't say a train needed work."""
     if pm_type not in pm.LABEL_TO_CYCLE:
         raise ValueError(f"pm_type must be one of {config.PM_LABELS}")
+    if defects_found is not None:
+        defects_found = 1 if defects_found else 0
     with db.connect() as conn:
         _require_train(conn, train_id)
         km = conn.execute("SELECT current_km FROM trains WHERE id=?", (train_id,)).fetchone()[0]
-        conn.execute("INSERT INTO pm_history (train_id,pm_type,mileage_at_pm,performed_at,technician,notes)"
-                     " VALUES (?,?,?,?,?,?)", (train_id, pm_type, km, db.now_iso(), technician, notes))
+        conn.execute("INSERT INTO pm_history (train_id,pm_type,mileage_at_pm,performed_at,technician,notes,"
+                     "defects_found,component,parts_replaced) VALUES (?,?,?,?,?,?,?,?,?)",
+                     (train_id, pm_type, km, db.now_iso(), technician, notes,
+                      defects_found, component or None, parts_replaced or None))
         t = _train_dict(conn, train_id)
     emit({"type": "train", "train": t})
     return t

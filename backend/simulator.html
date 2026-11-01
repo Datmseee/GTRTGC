@@ -60,6 +60,27 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--cyan)}
 .log .t{color:var(--txt2)}.log .ok{color:var(--green)}.log .rf{color:var(--cyan)}.log .err{color:var(--red)}.log .dim{color:var(--txt1)}
 .note{font-size:10px;color:var(--txt2);margin-top:10px;line-height:1.6}
 @media (max-width:760px){main{grid-template-columns:1fr;padding:12px}header{padding:12px}}
+/* Status line + "input off" notice: only shown in the compact layout (header is hidden there) */
+.emb-status,.emb-blocked,.emb-peer{display:none}
+/* ?embed=1: compact layout for the dashboard's VIRTUAL KNOB panel (wheel, LRV picker, track tags) */
+body.embed{min-height:0;overflow:hidden}
+body.embed header,body.embed .stats,body.embed .row,body.embed .note,body.embed .log,
+body.embed .h,body.embed .track,body.embed .hint{display:none}
+body.embed main{display:flex;flex-direction:column;gap:10px;padding:10px 12px;max-width:none}
+body.embed .card{background:none;border:0;border-radius:0;padding:0}
+body.embed .lrv-sel{margin-bottom:4px}
+body.embed .lrv-sel button{flex:1 1 0;font-size:15px;padding:8px 10px}
+body.embed .lrv-sel button small{font-size:12px}
+body.embed .wheel-wrap{padding:2px 0}
+body.embed #wheel{width:min(250px,calc(100vh - 330px),88vw);min-width:140px}
+body.embed .stations{gap:8px}
+body.embed .st-btn{padding:10px 4px;font-size:15px}
+body.embed .st-btn small{font-size:11px}
+body.embed .emb-status{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:0.12em}
+body.embed .emb-status .conn-dot{flex:0 0 auto}
+body.embed.blocked .emb-blocked{display:block;background:rgba(255,176,32,0.1);border:1px solid var(--amber);border-radius:8px;padding:8px 10px;font-family:var(--sans);font-size:14px;color:var(--amber);line-height:1.35}
+body.embed.blocked #wheel{opacity:.45}
+body.embed.peer .emb-peer{display:block;background:rgba(255,58,92,0.1);border:1px solid var(--red);border-radius:8px;padding:8px 10px;font-family:var(--sans);font-size:14px;color:var(--red);line-height:1.35}
 </style>
 </head>
 <body>
@@ -77,6 +98,9 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--cyan)}
   <!-- LEFT: the LRV and its wheel -->
   <section class="card">
     <div class="h">1 · LRV on-board unit</div>
+    <div class="emb-status"><div class="conn-dot" id="embDot"></div><span id="embTxt">CONNECTING</span></div>
+    <div class="emb-blocked">Simulator input is OFF. Nothing you spin is recorded. Turn it on in the dashboard: ⚙ Demo settings → Data sources.</div>
+    <div class="emb-peer" id="embPeer">Another simulator page is open. Both drive the same counter, so close the other one.</div>
     <div class="lrv-sel" id="lrvSel"></div>
 
     <div class="wheel-wrap">
@@ -172,6 +196,17 @@ const API = (() => {
 })();
 document.getElementById('dashLink').href = API + '/?mode=demo';
 
+// ?embed=1: compact layout inside the dashboard's VIRTUAL KNOB panel (same sending code as the full page)
+const EMBED = new URLSearchParams(location.search).get('embed') === '1';
+if(EMBED) document.body.classList.add('embed');
+// Demo mode shows the C810D demo trains as 810A-xxx; match it inside the dashboard panel (display only)
+const showTrain = id => EMBED ? String(id).replace(/^810D-/, '810A-') : id;
+// Tell the dashboard (when embedded) what state the simulator is in
+function reportToParent(extra){
+  if(!EMBED || window.parent === window) return;
+  try{ window.parent.postMessage(Object.assign({type:'splrt-sim', blocked, peers:Object.keys(peers).length}, extra), '*'); }catch(e){}
+}
+
 const COUNTS_PER_REV = 4096;          // AS5600 12-bit
 let settings = {pulses_per_rev:4096, wheel_circumference_m:0.0942, demo_scale:1000};
 
@@ -223,6 +258,11 @@ function setConn(ok){
   $('connTxt').style.color = color;
   $('connDot').style.background = color;
   $('conn').title = blocked ? 'Turned off in the dashboard: Demo mode → ⚙ Settings → Data sources' : '';
+  $('embTxt').textContent = txt;
+  $('embTxt').style.color = color;
+  $('embDot').style.background = color;
+  document.body.classList.toggle('blocked', !!(ok && blocked));
+  reportToParent({conn: !ok ? 'down' : blocked ? 'blocked' : 'ok'});
 }
 function setBlocked(b){
   if(b === blocked) return;
@@ -236,7 +276,7 @@ function setBlocked(b){
 function renderLrvSel(){
   if(!Object.keys(LRVS).length){ $('lrvSel').innerHTML = '<span class="lbl">No trains on the demo track - add one in the dashboard (Demo → ⚙ Settings)</span>'; return; }
   $('lrvSel').innerHTML = Object.entries(LRVS).map(([id, l]) =>
-    `<button data-id="${id}" class="${id===current?'active':''}">${id}<small>train ${l.train}</small></button>`).join('');
+    `<button data-id="${id}" class="${id===current?'active':''}">${id}<small>train ${showTrain(l.train)}</small></button>`).join('');
   $('lrvSel').querySelectorAll('button').forEach(b => b.onclick = () => { if(calRunning) return; current = b.dataset.id; renderLrvSel(); render(); });
 }
 
@@ -453,6 +493,7 @@ async function syncTrains(first){
     b.querySelector('small').textContent = stTags[b.dataset.st] ? 'tag ' + stTags[b.dataset.st] : 'no tag set';
   });
   if(cfg.accept_simulator === false) setBlocked(true);
+  else if(cfg.accept_simulator === true) setBlocked(false);   // switched back on in Demo settings
   const seen = new Set();
   for(const t of trains){
     seen.add(t.device_id);
@@ -483,6 +524,44 @@ async function init(){
     log('err', `Backend not reachable at ${API} - start it with: python main.py`);
   }
 }
+// ─── only one simulator may drive the backend at a time ───
+// The backend keeps ONE simulator counter per LRV (e.g. "LRV01~SIM"). This page and the dashboard's
+// VIRTUAL KNOB panel each keep their own running count, so two open at once would corrupt it.
+const peers = {};                 // other simulator pages: id -> {embed, seen}
+const myId = Math.random().toString(36).slice(2);
+const chan = 'BroadcastChannel' in window ? new BroadcastChannel('splrt-simulator') : null;
+function bcast(type){ if(chan) chan.postMessage({type, id: myId, embed: EMBED}); }
+function peersChanged(){
+  const n = Object.keys(peers).length;
+  document.body.classList.toggle('peer', n > 0);
+  if(n) $('embPeer').textContent = Object.values(peers).some(p => !p.embed)
+    ? 'The /simulator page is open in another tab. Both drive the same counter, so close that tab.'
+    : 'Another dashboard has its virtual knob open. Both drive the same counter, so close one.';
+  reportToParent({});
+}
+if(chan){
+  chan.onmessage = e => {
+    const m = e.data;
+    if(!m || m.id === myId) return;
+    if(m.type === 'bye'){ delete peers[m.id]; peersChanged(); return; }
+    const isNew = !peers[m.id];
+    peers[m.id] = {embed: !!m.embed, seen: Date.now()};
+    if(m.type === 'hello') bcast('here');
+    if(isNew){
+      log('err', `Another simulator is open (${m.embed ? "dashboard's virtual knob" : '/simulator page'}). Both drive the same counter - close one.`);
+      peersChanged();
+    }
+  };
+  bcast('hello');
+  setInterval(() => {
+    bcast('ping');
+    let gone = false;
+    for(const [id, p] of Object.entries(peers)) if(Date.now() - p.seen > 5000){ delete peers[id]; gone = true; }
+    if(gone) peersChanged();
+  }, 2000);
+  addEventListener('pagehide', () => bcast('bye'));
+}
+
 init();
 setInterval(() => get('/api/health').then(() => { setConn(true); return syncTrains(false); }).catch(() => setConn(false)), 5000);
 </script>

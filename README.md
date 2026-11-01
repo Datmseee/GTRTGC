@@ -54,6 +54,25 @@ If port 8000 is blocked (*WinError 10013*): `python main.py --port 5500` and use
   ```
 - Dashboard → Demo → **⚙ Demo settings**: check devices (`LRV01`, `LRV02`), **Station tags**, wheel diameter and station distances.
 
+### Data input: ESP32 only or + virtual knob
+Demo track header → **INPUT**: `ESP32 ONLY` | `+ VIRTUAL KNOB`.
+- **ESP32 ONLY** (use for hardware tests): the backend rejects all simulator data, so a forgotten `/simulator` tab can't add distance. Only the real board counts.
+- **+ VIRTUAL KNOB**: the simulator is accepted too, and the **◎ VIRTUAL KNOB** button opens the wheel in a side panel. The ESP32 and the knob have separate counters, so both can run at once.
+
+It is the same setting as Demo settings → Data sources (`accept_simulator`), so the two always agree.
+
+### History, analytics and export
+Demo track header → **ANALYTICS**. Everything comes from the SQLite database (`backend\splrt.db`): every encoder step (`mileage_log`), station read (`rfid_events`), PM sign-off (`pm_history`) and stock change, each with its time.
+- Charts (TradingView Lightweight Charts, served locally from `backend\static`, so no internet is needed): km driven or odometer over time, km per minute/hour/day, and km by hour of day (SGT). Scroll to zoom, drag to pan, hover for the exact time. PM sign-offs and stock changes show as markers.
+- **⤓ DOWNLOAD**: CSV of mileage, station reads, PM records or stock changes (or a ZIP of all, or a full `.db` backup), for the selected trains and time range. Each row has UTC and SGT time, date, hour and weekday. The `source` column tells real hardware (`mqtt`/`http`) from `simulator` and `manual` edits. The mileage CSV also has `seconds_since_prev`, `speed_kmh`, and `after_gap` (distance caught up after the board was offline).
+- **CLEAR HISTORY…**: deletes the logs you tick, after you type `CLEAR`. A full copy of the database is saved to `backend\backups\` first. Trains, devices, track tags, wheel sizes, settings and PM records are never deleted (PM records decide when each check is due).
+- Manual edits (scenario loads, double-click corrections) are left out of the charts: they are jumps, not driving. They stay in the CSV.
+- Demo scale: mileage is ×1000 (1 m on the mat = 1 km), so set `demo_scale` to 1 for real use.
+
+**PM outcome (for maintenance prediction):** the sign-off card also records *defects found*, *component* and *parts replaced* (optional). These are the labels a model needs: mileage alone can't tell which trains actually needed work. They are in the PM CSV.
+
+API: `GET /api/history/series`, `/api/history/summary`, `/api/history/export?table=mileage|rfid|pm|stock|all`, `/api/history/backup`, `POST /api/history/clear` (details at http://localhost:8000/docs).
+
 ### Stop / reset
 - Stop: `Ctrl+C` in each terminal.
 - Reset all demo data: stop the backend and delete `backend\splrt.db` (recreated on the next start).

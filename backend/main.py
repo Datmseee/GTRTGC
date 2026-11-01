@@ -8,11 +8,12 @@ import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from pydantic import BaseModel, Field
 
 import config
@@ -128,6 +129,10 @@ class PmIn(BaseModel):
     pm_type: str = Field(examples=["2K"])
     technician: Optional[str] = None
     notes: Optional[str] = None
+    # outcome of the check (optional): labels for a future maintenance-prediction model
+    defects_found: Optional[bool] = None
+    component: Optional[str] = Field(None, examples=["Saloon doors"])
+    parts_replaced: Optional[str] = Field(None, examples=["Door seal"])
 
 
 class StockChangeIn(BaseModel):
@@ -182,6 +187,68 @@ def get_alerts():
     return service.alerts()
 
 
+# --- history / analytics (registered before /api/history/{train_id} so these paths win) ---
+
+def _train_list(train_id):
+    return [t.strip() for t in train_id.split(",") if t.strip()] if train_id else None
+
+
+def _stamp():
+    return datetime.now(service.SGT).strftime("%Y%m%d-%H%M")
+
+
+@app.get("/api/history/series")
+def get_history_series(train_id: Optional[str] = Query(None, description="one or more, comma-separated"),
+                       start: Optional[str] = Query(None, alias="from", examples=["2026-10-24T09:00:00+08:00"]),
+                       end: Optional[str] = Query(None, alias="to"),
+                       bucket: str = Query("raw", description="raw | 1m | 1h | 1d"),
+                       sim: bool = Query(True, description="include simulator data"),
+                       manual: bool = Query(False, description="include manual edits (scenario loads, corrections)")):
+    """Mileage over time per train + station reads, PM sign-offs and stock changes as events."""
+    return _wrap(service.history_series, _train_list(train_id), start, end, bucket, sim, manual)
+
+
+@app.get("/api/history/summary")
+def get_history_summary(start: Optional[str] = Query(None, alias="from"), end: Optional[str] = Query(None, alias="to")):
+    """Row counts of the logs that Clear would delete."""
+    return _wrap(service.history_summary, start, end)
+
+
+@app.get("/api/history/export")
+def get_history_export(table: str = Query("mileage", description="mileage | rfid | pm | stock | all (ZIP)"),
+                       train_id: Optional[str] = None,
+                       start: Optional[str] = Query(None, alias="from"), end: Optional[str] = Query(None, alias="to")):
+    """Download the history as CSV (or all tables as a ZIP of CSVs)."""
+    trains = _train_list(train_id)
+    if table == "all":
+        data = _wrap(service.export_zip, trains, start, end)
+        return Response(data, media_type="application/zip",
+                        headers={"Content-Disposition": f'attachment; filename="splrt_history_{_stamp()}.zip"'})
+    text = _wrap(service.export_csv, table, trains, start, end)
+    return Response(text, media_type="text/csv; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="splrt_{table}_{_stamp()}.csv"'})
+
+
+class ClearIn(BaseModel):
+    confirm: str = Field(description='must be "CLEAR"')
+    tables: Optional[list] = Field(None, examples=[["mileage_log", "rfid_events"]])
+    before: Optional[str] = Field(None, description="only delete rows older than this (ISO date/time)")
+
+
+@app.post("/api/history/clear")
+def post_history_clear(body: ClearIn):
+    """Delete log rows. Backs up the whole database to backups/ first. Never touches devices, tags,
+    trains, wheels, settings or PM records."""
+    return _wrap(service.clear_history, body.confirm, body.tables, body.before)
+
+
+@app.get("/api/history/backup")
+def get_history_backup():
+    """Download a full copy of the database (also kept in backups/)."""
+    path = service.backup_now("download")
+    return FileResponse(path, media_type="application/octet-stream", filename=f"splrt_{_stamp()}.db")
+
+
 @app.get("/api/history/{train_id}")
 def get_history(train_id: str, limit: int = 100):
     return _wrap(service.history, train_id, limit)
@@ -209,7 +276,8 @@ def post_tag(body: TagIn):
 
 @app.post("/api/pm")
 def post_pm(body: PmIn):
-    return _wrap(service.record_pm, body.train_id, body.pm_type, body.technician, body.notes)
+    return _wrap(service.record_pm, body.train_id, body.pm_type, body.technician, body.notes,
+                 body.defects_found, body.component, body.parts_replaced)
 
 
 class LastPmIn(BaseModel):
@@ -342,6 +410,17 @@ def dashboard():
 def simulator():
     """Hardware simulator page: drag a wheel + press station buttons instead of real ESP32s."""
     return FileResponse(config.BASE_DIR / "simulator.html", headers={"Cache-Control": "no-cache"})
+
+
+# Chart library for the dashboard's Analytics view, served locally so it works without internet
+CHARTS_JS = config.BASE_DIR / "static" / "lightweight-charts.standalone.production.js"
+
+
+@app.get("/vendor/lightweight-charts.js", include_in_schema=False)
+def charts_js():
+    if not CHARTS_JS.exists():
+        raise HTTPException(404, "backend/static/lightweight-charts.standalone.production.js is missing")
+    return FileResponse(CHARTS_JS, media_type="text/javascript", headers={"Cache-Control": "max-age=86400"})
 
 
 if __name__ == "__main__":

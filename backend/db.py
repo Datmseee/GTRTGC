@@ -118,7 +118,18 @@ CREATE TABLE IF NOT EXISTS settings (
 CREATE INDEX IF NOT EXISTS idx_mileage_train ON mileage_log(train_id, id);
 CREATE INDEX IF NOT EXISTS idx_rfid_train ON rfid_events(train_id, id);
 CREATE INDEX IF NOT EXISTS idx_pm_train ON pm_history(train_id);
+CREATE INDEX IF NOT EXISTS idx_mileage_time ON mileage_log(recorded_at);
+CREATE INDEX IF NOT EXISTS idx_rfid_time ON rfid_events(recorded_at);
 """
+
+# Columns added after the first release: (table, column, type). Added on start-up if missing,
+# so existing databases keep their data.
+MIGRATIONS = [
+    # PM outcome, recorded at sign-off: the labels a maintenance-prediction model learns from
+    ("pm_history", "defects_found", "INTEGER"),   # 1 = defects found, 0 = none, NULL = not recorded
+    ("pm_history", "component", "TEXT"),
+    ("pm_history", "parts_replaced", "TEXT"),
+]
 
 
 def now_iso():
@@ -142,6 +153,18 @@ def connect():
             conn.close()
 
 
+def backup_to(path):
+    """Consistent copy of the whole database (SQLite online backup), taken under the writer lock."""
+    with _lock:
+        src = sqlite3.connect(config.DB_PATH, timeout=10)
+        dst = sqlite3.connect(str(path))
+        try:
+            src.backup(dst)
+        finally:
+            dst.close()
+            src.close()
+
+
 def get_settings(conn):
     s = dict(config.DEFAULT_SETTINGS)
     for row in conn.execute("SELECT key, value FROM settings WHERE key <> 'demo_track'"):
@@ -152,6 +175,10 @@ def get_settings(conn):
 def init_db(seed=True):
     with connect() as conn:
         conn.executescript(SCHEMA)
+        for table, column, ctype in MIGRATIONS:
+            have_cols = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+            if column not in have_cols:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {ctype}")
         if seed and conn.execute("SELECT COUNT(*) FROM trains").fetchone()[0] == 0:
             _seed(conn)
         # track tags: add any that are missing (also upgrades databases from before these features)
